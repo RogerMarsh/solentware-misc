@@ -2,85 +2,74 @@
 # Copyright 2009 Roger Marsh
 # License: See LICENSE.TXT (BSD license)
 
-"""A font chooser dialogue.
-
-List of classes:
-
-AppSysFontChooser
+"""This module provides the AppSysFontChooser class which displays a
+dialogue for choosing a font in a tkinter.Toplevel widget.
 
 """
 
-import Tkinter
-import tkFont
+import tkinter
+import tkinter.font
 
-import basesup.tools.dialogues
-
-from exceptionhandler import ExceptionHandler
+from ..workarounds import dialogues
+from .exceptionhandler import ExceptionHandler
 
 
 class AppSysFontChooser(ExceptionHandler):
     
-    """Font chooser
+    """Display a dialogue for choosing a font and it's properties.
 
-    Methods added:
-
-    get_chosen_font
-    create_buttons
-    on_cancel
-    on_ok
-    on_show_font
-    __del__
-
-    Methods overridden:
-
-    __init__
-
-    Methods extended:
-
-    None
+    Call the get_chosen_font() method to get the chosen font.
     
     """
 
     def __init__(self, master, title, cnf=dict(), **kargs):
+        """Create the font chooser dialogue.
+
+        master - the parent widget of the dialogue
+        title - the title of the dialogue
+        cnf - not used (intended as cnf argument in tkinter.Toplevel call)
+        kargs - not used (intended as argments in tkinter.Toplevel call)
+        
+        """
 
         self.chosenfont = None
 
-        self.confirm = Tkinter.Toplevel(master)
+        self.confirm = tkinter.Toplevel(master)
         self.confirm.wm_title(title)
-        self.buttons_frame = Tkinter.Frame(master=self.confirm)
-        self.buttons_frame.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
+        self.buttons_frame = tkinter.Frame(master=self.confirm)
+        self.buttons_frame.pack(side=tkinter.BOTTOM, fill=tkinter.X)
         self.create_buttons()
 
-        self.fontpanel = framefonts = Tkinter.Frame(self.confirm)
-        self.families = Tkinter.Listbox(framefonts)
-        scrollfont = Tkinter.Scrollbar(framefonts)
+        self.fontpanel = framefonts = tkinter.Frame(self.confirm)
+        self.families = tkinter.Listbox(framefonts)
+        scrollfont = tkinter.Scrollbar(framefonts)
         scrollfont.configure(
             command=self.try_command(self.families.yview, scrollfont))
         self.families.configure(
             yscrollcommand=self.try_command(scrollfont.set, self.families))
-        for f in sorted(tkFont.families()):
-            self.families.insert(Tkinter.END, f)
+        for f in sorted(tkinter.font.families()):
+            self.families.insert(tkinter.END, f)
         self.families.pack(
-            side = Tkinter.LEFT, expand=Tkinter.TRUE, fill=Tkinter.X)
-        scrollfont.pack(side=Tkinter.LEFT, fill=Tkinter.Y)
-        framefonts.pack(fill=Tkinter.X)
+            side = tkinter.LEFT, expand=tkinter.TRUE, fill=tkinter.X)
+        scrollfont.pack(side=tkinter.LEFT, fill=tkinter.Y)
+        framefonts.pack(fill=tkinter.X)
 
-        wssf = Tkinter.Frame(master=self.confirm)
-        self.weight = Tkinter.IntVar()
-        self.slant = Tkinter.IntVar()
-        self.normal = Tkinter.Radiobutton(
+        wssf = tkinter.Frame(master=self.confirm)
+        self.weight = tkinter.IntVar()
+        self.slant = tkinter.IntVar()
+        self.normal = tkinter.Radiobutton(
             master=wssf, text='Normal', variable=self.weight, value=1,
             command=self.try_command(self.on_show_font, wssf))
-        self.bold = Tkinter.Radiobutton(
+        self.bold = tkinter.Radiobutton(
             master=wssf, text='Bold', variable=self.weight, value=2,
             command=self.try_command(self.on_show_font, wssf))
-        self.roman = Tkinter.Radiobutton(
+        self.roman = tkinter.Radiobutton(
             master=wssf, text='Roman', variable=self.slant, value=1,
             command=self.try_command(self.on_show_font, wssf))
-        self.italic = Tkinter.Radiobutton(
+        self.italic = tkinter.Radiobutton(
             master=wssf, text='Italic', variable=self.slant, value=2,
             command=self.try_command(self.on_show_font, wssf))
-        Tkinter.Label(master=wssf, text='Size').grid_configure(
+        tkinter.Label(master=wssf, text='Size').grid_configure(
             column=1, row=3)
         self.normal.grid_configure(column=0, row=0)
         self.bold.grid_configure(column=0, row=1)
@@ -90,12 +79,12 @@ class AppSysFontChooser(ExceptionHandler):
         wssf.grid_columnconfigure(1, weight=1)
         wssf.grid_columnconfigure(2, weight=1)
         wssf.grid_columnconfigure(3, weight=1)
-        wssf.pack(fill=Tkinter.X)
+        wssf.pack(fill=tkinter.X)
 
-        sf = Tkinter.Frame(master=self.confirm)
-        self.size = Tkinter.IntVar()
+        sf = tkinter.Frame(master=self.confirm)
+        self.size = tkinter.IntVar()
         for i, s in enumerate((7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 20)):
-            sb = Tkinter.Radiobutton(
+            sb = tkinter.Radiobutton(
                 master=sf,
                 text=str(s),
                 variable=self.size,
@@ -104,13 +93,13 @@ class AppSysFontChooser(ExceptionHandler):
                 command=self.try_command(self.on_show_font, sf))
             sb.grid_configure(column=i, row=0, sticky='ew')
             sf.grid_columnconfigure(i, weight=1, uniform='fsb')
-        sf.pack(fill=Tkinter.X)
+        sf.pack(fill=tkinter.X)
 
         self.families.bind(
             '<<ListboxSelect>>', self.try_event(self.on_show_font))
 
-        self.sample = Tkinter.Label(self.confirm)
-        self.sample.pack(fill=Tkinter.BOTH, expand=Tkinter.TRUE)
+        self.sample = tkinter.Label(self.confirm)
+        self.sample.pack(fill=tkinter.BOTH, expand=tkinter.TRUE)
 
         self.restore_focus = self.confirm.focus_get()
         self.confirm.wait_visibility()
@@ -118,9 +107,11 @@ class AppSysFontChooser(ExceptionHandler):
         self.confirm.wait_window()
 
     def get_chosen_font(self):
+        """Return the chosen font."""
         return self.chosenfont
 
     def create_buttons(self):
+        """Create the buttons used to control the dialogue (Ok and Cancel)."""
 
         buttons = (
             ('OK',
@@ -138,7 +129,7 @@ class AppSysFontChooser(ExceptionHandler):
         buttonrow = self.buttons_frame.pack_info()['side'] in ('top', 'bottom')
 
         for i, b in enumerate(buttons):
-            button = Tkinter.Button(
+            button = tkinter.Button(
                 master=self.buttons_frame,
                 text=buttons[i][0],
                 underline=buttons[i][3],
@@ -157,37 +148,39 @@ class AppSysFontChooser(ExceptionHandler):
                 len(buttons*2), weight=1)
 
     def on_cancel(self, event=None):
+        """Close the font chooser dialogue."""
         self.confirm.destroy()
 
     def on_ok(self, event=None):
+        """Close the font chooser dialogue if a font has been chosen."""
         if self.chosenfont:
             self.confirm.destroy()
         else:
-            basesup.tools.dialogues.showerror(
+            dialogues.showerror(
                 title='Font Chooser',
                 message='No font chosen')
 
     def on_show_font(self, event=None):
-
+        """Display the sample text using the selected font and properties."""
         selection = self.families.curselection()
         if not selection:
-            basesup.tools.dialogues.showerror(
+            dialogues.showerror(
                 title='Font Chooser',
                 message='No font chosen')
             return
 
         if self.weight.get() == 2:
-            weight = tkFont.BOLD
+            weight = tkinter.font.BOLD
         else:
-            weight = tkFont.NORMAL
+            weight = tkinter.font.NORMAL
         if self.slant.get() == 2:
-            slant = tkFont.ITALIC
+            slant = tkinter.font.ITALIC
         else:
-            slant = tkFont.ROMAN
+            slant = tkinter.font.ROMAN
         size = self.size.get()
         if not size:
             size = 12
-        self.chosenfont = tkFont.Font(
+        self.chosenfont = tkinter.font.Font(
             family=self.families.get(selection[0]),
             weight=weight,
             slant=slant,
@@ -206,8 +199,8 @@ class AppSysFontChooser(ExceptionHandler):
         try:
             #restore focus on dismissing dialogue
             self.restore_focus.focus_set()
-        except Tkinter._tkinter.TclError, error:
+        except tkinter._tkinter.TclError as error:
             #application destroyed while confirm dialogue exists
-            if str(error) != basesup.tools.dialogues.FOCUS_ERROR:
+            if str(error) != dialogues.FOCUS_ERROR:
                 raise
 

@@ -2,64 +2,72 @@
 # Copyright 2009 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""Subclass of, and maker function for, Text widget with read only bindings.
-
-List of classes:
-
-TextReadonly - Text subclass with edit bindings that can be set and unset.
-
-List of functions:
-
-make_text_readonly - function to make a Text widget initialized read only.
-set_readonly_bindings - function to set read only bindings on (text) widget.
-unset_readonly_bindings - function to unset read only bindings on (text) widget.
+"""This module provides the TextReadonly(tkinter.Text) class, which adds
+methods to suppress and restore the bindings for editing, and functions to
+return a tkinter.Text widget, or a scrollable version, with bindings to edit
+text removed.
 
 """
 
-import Tkinter
+import tkinter
 
 
 # Is ExceptionHandler appropriate to this class - Tkinter.Text not wrapped
-class TextReadonly(Tkinter.Text):
+class TextReadonly(tkinter.Text):
     
-    """Read-only subclass of Text widget with full navigation.
-
-    Methods added:
-
-    set_readonly_bindings
-    unset_readonly_bindings
-
-    Methods overridden:
-
-    None
-
-    Methods extended:
-
-    None
+    """Subclass of tkinter.Text with methods to suppress and restore editing.
     
     """
 
     def set_readonly_bindings(self):
-        """Set bindings to suppress editing actions on this Text widget."""
+        """Set bindings to suppress editing actions."""
         set_readonly_bindings(self)
 
     def unset_readonly_bindings(self):
-        """Unset bindings that suppress editing actions on this Text widget."""
+        """Unset bindings that suppress editing actions."""
         unset_readonly_bindings(self)
 
 
 def make_text_readonly(master=None, cnf={}, **kargs):
-    """Return Text widget with read only bindings"""
-    t = Tkinter.Text(master=master, cnf=cnf, **kargs)
+    """Return Text widget with read only bindings.
+
+    master - passed to tkinter.Text as master argument.
+    cnf - passed to tkinter.Text as cnf argument.
+    **kargs - passed to tkinter.Text as **kw argument.
+    """
+    t = tkinter.Text(master=master, cnf=cnf, **kargs)
     set_readonly_bindings(t)
     return t
 
 
+def make_scrolling_text_readonly(master=None, cnf={}, **kargs):
+    """Return Frame and scrollable Text widget with read only bindings.
+
+    master - passed to tkinter.Frame as master argument.
+    cnf - passed to tkinter.Text as cnf argument.
+    **kargs - passed to tkinter.Text as **kw argument.
+
+    The Frame instance contains a Text instance and a vertical Scrollbar
+    instance.
+    """
+    f = tkinter.Frame(master=master)
+    t = tkinter.Text(master=f, cnf=cnf, **kargs)
+    scrollbar = tkinter.Scrollbar(
+        master=f,
+        orient=tkinter.VERTICAL,
+        command=t.yview)
+    t.configure(yscrollcommand=scrollbar.set)
+    scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+    t.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=tkinter.TRUE)
+    set_readonly_bindings(t)
+    return f, t
+
+
+# Derived by looking at /usr/local/lib/tk8.5/text.tcl.
 def set_readonly_bindings(tw):
-    """Set bindings to suppress editing actions on Text widget.
+    """Set bindings to suppress editing actions on tw.
 
-    Derived by looking at /usr/local/lib/tk8.5/text.tcl.
-
+    tw - a tkinter.Text instance.
     """
     # Never insert character in tw Text widget
     # Suppress editing events
@@ -73,11 +81,11 @@ def set_readonly_bindings(tw):
         tw.bind(sequence=b, func=lambda event=None : 'continue')
 
 
+# Derived by looking at /usr/local/lib/tk8.5/text.tcl.
 def unset_readonly_bindings(tw):
-    """Unset bindings that suppress editing actions on Text widget.
+    """Unset bindings that suppress editing actions on tw.
 
-    Derived by looking at /usr/local/lib/tk8.5/text.tcl.
-
+    tw - a tkinter.Text instance.
     """
     for s in (_suppress_bindings, _use_class_bindings):
         for b in s:

@@ -2,34 +2,13 @@
 # Copyright 2010 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""Null classes.
-
-List of classes
-
-Null - placeholder object from Python Cookbook 2nd edition 6.17
+"""This module is the placeholder object copied from Python Cookbook 2nd
+edition 6.17.
 
 """
 
 class Null(object):
-    """Null objects always and reliably 'do nothing'
-
-    Methods added:
-
-    __call__
-    __nonzero__
-
-    Methods overridden:
-
-    __delattr__
-    __getattr__
-    __init__
-    __new__
-    __repr__
-    __setattr__
-
-    Methods extended:
-
-    None
+    """Null objects always and reliably 'do nothing'.
 
     """
     
@@ -48,7 +27,7 @@ class Null(object):
     def __repr__(self):
         return 'Null()'
     
-    def __nonzero__(self):
+    def __bool__(self):
         return False
     
     def __getattr__(self, name):

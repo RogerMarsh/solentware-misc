@@ -2,22 +2,18 @@
 # Copyright 2012 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""Functions to support creation of Help widgets.
-
-List of functions:
-
-help_widget (was _help in chesspad/gui/help.py)
-help_text   (was _help_text in chesspad/gui/help.py)
+"""This module provides functions to create widgets which display help
+text files.
 
 """
 
-import Tkinter
+import tkinter
 from os.path import isfile, basename, splitext
 
-import rmappsup.gui.textreadonly
+from . import textreadonly
 
 
-def help_text(title, help_text_module, name):
+def help_text(title, help_text_module, name, encoding='utf-8'):
     """Return text from the help text file for title."""
 
     for htf in help_text_module._textfile[title]:
@@ -26,7 +22,7 @@ def help_text(title, help_text_module, name):
                 continue
         if isfile(htf):
             try:
-                f = open(htf)
+                f = open(htf, encoding=encoding)
                 try:
                     t = f.read()
                 except:
@@ -41,16 +37,16 @@ def help_text(title, help_text_module, name):
 def help_widget(master, title, help_text_module, hfname=None):
     """Build a Toplevel widget to display a help text document."""
 
-    toplevel = Tkinter.Toplevel(master)
+    toplevel = tkinter.Toplevel(master)
     toplevel.wm_title(title)
-    help_ = rmappsup.gui.textreadonly.TextReadonly(
+    help_ = textreadonly.TextReadonly(
         toplevel, wrap='word', tabstyle='tabular')
-    scrollbar = Tkinter.Scrollbar(
-        toplevel, orient=Tkinter.VERTICAL, command=help_.yview)
+    scrollbar = tkinter.Scrollbar(
+        toplevel, orient=tkinter.VERTICAL, command=help_.yview)
     help_.configure(yscrollcommand=scrollbar.set)
-    scrollbar.pack(side=Tkinter.RIGHT, fill=Tkinter.Y)
+    scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
     help_.pack(
-        side=Tkinter.LEFT, fill=Tkinter.BOTH, expand=Tkinter.TRUE)
+        side=tkinter.LEFT, fill=tkinter.BOTH, expand=tkinter.TRUE)
     help_.set_readonly_bindings()
-    help_.insert(Tkinter.END, help_text(title, help_text_module, hfname))
+    help_.insert(tkinter.END, help_text(title, help_text_module, hfname))
     help_.focus_set()

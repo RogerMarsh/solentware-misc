@@ -2,20 +2,20 @@
 # Copyright 2009 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""An inverted list bitmap manager in DPT style.
+"""This module is obsolete given existence of api.recordset module in
+solentware_base package, a sibling of solentware_misc.
 
-List of classes:
-
-Segment
+It is an inverted list bitmap manager in DPT style.  The database interface
+for DPT is available at www.solentware.co.uk.
 
 """
 
-import cPickle
+import pickle
 
 MAPSIZE = 2040 # integers to represent DPT page size minus reserved bytes
 INTEGERSIZE = 32 # 32 bit integers
 SEGMENTSIZE = MAPSIZE * INTEGERSIZE # DPT record numbers per segment
-SEGMENTRANGE = range(SEGMENTSIZE)
+SEGMENTRANGE = list(range(SEGMENTSIZE))
 BITMASK = [1 << x for x in range(INTEGERSIZE - 1)]
 BITMASK.append(~sum(BITMASK)) # 1 << INTEGERSIZE gives +ve Long Integer
 SEGMENTDELIMITER = chr(0) # delimiter in <index><delimiter><segment>
@@ -27,24 +27,6 @@ class Segment(object):
     style persistent dictionary when applying deferred updates.
     
     Subclasses may be added to make suitable for other tasks.
-
-    Methods added:
-
-    add_record_number
-    convert_to_bitmap
-    convert_to_set
-    get_record_numbers
-    pickle_map
-    remove_record_number
-    encode_segment_number
-
-    Methods overridden:
-
-    __init__
-    
-    Methods extended:
-
-    None
     
     """
 
@@ -60,7 +42,7 @@ class Segment(object):
         """
         self.segment = segment
         if pickled is not None:
-            self.values = cPickle.loads(pickled)
+            self.values = pickle.loads(pickled)
         elif bitmap:
             if values is None:
                 self.values = [0] * MAPSIZE
@@ -75,7 +57,7 @@ class Segment(object):
                     self.convert_to_bitmap()
 
     def add_record_number(self, number):
-        """Add record number"""
+        """Add record number."""
         segment, number = divmod(number, SEGMENTSIZE)
         if segment != self.segment:
             return
@@ -88,7 +70,7 @@ class Segment(object):
             self.values[element] |= BITMASK[bit]
 
     def convert_to_bitmap(self):
-        """Convert segment to bitmap representation"""
+        """Convert segment to bitmap representation."""
         if isinstance(self.values, set):
             v = self.values
             self.values = [0] * MAPSIZE
@@ -97,7 +79,7 @@ class Segment(object):
                 self.values[element] |= BITMASK[bit]
 
     def convert_to_set(self):
-        """Convert segment to set representation"""
+        """Convert segment to set representation."""
         if not isinstance(self.values, set):
             v = self.values
             self.values = set()
@@ -107,12 +89,11 @@ class Segment(object):
                     self.values.add(b)
 
     def get_record_numbers(self):
-        """Return sorted record number list for deferred update"""
+        """Return sorted record number list for deferred update."""
         v = self.values
         s = self.segment
         if isinstance(v, set):
-            r = [s + e for e in v]
-            r.sort()
+            r = sorted([s + e for e in v])
         else:
             r = []
             for b in SEGMENTRANGE:
@@ -122,11 +103,11 @@ class Segment(object):
         return r
 
     def pickle_map(self):
-        """Return record number set for use in dbm style value"""
-        return cPickle.dumps(self.values, cPickle.HIGHEST_PROTOCOL)
+        """Return record number set for use in dbm style value."""
+        return pickle.dumps(self.values, pickle.HIGHEST_PROTOCOL)
 
     def remove_record_number(self, number, convert=False):
-        """Remove record number"""
+        """Remove record number."""
         segment, number = divmod(number, SEGMENTSIZE)
         if segment != self.segment:
             return
@@ -146,6 +127,6 @@ class Segment(object):
                     self.convert_to_set()
 
     def encode_segment_number(self):
-        """Return segment number for use in dbm style key"""
+        """Return segment number for use in dbm style key."""
         return ''.join(SEGMENTDELIMITER, str(self.segment))
 

@@ -2,93 +2,57 @@
 # Copyright 2007 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""Base classes for application dialogues and reports.
+# This has become a hack.
+# There are three cases:
+# 1. Running in main thread - do not use queue
+# 2. Running in other thread - use queue
+#
+# Split module into two with identical interface:
 
-These classes allow application defined widgets to be used in dialogues and
-reports as an alternative to the Label widget used in Tkinter equivalents.
-
-List of classes:
-
-AppSysReportBase
-AppSysDialogueBase
-AppSysReport
-AppSysConfirm
-AppSysInformation
-
-List of functions:
-
-show_report
-show_confirm
-show_information
+"""The classes in this module allow application defined widgets to be used in
+dialogues and reports as an alternative to the Label widget used in tkinter's
+equivalents.
 
 """
 
-import Tkinter
+import tkinter
+import queue
 
-import basesup.tools.dialogues
-
-from exceptionhandler import ExceptionHandler
-import textreadonly
+from ..workarounds import dialogues
+from .exceptionhandler import ExceptionHandler
+from . import textreadonly
 
 
 class AppSysReportBase(ExceptionHandler):
-
     """Base class for reports and dialogues.
-    
-    Methods added:
-
-    get_button_definitions
-    create_buttons
-    
-    Methods overridden:
-
-    __init__
-
-    Methods extended:
-
-    None
     
     """
 
     def __init__(
-        self, parent, title, caption, header, report, cnf=dict(), **kargs):
-        """Define framework for application reports and dialogues.
+        self,
+        parent,
+        title,
+        save=None,
+        ok=None,
+        close=None,
+        cnf=dict(),
+        **kargs):
+        """Create the report or dialogue widget.
 
-        Subclasses provide header and report widgets which are placed in
-        PanedWindow widgets.
-
-        The cnf and **kargs arguments are ignored at present.
+        parent - reoprt's parent widget.
+        title - report title text.
+        save - command for Save button, default None.
+        ok - command for Ok button, default None.
+        close - cammand for Close button, default None.
+        cnf - passed to report tkinter.Text widget as cnf argument.
+        **kargs - passed to report tkinter.Text widget as **kargs argument.
 
         """
-        self.confirm = Tkinter.Toplevel()
-        self.confirm.wm_title(title)
-        self.caption = textreadonly.make_text_readonly(
-            master=self.confirm, height=3) #temp height
-        self.caption.insert(Tkinter.END, caption)
-        self.buttons_frame = Tkinter.Frame(master=self.confirm)
-        self.buttons_frame.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
-        self.create_buttons(self.get_button_definitions())
-        self.caption.pack(side=Tkinter.BOTTOM)
-        self.reports = Tkinter.PanedWindow(
-            master=self.confirm,
-            opaqueresize=Tkinter.FALSE,
-            orient=Tkinter.HORIZONTAL)
-        for h, r in zip(header, report):
-            p = Tkinter.PanedWindow(
-                master=self.reports,
-                opaqueresize=Tkinter.FALSE,
-                orient=Tkinter.VERTICAL)
-            th = textreadonly.make_text_readonly(
-                master=p, height=6) #temp height
-            th.insert(Tkinter.END, h)
-            p.add(th)
-            tr = textreadonly.make_text_readonly(master=p)
-            tr.insert(Tkinter.END, r)
-            p.add(tr)
-            self.reports.add(p)
-        self.reports.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
+        super(AppSysReportBase, self).__init__()
+        self.parent = parent
+        self._create_widget(parent, title, save, ok, close, cnf, kargs)
 
-    def get_button_definitions(self):
+    def get_button_definitions(self, **k):
         """Return an empty set of button definitions.
 
         Subclasses should override this method.
@@ -96,181 +60,257 @@ class AppSysReportBase(ExceptionHandler):
         """
         return ()
 
-    def create_buttons(self, buttons):
-        """Create the buttons in the button definition."""
-        buttonrow = self.buttons_frame.pack_info()['side'] in ('top', 'bottom')
+    def create_buttons(self, buttons, buttons_frame):
+        """Create the report buttons.
+
+        buttons - a list or tuple of button definitions.
+        buttons_frame - the parent widget of the buttons.
+        """
+        buttonrow = buttons_frame.pack_info()['side'] in ('top', 'bottom')
         for i, b in enumerate(buttons):
-            button = Tkinter.Button(
-                master=self.buttons_frame,
-                text=buttons[i][0],
-                underline=buttons[i][3],
-                command=self.try_command(buttons[i][4], self.buttons_frame))
+            button = tkinter.Button(
+                master=buttons_frame,
+                text=b[0],
+                underline=b[3],
+                command=self.try_command(b[4], buttons_frame))
             if buttonrow:
-                self.buttons_frame.grid_columnconfigure(i*2, weight=1)
+                buttons_frame.grid_columnconfigure(i*2, weight=1)
                 button.grid_configure(column=i*2 + 1, row=0)
             else:
-                self.buttons_frame.grid_rowconfigure(i*2, weight=1)
+                buttons_frame.grid_rowconfigure(i*2, weight=1)
                 button.grid_configure(row=i*2 + 1, column=0)
         if buttonrow:
-            self.buttons_frame.grid_columnconfigure(
+            buttons_frame.grid_columnconfigure(
                 len(buttons*2), weight=1)
         else:
-            self.buttons_frame.grid_rowconfigure(
+            buttons_frame.grid_rowconfigure(
                 len(buttons*2), weight=1)
+            
+    def append(self, text):
+        """Append text to report widget."""
+        self.textreport.insert(tkinter.END, text)
+
+    def _create_widget(self, parent, title, save, ok, close, cnf, kargs):
+        """Create the report widget"""
+        self._toplevel = tkinter.Toplevel()
+        self._toplevel.wm_title(title)
+        buttons_frame = tkinter.Frame(master=self._toplevel)
+        buttons_frame.pack(side=tkinter.BOTTOM, fill=tkinter.X)
+        butdefs = self.get_button_definitions(save=save, ok=ok, close=close)
+        self.create_buttons(butdefs, buttons_frame)
+        ef = tkinter.Frame(master=self._toplevel)
+        self.textreport = textreadonly.make_text_readonly(
+            master=ef, cnf=cnf, **kargs)
+        self.textreport.focus_set()
+        for b in butdefs:
+            if b[3] >= 0:
+                self.textreport.bind(
+                    ''.join(('<Alt-KeyPress-', b[0][b[3]].lower(), '>')),
+                    self.try_event(b[4]))
+        scrollbar = tkinter.Scrollbar(
+            master=ef,
+            orient=tkinter.VERTICAL,
+            command=self.textreport.yview)
+        self.textreport.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+        self.textreport.pack(
+            side=tkinter.LEFT, fill=tkinter.BOTH, expand=tkinter.TRUE)
+        ef.pack(side=tkinter.BOTTOM, fill=tkinter.BOTH, expand=tkinter.TRUE)
 
 
 class AppSysDialogueBase(AppSysReportBase):
-
-    """Base class for modal reports and dialogues.
-    
-    Methods added:
-
-    __del__
-    
-    Methods overridden:
-
-    None
-
-    Methods extended:
-
-    __init__
+    """Base class for dialogues.
     
     """
 
-    def __init__(
-        self, parent, title, caption, header, report, cnf=dict(), **kargs):
-        """Extend superclass to be modal report or dialogue."""
-        super(AppSysDialogueBase, self).__init__(
-            parent=parent,
-            title=title,
-            caption=caption,
-            header=header,
-            report=report,
-            cnf=cnf,
-            **kargs)
-        self.restore_focus = self.confirm.focus_get()
-        self.confirm.wait_visibility()
-        self.confirm.grab_set()
-        self.confirm.wait_window()
+    def __init__(self, parent, title, report, *args, **kargs):
+        """Extend superclass and append report to widget.
+
+        parent - passed to superclass as parent argument.
+        title - passed to superclass as title argument.
+        report - text to be displayed by widget.
+        *args - passed to superclass as *args argument.
+        **kargs - passed to superclass as **kargs argument.
+        """
+        super(AppSysDialogueBase, self).__init__(parent, title, *args, **kargs)
+        self.append(report)
+        self.restore_focus = self._toplevel.focus_get()
+        self._toplevel.wait_visibility()
+        self._toplevel.grab_set()
+        self._toplevel.wait_window()
 
     def __del__(self):
-        """Restore focus to widget with focus before modal interaction."""
+        """Restore focus to widget with focus before dialogue started."""
         try:
             #restore focus on dismissing dialogue
             self.restore_focus.focus_set()
-        except Tkinter._tkinter.TclError, error:
+        except tkinter._tkinter.TclError as error:
             #application destroyed while confirm dialogue exists
             if str(error) != dialogues.FOCUS_ERROR:
                 raise
 
 
 class AppSysReport(AppSysReportBase):
-
-    """Base class for non-modal reports.
+    """Base class for reports.
     
-    Methods added:
-
-    on_ok
-    
-    Methods overridden:
-
-    get_button_definitions
-
-    Methods extended:
-
-    None
+    On FreeBSD any thread can just call the tkinter.Text insert method, but
+    this can be done only in the main thread on Microsoft Windows.  Passing
+    the text to the main thread via a queue and getting the main thread to
+    do the insert call is fine on both platforms so do it that way.
     
     """
 
-    def get_button_definitions(self):
-        """Return non-modal report button definitions"""
-        return (
-            ('OK',
-             'OK button Tooltip.',
-             True,
-             -1,
-             self.on_ok),
-            )
+    def __init__(self, parent, title, interval=5000, *args, **kargs):
+        """Extend superclass to ignore redundant argument.
 
-    def on_ok(self, event=None):
-        """Destroy report widget"""
-        self.confirm.destroy()
+        parent - passed to superclass as parent argument.
+        title - passed to superclass as title argument.
+        interval - ignored.
+        *args - passed to superclass as *args argument.
+        **kargs - passed to superclass as **kargs argument.
+
+        """
+        super(AppSysReport, self).__init__(parent, title, *args, **kargs)
+
+    def append(self, text):
+        """Override to append task to queue of tasks to be done in main thread.
+
+        See superclass definition for argument descriptions.
+        """
+        self.parent.get_appsys().do_ui_task(
+            super(AppSysReport, self).append, args=(text,))
+
+    def _create_widget(self, parent, title, save, ok, close, cnf, kargs):
+        """Override to append task to queue of tasks to be done in main thread.
+
+        See superclass definition for argument descriptions.
+        """
+        parent.get_appsys().do_ui_task(
+            super(AppSysReport, self)._create_widget,
+            args=(parent, title, save, ok, close, cnf, kargs))
+
+    def get_button_definitions(self, save=None, close=None, **k):
+        """Return report button definitions.
+
+        save - description of Save button.
+        close - description of Close button.
+        **k - sink for other arguments (Ok button command for example).
+        """
+        buttons = []
+        if save is not None:
+            buttons.append(
+                (save[0],
+                 save[2],
+                 True,
+                 0,
+                 self.on_save,
+                 ))
+            self._save_title = save[1]
+        '''if ok is not None:
+            buttons.append(
+                (ok[0],
+                 ok[2],
+                 True,
+                 0,
+                 self._ok_display,
+                 ))
+            self._ok_callback = ok[3]'''
+        if close is not None:
+            buttons.append(
+                (close[0],
+                 close[2],
+                 True,
+                 0,
+                 self.on_close,
+                 ))
+            self._close_title = close[1]
+        return buttons
+
+    def on_close(self, event=None):
+        """Destroy report widget."""
+        self._toplevel.destroy()
+    
+    def on_save(self, event=None):
+        """Present dialogue to save report in selected file."""
+        dlg = dialogues.asksaveasfilename(
+            parent=self._toplevel,
+            title=self._save_title,
+            #initialdir=os.path.dirname(self.filename),
+            defaultextension='.txt')
+        if not dlg:
+            return
+        outfile = open(dlg, mode='wb')
+        try:
+            outfile.write(
+                self.textreport.get('1.0', tkinter.END).encode('utf8'))
+        finally:
+            outfile.close()
 
 
-def show_report(parent, title, caption, header, report, cnf=dict(), **kargs):
-    """Return AppSysReport instance."""
-    return AppSysReport(
-        parent=parent,
-        title=title,
-        caption=caption,
-        header=header,
-        report=report,
-        cnf=cnf,
-        **kargs)
+def show_report(parent, title, **kargs):
+    """Create and return an AppSysReport instance.
+
+    parent - passed to AppSysReport as parent argument.
+    title - passed to AppSysReport as title argument.
+    **kargs - passed to AppSysReport as **kargs argument.
+    """
+    return AppSysReport(parent, title, **kargs)
 
 
 class AppSysConfirm(AppSysDialogueBase):
-
-    """A modal confirmation dialogue with Text widgets for action details.
-    
-    Methods added:
-
-    is_ok
-    on_cancel
-    on_ok
-    
-    Methods overridden:
-
-    get_button_definitions
-
-    Methods extended:
-
-    __init__
-    __del__
+    """A confirmation dialogue with Text widgets for action details.
     
     """
 
-    def __init__(
-        self, parent, title, caption, header, report, cnf=dict(), **kargs):
-        """Extend superclass to be modal confirmation dialogue."""
+    def __init__(self, *args, **kargs):
+        """Extend superclass to remember dialogue response.
+
+        *args - passed to superclass as *args argument.
+        **kargs - passed to superclass as **kargs argument.
+        """
         self.ok = False
-        super(AppSysConfirm, self).__init__(
-            parent=parent,
-            title=title,
-            caption=caption,
-            header=header,
-            report=report,
-            cnf=cnf,
-            **kargs)
-        
-    def get_button_definitions(self):
-        """Return modal confirmation dialogue button definitions"""
-        return (
-            ('OK',
-             'OK button Tooltip.',
-             True,
-             -1,
-             self.on_ok),
-            ('Cancel',
-             'Cancel button Tooltip.',
-             True,
-             2,
-             self.on_cancel),
-            )
+        super(AppSysConfirm, self).__init__(*args, **kargs)
+
+    def get_button_definitions(self, ok=None, close=None, **k):
+        """Return confirmation dialogue button definitions.
+
+        save - description of Save button.
+        close - description of Close button.
+        **k - sink for other arguments (Ok button command for example).
+        """
+        buttons = []
+        if ok is not None:
+            buttons.append(
+                (ok[0],
+                 ok[2],
+                 True,
+                 0,
+                 self.on_ok,
+                 ))
+        if close is not None:
+            buttons.append(
+                (close[0],
+                 close[2],
+                 True,
+                 0,
+                 self.on_cancel,
+                 ))
+            self._close_title = close[1]
+        return buttons
 
     def is_ok(self):
-        """Return True if dialogue dismissed with OK button"""
+        """Return True if dialogue dismissed with OK button."""
         return self.ok
 
     def on_cancel(self, event=None):
         """Dismiss dialogue and indicate OK button not used."""
         self.ok = False
-        self.confirm.destroy()
+        self._toplevel.destroy()
 
     def on_ok(self, event=None):
         """Dismiss dialogue and indicate OK button used."""
         self.ok = True
-        self.confirm.destroy()
+        self._toplevel.destroy()
 
     def __del__(self):
         """Extend to indicate dialogue not dismissed with OK button."""
@@ -278,60 +318,55 @@ class AppSysConfirm(AppSysDialogueBase):
         super(AppSysConfirm, self).__del__()
 
 
-def show_confirm(parent, title, caption, header, report, cnf=dict(), **kargs):
-    """Return AppSysConfirm instance."""
-    return AppSysConfirm(
-        parent=parent,
-        title=title,
-        caption=caption,
-        header=header,
-        report=report,
-        cnf=cnf,
-        **kargs)
+def show_confirm(parent, title, report, **kargs):
+    """Create and return an AppSysConfirm instance.
+
+    parent - passed to AppSysConfirm as parent argument.
+    title - passed to AppSysConfirm as title argument.
+    report - passed to AppSysConfirm as report argument.
+    **kargs - passed to AppSysConfirm as **kargs argument.
+    """
+    return AppSysConfirm(parent, title, report, **kargs)
 
 
 class AppSysInformation(AppSysDialogueBase):
-
-    """A modal information dialogue with Text widgets for action details.
-    
-    Methods added:
-
-    on_ok
-    
-    Methods overridden:
-
-    get_button_definitions
-
-    Methods extended:
-
-    None
+    """An information dialogue with Text widgets for action details.
     
     """
-
-    def get_button_definitions(self):
-        """Return modal information dialogue button definitions"""
-        return (
-            ('OK',
-             'OK button Tooltip.',
-             True,
-             -1,
-             self.on_ok),
-            )
 
     def on_ok(self, event=None):
         """Dismiss dialogue and restore focus to widget that lost focus."""
         self.confirm.destroy()
 
+    def get_button_definitions(self, close=None, **k):
+        """Return confirmation dialogue button definitions.
 
-def show_information(
-    parent, title, caption, header, report, cnf=dict(), **kargs):
-    """Return AppSysInformation instance."""
-    return AppSysInformation(
-        parent=parent,
-        title=title,
-        caption=caption,
-        header=header,
-        report=report,
-        cnf=cnf,
-        **kargs)
+        close - description of Close button.
+        **k - sink for other arguments (Ok button command for example).
+        """
+        buttons = []
+        if close is not None:
+            buttons.append(
+                (close[0],
+                 close[2],
+                 True,
+                 0,
+                 self.on_close,
+                 ))
+            self._close_title = close[1]
+        return buttons
 
+    def on_close(self, event=None):
+        """Dismiss dialogue and restore focus to widget that lost focus."""
+        self._toplevel.destroy()
+
+
+def show_information(parent, title, report, **kargs):
+    """Create and return an AppSysConfirm instance.
+
+    parent - passed to AppSysInformation as parent argument.
+    title - passed to AppSysInformation as title argument.
+    report - passed to AppSysInformation as report argument.
+    **kargs - passed to AppSysInformation as **kargs argument.
+    """
+    return AppSysInformation(parent, title, report, **kargs)

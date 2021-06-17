@@ -2,41 +2,20 @@
 # Copyright 2009 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""A collection of scale-like widgets for displaying colour choices.
-
-List of classes:
-
-_Slider
-RedSlider
-GreenSlider
-BlueSlider
-ColourSlider
+"""This module provides scale-like widgets for selecting red, green, and
+blue, components when choosing a colour.
 
 """
 
-import Tkinter
+import tkinter
 import base64
 
-from exceptionhandler import ExceptionHandler
+from .exceptionhandler import ExceptionHandler
 
 
 class _Slider(ExceptionHandler):
 
     """A colour scale widget with a pointer and colour demonstration bar.
-
-    Methods added:
-
-    on_enter
-    on_leave
-    move_slider
-
-    Methods overridden:
-
-    __init__
-
-    Methods extended:
-
-    None
     
     """
 
@@ -45,211 +24,187 @@ class _Slider(ExceptionHandler):
         master=None,
         column=None,
         row=None,
-        resolution=2,
-        colourslider=None):
+        resolution=2):
+        """Create the slider widget.
 
-        self.canvas = Tkinter.Canvas(master=master)
+        master - the parent widget for the colour slider component widgets
+        column - the column in the parent widget for this slider
+        row - the row in the parent widget for this slider
+        label - description of this slider
+        resolution - the number of colour values at each pixel in slider
+
+        The default resolution, 2, gives 128 distinct positions on each
+        slider because the colour values are 0 to 255.
+        """
+
+        self.canvas = tkinter.Canvas(master=master)
         self.canvas.grid_configure(column=column, row=row, sticky='nsew')
 
         self.lines = l = []
         self.slider = self.canvas.create_polygon(
             50, 22, 55, 32, 45, 32, fill='black')
         create_line = self.canvas.create_line
-        for e, x in enumerate(range(0, 256, resolution)):
+        for e, x in enumerate(list(range(0, 256, resolution))):
             l.append(create_line(e + 10, 0, e + 10, 20))
         left, top, right, bottom=self.canvas.bbox('all')
         self.canvas.configure(height=bottom, width=right + 10)
-
-        self.fill_scale(colourslider=colourslider)
 
         self.canvas.bind('<Enter>', self.try_event(self.on_enter))
         self.canvas.bind('<Leave>', self.try_event(self.on_leave))
 
     def on_enter(self, event=None):
+        """Change the colour of this scale's slider to cyan."""
         self.canvas.itemconfigure(self.slider, fill='cyan')
 
     def on_leave(self, event=None):
+        """Change the colour of this scale's slider to black."""
         self.canvas.itemconfigure(self.slider, fill='black')
 
-    def move_slider(self, slider, scalebase, colour):
-        resolution = 256/len(self.lines)
-        left, top, right, bottom = self.canvas.bbox(slider)
-        position = (left + right)/2
-        newposition = colour/resolution
-        delta = scalebase + newposition - position
-        self.canvas.move(slider, delta, 0)
+    def move_slider(self, colour):
+        """Move this slider to it's new position on the scale.
+
+        colour - decimal colour component value used to position slider.
+        """
+        resolution = 256//len(self.lines)
+        left, top, right, bottom = self.canvas.bbox(self.slider)
+        position = (left + right)//2
+        newposition = colour//resolution
+
+        # The constant 10 should be same as used in width argument in the
+        # self.canvas.configure() call in __init__().
+        delta = 10 + newposition - position
+
+        self.canvas.move(self.slider, delta, 0)
+
+    def fill_scale(self, newcolour, redhex, greenhex, bluehex):
+        """Redraw lines demonstrating colour scales using the new red value.
+
+        rewcolour - new decimal value for colour if *hex argument is None.
+                    Assumed that only one *hex is None.
+        redhex - red component for other colour's scales.
+        greenhex - green component for other colour's scales.
+        bluehex - blue component for other colour's scales.
+        """
+        encode = base64.b16encode
+        itemconfigure = self.canvas.itemconfigure
+        resolution = 256//len(self.lines)
+        if redhex is None:
+            for e, line in enumerate(self.lines):
+                itemconfigure(line, fill=b''.join((
+                    b'#', encode(bytes((e * resolution,))), greenhex, bluehex)))
+        if greenhex is None:
+            for e, line in enumerate(self.lines):
+                itemconfigure(line, fill=b''.join((
+                    b'#', redhex, encode(bytes((e * resolution,))), bluehex)))
+        if bluehex is None:
+            for e, line in enumerate(self.lines):
+                itemconfigure(line, fill=b''.join((
+                    b'#', redhex, greenhex, encode(bytes((e * resolution,))))))
+        self.move_slider(newcolour)
 
 
 class RedSlider(_Slider):
 
-    """A red colour scale widget.
-
-    Methods added:
-
-    fill_scale
-
-    Methods overridden:
-
-    None
-
-    Methods extended:
-
-    __init__
+    """A red colour slider widget for selecting the value of the red
+    component of a colour.
     
     """
 
-    def __init__(self, master=None, row=None, resolution=2, colourslider=None):
-        super(RedSlider, self).__init__(
-            master=master,
-            column=1,
-            row=row,
-            resolution=resolution,
-            colourslider=colourslider)
+    def __init__(self, colourslider, **kw):
+        """Delegate to superclass setting column argument to 1.
 
-    def fill_scale(self, colourslider):
-        encode = base64.b16encode
-        redhex = colourslider.redhex
-        greenhex = colourslider.greenhex
-        bluehex = colourslider.bluehex
-        itemconfigure = self.canvas.itemconfigure
-        resolution = 256/len(self.lines)
-        for e, line in enumerate(self.lines):
-            itemconfigure(line, fill=''.join((
-                '#', encode(chr(e * resolution)), greenhex, bluehex)))
-        self.move_slider(self.slider, 10, colourslider.red)
+        colourslider - a ColourSlider instance.
+        **kw - passed to superclass as **kw argument.
+        """
+        super(RedSlider, self).__init__(column=1, **kw)
+        self.fill_scale(colourslider.red,
+                        None,
+                        colourslider.greenhex,
+                        colourslider.bluehex)
 
 
 class GreenSlider(_Slider):
 
-    """A green colour scale widget.
-
-    Methods added:
-
-    fill_scale
-
-    Methods overridden:
-
-    None
-
-    Methods extended:
-
-    __init__
+    """A green colour slider widget for selecting the value of the green
+    component of a colour.
     
     """
 
-    def __init__(self, master=None, row=None, resolution=2, colourslider=None):
-        super(GreenSlider, self).__init__(
-            master=master,
-            column=2,
-            row=row,
-            resolution=resolution,
-            colourslider=colourslider)
+    def __init__(self, colourslider, **kw):
+        """Delegate to superclass setting column argument to 2.
 
-    def fill_scale(self, colourslider):
-        encode = base64.b16encode
-        redhex = colourslider.redhex
-        greenhex = colourslider.greenhex
-        bluehex = colourslider.bluehex
-        itemconfigure = self.canvas.itemconfigure
-        resolution = 256/len(self.lines)
-        for e, line in enumerate(self.lines):
-            itemconfigure(line, fill=''.join((
-                '#', redhex, encode(chr(e * resolution)), bluehex)))
-        self.move_slider(self.slider, 10, colourslider.green)
+        colourslider - a ColourSlider instance.
+        **kw - passed to superclass as **kw argument.
+        """
+        super(GreenSlider, self).__init__(column=2, **kw)
+        self.fill_scale(colourslider.green,
+                        colourslider.redhex,
+                        None,
+                        colourslider.bluehex)
 
 
 class BlueSlider(_Slider):
 
-    """A blue colour scale widget.
-
-    Methods added:
-
-    fill_scale
-
-    Methods overridden:
-
-    None
-
-    Methods extended:
-
-    __init__
+    """A blue colour slider widget for selecting the value of the blue
+    component of a colour.
     
     """
 
-    def __init__(self, master=None, row=None, resolution=2, colourslider=None):
-        super(BlueSlider, self).__init__(
-            master=master,
-            column=3,
-            row=row,
-            resolution=resolution,
-            colourslider=colourslider)
+    def __init__(self, colourslider, **kw):
+        """Delegate to superclass setting column argument to 3.
 
-    def fill_scale(self, colourslider):
-        encode = base64.b16encode
-        redhex = colourslider.redhex
-        greenhex = colourslider.greenhex
-        bluehex = colourslider.bluehex
-        itemconfigure = self.canvas.itemconfigure
-        resolution = 256/len(self.lines)
-        for e, line in enumerate(self.lines):
-            itemconfigure(line, fill=''.join((
-                '#', redhex, greenhex, encode(chr(e * resolution)))))
-        self.move_slider(self.slider, 10, colourslider.blue)
+        colourslider - a ColourSlider instance.
+        **kw - passed to superclass as **kw argument.
+        """
+        super(BlueSlider, self).__init__(column=3, **kw)
+        self.fill_scale(colourslider.blue,
+                        colourslider.redhex,
+                        colourslider.greenhex,
+                        None)
 
 
 class ColourSlider(ExceptionHandler):
 
-    """A colour chooser widget consisting of a red green and blue colour scale
-
-    Methods added:
-
-    get_colour
-    get_RGB
-    delta_red_colour
-    set_red_colour
-    delta_green_colour
-    set_green_colour
-    delta_blue_colour
-    set_blue_colour
-    _encode
-    _fill_scales
-    _increment
-    _set
-
-    Methods overridden:
-
-    __init__
-
-    Methods extended:
-
-    None
+    """A colour chooser widget consisting of sliders for red, green, and
+    blue, colour proportion selection arranged in a row in that order.
     
     """
 
     def __init__(
         self, master=None, row=None, label='', resolution=2, colour='grey'):
+        """Create the colour chooser widget.
+
+        master - the parent widget for the colour slider component widgets
+        row - the row in the parent widget for this slider
+        label - description of this slider
+        resolution - the number of colour values at each pixel in slider
+        colour - the colour used to set the initial slider positions
+
+        The default resolution, 2, gives 128 distinct positions on each
+        slider because the colour values are 0 to 255.
+        """
 
         self.resolution = resolution
-        self.get_RGB(master.winfo_rgb(colour))
+        self.convert_RGB_colour_to_hex(master.winfo_rgb(colour))
 
-        canvas = Tkinter.Canvas(master=master, width=100, height=32)
+        canvas = tkinter.Canvas(master=master, width=100, height=32)
         label = canvas.create_text(50, 16, text=label)
         canvas.grid_configure(column=0, row=row, sticky='nsew')
         self.redslider = RedSlider(
+            colourslider=self,
             master=master,
             row=row,
-            resolution=resolution,
-            colourslider=self)
+            resolution=resolution)
         self.greenslider = GreenSlider(
+            colourslider=self,
             master=master,
             row=row,
-            resolution=resolution,
-            colourslider=self)
+            resolution=resolution)
         self.blueslider = BlueSlider(
+            colourslider=self,
             master=master,
             row=row,
-            resolution=resolution,
-            colourslider=self)
+            resolution=resolution)
         for widget, sequence, function in (
             (self.redslider, '<ButtonPress-1>', self.delta_red_colour),
             (self.redslider, '<ButtonPress-3>', self.set_red_colour),
@@ -261,52 +216,60 @@ class ColourSlider(ExceptionHandler):
             widget.canvas.bind(sequence, self.try_event(function))
 
     def get_colour(self):
-        return ''.join(('#', self.redhex, self.greenhex, self.bluehex))
+        """Return the #RGB value of the selected colour (like #a0b0c6)."""
+        return b''.join((b'#', self.redhex, self.greenhex, self.bluehex))
 
-    def get_RGB(self, colour):
+    def convert_RGB_colour_to_hex(self, colour):
+        """Convert the red, green, blue values in colour to hex (for #RGB)."""
         r, g, b = colour
-        self.red, self.green, self.blue = r/256, g/256, b/256
+        self.red, self.green, self.blue = r//256, g//256, b//256
         self.redhex = self._encode(self.red)
         self.greenhex = self._encode(self.green)
         self.bluehex = self._encode(self.blue)
 
     def delta_red_colour(self, event=None):
+        """Adjust Red by value implied by position of Button-1 click."""
         self.red += self._increment(event, self.red)
         self.redhex = self._encode(self.red)
         self._fill_scales()
 
     def set_red_colour(self, event=None):
+        """Set Red value implied by position of Button-3 click."""
         self.red = self._set(event)
         self.redhex = self._encode(self.red)
         self._fill_scales()
 
     def delta_green_colour(self, event=None):
+        """Adjust Green by value implied by position of Button-1 click."""
         self.green += self._increment(event, self.green)
         self.greenhex = self._encode(self.green)
         self._fill_scales()
 
     def set_green_colour(self, event=None):
+        """Set Green value implied by position of Button-3 click."""
         self.green = self._set(event)
         self.greenhex = self._encode(self.green)
         self._fill_scales()
 
     def delta_blue_colour(self, event=None):
+        """Adjust Blue by value implied by position of Button-1 click."""
         self.blue += self._increment(event, self.blue)
         self.bluehex = self._encode(self.blue)
         self._fill_scales()
 
     def set_blue_colour(self, event=None):
+        """Set Blue value implied by position of Button-3 click."""
         self.blue = self._set(event)
         self.bluehex = self._encode(self.blue)
         self._fill_scales()
 
     def _encode(self, colourcode):
-        return base64.b16encode(chr(colourcode)).lower()
+        return base64.b16encode(bytes((colourcode,))).lower()
 
     def _fill_scales(self):
-        self.redslider.fill_scale(self)
-        self.greenslider.fill_scale(self)
-        self.blueslider.fill_scale(self)
+        self.redslider.fill_scale(self.red, None, self.greenhex, self.bluehex)
+        self.greenslider.fill_scale(self.green, self.redhex, None, self.bluehex)
+        self.blueslider.fill_scale(self.blue, self.redhex, self.greenhex, None)
 
     def _increment(self, event, colour):
         x = (event.x - 10) * self.resolution

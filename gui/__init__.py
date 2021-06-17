@@ -2,31 +2,42 @@
 # Copyright 2007 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""rmappsup.gui package
+"""The frame, logpanel, panel, and threadqueue, modules in this package
+assume that an user interface is presented in notebook style following the
+example of wxWidgets.
 
-The rmappsup.gui package assumes that an application is presented in notebook
-style.  The frame and panel modules implement this structure.
+The frame, logpanel, and panel, modules provide a number of classes which
+applications should subclass as needed when building a notebook style user
+interface.  All the classes are subclasses of tkinter.Frame, tkinter.Panel,
+or tkinter.Button.
 
-The AppSysFrame class, in frame.py, provides for a set of tab buttons to switch
-between a set of pages each implemented using the AppSysPanel class in panel.py.
-Actions are assumed to be invoked by a set of buttons on each page: each button
-is an instance of the AppSysPanelButton class in panel.py.
+The threadqueue module provides the AppSysThreadQueue class which adds the
+ability to run a single background task at a time to the frame.AppSysFrame
+class.
 
-The application menu raises the possibility of actions that are independant of
-any page; or are common to several pages perhaps without the presence of buttons
-on each page for the action.
+The tasklog module provides a widget for reporting progress of an activity.
+It is used by the logpanel module but does not rely on the notebook style.
 
-Tab buttons, and thus pages, are put in sets that are displayed together.  A tab
-button can be put in many sets.  Page buttons, and menu actions, are allowed to
-display a different set of tab buttons as part of their action but cannot alter
-these sets.
+The reports, textreadonly, and texttab, modules provide widgets for reports
+containing more data than can be displayed conveniently in the tkinter
+messagebox widgets.
 
+The textentry module provides a widget which wraps a tkinter.Entry widget
+in a tkinter.Toplevel widget.
 
-The rmappsup.gui package assumes that an application is presenting records from
-a database in a scrollable grid with each record being displayed in appropriate
-style.  The datagrid module implements scrolling and the datarow module provides
-record display.
+The colourslider and fontchooser modules provide widgets for selecting the
+font and colours used in a user interface.
 
-Records are assumed to be pickled class instances and access to the data on a
-record is via the Record class in rmappsup.api.record.py.
+The help module provides functions for displaying help text files for an
+application.
+
+The gridbindings module provides standard bindings used by applications
+available on www.solentware.co.uk.  The gridbindings.GridBindings class
+expects to be a superclass alongside the solentware_grid.datagrid.DataGrid
+class, but the setup module for solentware_misc does not declare the dependency.
+It is assumed the solentware_grid package will be present if gridbindings is
+used.
+
+The exceptionhandler module provides a widget for displaying an exception
+report for an exception which is causing the application to stop.
 """

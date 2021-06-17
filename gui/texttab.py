@@ -4,71 +4,53 @@
 
 ######
 #
-# Hacked <Escape><Tab> as I do not see how to make Alt-Shift-Tab work
+# Hacked <Escape><Tab> as I do not see how to make Alt-Shift-Tab work.
+# (Later: what if monitor is on same PC that runs Python?)
 #
 ######
-"""Subclass of Text widget with Alt-Shift-Tab replacing Tab.
+"""This module provides a subclass of tkinter.Text with <Escape><Tab>
+replacing Tab.
 
 The intention is to avoid accidents where a Text widget is in the tab order
-cycle along with Buttons and other widgets where the significance of Tab
-changes with the widget having focus.
+cycle along with Buttons and other widgets where the significance of Tab may
+change from widget to widget.
 
-
-List of classes:
-
-TextTab - subclass of Text with methods to set and unset tab bindings.
-
-List of functions:
-
-make_text_tab - make a Text widget that uses Alt-Shift-Tab instead of Tab.
-set_tab_bindings - function to set tab bindings on (text) widget.
-unset_tab_bindings - function to unset tab bindings on (text) widget.
+I do not see how to make Alt-Shift-Tab work, which is why <Escape><Tab> got
+the job.
 
 """
 
-import Tkinter
+import tkinter
 
 
 # Is ExceptionHandler appropriate to this class - Tkinter.Text not wrapped
-class TextTab(Tkinter.Text):
+class TextTab(tkinter.Text):
     
-    """Subclass of Text widget with Alt-Shift-Tab replacing Tab.
-
-    Methods added:
-
-    set_tab_bindings
-    unset_tab_bindings
-
-    Methods overridden:
-
-    None
-
-    Methods extended:
-
-    None
+    """Subclass of tkinter.Text with methods to replace and restore Tab
+    bindings.
     
     """
 
     def set_tab_bindings(self):
-        """Set bindings replacing Tab with Alt-Shift-Tab on this instance."""
+        """Set bindings replacing Tab with <Escape><Tab>."""
         set_tab_bindings(self)
 
     def unset_tab_bindings(self):
-        """Unset bindings replacing Tab with Alt-Shift-Tab on this instance."""
+        """Unset bindings replacing Tab with <Escape><Tab>."""
         unset_tab_bindings(self)
 
 
 def make_text_tab(master=None, cnf={}, **kargs):
-    """Return Text widget with Alt-Shift-Tab binding replacing Tab binding."""
-    t = Tkinter.Text(master=master, cnf=cnf, **kargs)
+    """Return Text widget with <Escape><Tab> binding replacing Tab binding."""
+    t = tkinter.Text(master=master, cnf=cnf, **kargs)
     set_tab_bindings(t)
     return t
 
 
 def set_tab_bindings(tw):
-    """Set bindings to replace Tab with Alt-Shift-Tab on Text widget.
+    """Set bindings to replace Tab with <Escape><Tab> on tw.
 
-    Derived by looking at /usr/local/lib/tk8.5/text.tcl.
+    tw - a tkinter.Text instance.
 
     """
 
@@ -92,9 +74,9 @@ def set_tab_bindings(tw):
 
 
 def unset_tab_bindings(tw):
-    """Unset bindings that replace Tab with Alt-Shift-Tab on Text widget.
+    """Unset bindings that replace Tab with <Escape><Tab> on tw.
 
-    Derived by looking at /usr/local/lib/tk8.5/text.tcl.
+    tw - a tkinter.Text instance.
 
     """
     for s in (_suppress_bindings, _use_class_bindings, _tab_bindings):

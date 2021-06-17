@@ -2,21 +2,14 @@
 # Copyright 2009 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""A text entry dialogue.
-
-List of classes:
-
-TextEntry - Text entry dialogue
-
-List of functions:
-
-get_text_modal - Get text from a TextEntry dialogue
+"""This module provides a text entry dialogue class and a function which
+returns the text entered using this class as a modal dialogue.
 
 """
 
-import Tkinter
+import tkinter
 
-from exceptionhandler import ExceptionHandler
+from .exceptionhandler import ExceptionHandler
 
 _TITLE = 'title'
 _TEXT = 'text'
@@ -24,30 +17,18 @@ _TEXT = 'text'
 
 class TextEntry(ExceptionHandler):
     
-    """Modal text entry dialogue widget.
-
-    get_text() returns None unless Ok clicked. 
-    
-    Methods added:
-
-    _cancel - Cancel dialogue.
-    get_text - Return entered text if dialogue completed with Ok
-    _ok - Complete dialogue.
-    show_modal - Show dialogue
-    __del__ - Destroy dialogue
-
-    Methods overridden:
-
-    __init__
-
-    Methods extended:
-
-    None
+    """Text entry dialogue widget.
     
     """
 
     def __init__(self, master=None, **options):
-        """Initialise dialogue"""
+        """Initialise dialogue attributes.
+
+        master - tkinter.Toplevel master argument when dialogue created.
+        **options - tkinter.Entry **kw argument when dialogue created except
+                    title which goes to tkinter.Toplevel and text which goes
+                    to the tkinter.Label for the dialogue.
+        """
         self.entered_text = None
         self.master = master
         self.options = options
@@ -55,24 +36,25 @@ class TextEntry(ExceptionHandler):
         self.entry = None
 
     def _cancel(self):
-        """Cancel dialogue"""
+        """Cancel dialogue."""
         self.toplevel.destroy()
         self.toplevel = None
         self.entry = None
 
     def get_text(self):
-        """Return entered text if Ok clicked otherwise None"""
+        """Return entered text or None if the dialogue was cancelled."""
         return self.entered_text
 
     def _ok(self):
-        """Complete dialogue.  Entered text is returned by get_text()"""
+        """Get text from dialogue then destroy dialogue."""
         self.entered_text = self.entry.get()
         self.toplevel.destroy()
         self.toplevel = None
         self.entry = None
 
     def show_modal(self):
-        """Create and show the modal text entry dialogue.
+        """Create and show the text entry dialogue, preventing interaction
+        with the rest of the application.
 
         Remove text and title from options before passing rest to Entry.
         Title is passed to Toplevel.
@@ -92,26 +74,26 @@ class TextEntry(ExceptionHandler):
         else:
             text = 'Enter text'
 
-        self.toplevel = toplevel = Tkinter.Toplevel(master=self.master)
+        self.toplevel = toplevel = tkinter.Toplevel(master=self.master)
         toplevel.wm_title(title)
-        label = Tkinter.Label(master=toplevel, text=text)
+        label = tkinter.Label(master=toplevel, text=text)
         label.pack()
-        self.entry = entry = Tkinter.Entry(master=toplevel, **options)
-        entry.pack(fill=Tkinter.X, expand=Tkinter.TRUE)
-        buttonbar = Tkinter.Frame(master=toplevel)
-        buttonbar.pack(fill=Tkinter.X, expand=Tkinter.TRUE)
-        cancel = Tkinter.Button(
+        self.entry = entry = tkinter.Entry(master=toplevel, **options)
+        entry.pack(fill=tkinter.X, expand=tkinter.TRUE)
+        buttonbar = tkinter.Frame(master=toplevel)
+        buttonbar.pack(fill=tkinter.X, expand=tkinter.TRUE)
+        cancel = tkinter.Button(
             master=buttonbar,
             text='Cancel',
             underline=0,
             command=self.try_command(self._cancel, buttonbar))
-        cancel.pack(expand=Tkinter.TRUE, side=Tkinter.LEFT)
-        ok = Tkinter.Button(
+        cancel.pack(expand=tkinter.TRUE, side=tkinter.LEFT)
+        ok = tkinter.Button(
             master=buttonbar,
             text='Ok',
             underline=0,
             command=self.try_command(self._ok, buttonbar))
-        ok.pack(expand=Tkinter.TRUE, side=Tkinter.LEFT)
+        ok.pack(expand=tkinter.TRUE, side=tkinter.LEFT)
         entry.focus()
         toplevel.grab_set()
         toplevel.wait_window()
@@ -119,18 +101,16 @@ class TextEntry(ExceptionHandler):
         return self.entered_text
 
     def __del__(self):
-
+        """Destroy the dialogue if it exists."""
         if self.toplevel:
             self.toplevel.destroy()
 
 
 def get_text_modal(master=None, **options):
-    """Return text from TextEntry dialog
-
-    The get_text_modal convenience function is provided to return the entered
-    text and destroy the dialogue.
-    Otherwise use get_text method of TextEntry instance to retrieve text.
+    """Return text from modal TextEntry dialogue.
     
+    master - passed to TextEntry as master argument.
+    **options - passed to TextEntry as **options argument.
     """
     te = TextEntry(master=master, **options)
     return te.show_modal()

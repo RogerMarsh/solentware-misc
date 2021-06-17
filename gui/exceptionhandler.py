@@ -2,54 +2,67 @@
 # Copyright 2011 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""Intercept exceptions in methods called from Tkinter or threading
+"""The ExceptionHandler class provides methods to intercept exceptions in
+methods called from tkinter or threading and write the exception details to
+the errorlog file before offering the option to display the exception
+details.
 
-List of classes:
-
-ExceptionHandler
-
-List of functions:
-
-None
-
+The module expects the solentware_grid package, a sibling of solentware_misc,
+to be installed but provides a minimal alternative if it is not installed.
 """
 
-from basesup.tools.callbackexception import CallbackException
+try:
+    from solentware_grid.gui.callbackexception import CallbackException
+except ModuleNotFoundError:
+
+
+    class CallbackException(object):
+        """Provide a minimal emulation of solentware_grid's CallbackException
+        class which is used if import solentware_grid.gui.callbackexception
+        raises ModuleNotFoundError.
+        """
+
+        def report_exception(self, **k):
+            """Do nothing."""
+
+        def try_command(self, method, widget):
+            """Return the method.  Subclasses of solentware_grid's
+            CallbackException class are expected, but not obliged, to override
+            the method.
+            """
+            return method
+
+        def try_event(self, method):
+            """Return the method.  Subclasses of solentware_grid's
+            CallbackException class are expected, but not obliged, to override
+            the method.
+            """
+            return method
+
+        def try_thread(self, method, widget):
+            """Return the method.  Subclasses of solentware_grid's
+            CallbackException class are expected, but not obliged, to override
+            the method.
+            """
+            return method
 
 
 class ExceptionHandler(CallbackException):
-    """Tkinter callback and threaded activity exception handler wrappers.
+    """Adapt methods in superclass to provide behaviour needed by
+    applications on www.solentware.co.uk.
 
-    Override methods provided by CallbackException class.
-
-    Methods added:
-
-    get_application_name
-    get_error_file_name
-    set_application_name
-    set_error_file_name
-    
-    Methods overridden:
-
-    try_command
-    try_event
-    try_thread
-
-    Methods extended:
-
-    report_exception
+    Exception details are written to the application's error log before
+    offering the option to display the exception details in a dialogue.
     
     """
     _application_name = None
     _error_file_name = None
 
-    # Move to CallbackException eventually
     @staticmethod
     def get_application_name():
         """Return the application name."""
         return str(ExceptionHandler._application_name)
 
-    # Move to CallbackException eventually
     @staticmethod
     def get_error_file_name():
         """Return the exception report file name."""
@@ -61,7 +74,7 @@ class ExceptionHandler(CallbackException):
 
         root - usually the application toplevel widget
         title - usually the application name
-        message - custom errorlog dialogue message if errorlog not available
+        message - usually the dialogue message if errorlog not available
 
         """
         import traceback
@@ -83,7 +96,7 @@ class ExceptionHandler(CallbackException):
                              '\n\n',
                              traceback.format_exc(),
                              '\n\n',
-                             ))
+                             )).encode('iso-8859-1')
                         )
                 finally:
                     f.close()
@@ -102,7 +115,6 @@ class ExceptionHandler(CallbackException):
         super(ExceptionHandler, self).report_exception(
             root=root, title=title, message=message)
 
-    # Move to CallbackException eventually
     @staticmethod
     def set_application_name(application_name):
         """Set the exception report application name.
@@ -113,17 +125,17 @@ class ExceptionHandler(CallbackException):
         if ExceptionHandler._application_name is None:
             ExceptionHandler._application_name = application_name
 
-    # Move to CallbackException eventually
     @staticmethod
     def set_error_file_name(error_file_name):
         """Set the exception report file name."""
         ExceptionHandler._error_file_name = error_file_name
 
     def try_command(self, method, widget):
-        """Return the method wrapped to write exception trace to error log.
+        """Return the method wrapped to call report_exception if an
+        exception occurs.
 
         method - the command callback to be wrapped
-        root - usually the application toplevel widget
+        widget - usually the application toplevel widget
 
         Copied and adapted from Tkinter.
 
@@ -131,8 +143,8 @@ class ExceptionHandler(CallbackException):
         def wrapped_command_method(*a, **k):
             try:
                 return method(*a, **k)
-            except SystemExit, message:
-                raise SystemExit, message
+            except SystemExit as message:
+                raise SystemExit(message)
             except:
                 # If an unexpected exception occurs in report_exception let
                 # Tkinter deal with it (better than just killing application
@@ -144,7 +156,8 @@ class ExceptionHandler(CallbackException):
         return wrapped_command_method
 
     def try_event(self, method):
-        """Return the method wrapped to write exception trace to error log.
+        """Return the method wrapped to call report_exception if an
+        exception occurs.
 
         method - the event callback to be wrapped
 
@@ -154,8 +167,8 @@ class ExceptionHandler(CallbackException):
         def wrapped_event_method(e):
             try:
                 return method(e)
-            except SystemExit, message:
-                raise SystemExit, message
+            except SystemExit as message:
+                raise SystemExit(message)
             except:
                 # If an unexpected exception occurs in report_exception let
                 # Tkinter deal with it (better than just killing application
@@ -167,10 +180,11 @@ class ExceptionHandler(CallbackException):
         return wrapped_event_method
 
     def try_thread(self, method, widget):
-        """Return the method wrapped to write exception trace to error log.
+        """Return the method wrapped to call report_exception if an
+        exception occurs.
 
         method - the threaded activity to be wrapped
-        root - usually the application toplevel widget
+        widget - usually the application toplevel widget
 
         Copied and adapted from Tkinter.
 
@@ -178,8 +192,8 @@ class ExceptionHandler(CallbackException):
         def wrapped_thread_method(*a, **k):
             try:
                 return method(*a, **k)
-            except SystemExit, message:
-                raise SystemExit, message
+            except SystemExit as message:
+                raise SystemExit(message)
             except:
                 # If an unexpected exception occurs in report_exception let
                 # Tkinter deal with it (better than just killing application
