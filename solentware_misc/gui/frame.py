@@ -20,13 +20,13 @@ import tkinter
 # as well.)
 try:
     from solentware_grid.core.dataregister import DataRegister
-except ModuleNotFoundError:
+except ImportError:
 
 
     class DataRegister(object):
         """Provide a 'do-nothing' emulation of solentware_grid's DataRegister
         class which is used if importing from solentware_grid.core.dataregister
-        raises ModuleNotFoundError.
+        raises ImportError.
 
         The consequence is none of the expected automatic refreshing of
         related widgets will occur.

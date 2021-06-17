@@ -13,13 +13,13 @@ to be installed but provides a minimal alternative if it is not installed.
 
 try:
     from solentware_grid.gui.callbackexception import CallbackException
-except ModuleNotFoundError:
+except ImportError:
 
 
     class CallbackException(object):
         """Provide a minimal emulation of solentware_grid's CallbackException
         class which is used if import solentware_grid.gui.callbackexception
-        raises ModuleNotFoundError.
+        raises ImportError.
         """
 
         def report_exception(self, **k):
