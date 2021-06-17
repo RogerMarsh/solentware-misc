@@ -31,7 +31,6 @@ class GridBindings(ExceptionHandler):
         **kwargs - ignored
 
         """
-        super(GridBindings, self).__init__()
         self.receivefocuskey = receivefocuskey
         self.appsyspanel = appsyspanel
         self.make_focus_to_grid()

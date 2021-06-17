@@ -16,10 +16,10 @@ equivalents.
 """
 
 import tkinter
+import tkinter.filedialog
 import queue
 
-from ..workarounds import dialogues
-from .exceptionhandler import ExceptionHandler
+from .exceptionhandler import ExceptionHandler, FOCUS_ERROR
 from . import textreadonly
 
 
@@ -39,13 +39,17 @@ class AppSysReportBase(ExceptionHandler):
         **kargs):
         """Create the report or dialogue widget.
 
-        parent - reoprt's parent widget.
+        parent - report's parent object (note this is not a tkinter widget).
         title - report title text.
         save - command for Save button, default None.
         ok - command for Ok button, default None.
-        close - cammand for Close button, default None.
+        close - command for Close button, default None.
         cnf - passed to report tkinter.Text widget as cnf argument.
         **kargs - passed to report tkinter.Text widget as **kargs argument.
+
+        The parent argument is expected to have a get_widget() method, which
+        returns a tkinter object useable as the master argument in Toplevel()
+        calls for example.
 
         """
         super(AppSysReportBase, self).__init__()
@@ -92,7 +96,7 @@ class AppSysReportBase(ExceptionHandler):
 
     def _create_widget(self, parent, title, save, ok, close, cnf, kargs):
         """Create the report widget"""
-        self._toplevel = tkinter.Toplevel()
+        self._toplevel = tkinter.Toplevel(master=parent.get_widget())
         self._toplevel.wm_title(title)
         buttons_frame = tkinter.Frame(master=self._toplevel)
         buttons_frame.pack(side=tkinter.BOTTOM, fill=tkinter.X)
@@ -146,7 +150,7 @@ class AppSysDialogueBase(AppSysReportBase):
             self.restore_focus.focus_set()
         except tkinter._tkinter.TclError as error:
             #application destroyed while confirm dialogue exists
-            if str(error) != dialogues.FOCUS_ERROR:
+            if str(error) != FOCUS_ERROR:
                 raise
 
 
@@ -232,7 +236,7 @@ class AppSysReport(AppSysReportBase):
     
     def on_save(self, event=None):
         """Present dialogue to save report in selected file."""
-        dlg = dialogues.asksaveasfilename(
+        dlg = tkinter.filedialog.asksaveasfilename(
             parent=self._toplevel,
             title=self._save_title,
             #initialdir=os.path.dirname(self.filename),

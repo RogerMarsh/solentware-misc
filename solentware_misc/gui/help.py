@@ -40,7 +40,7 @@ def help_widget(master, title, help_text_module, hfname=None):
     toplevel = tkinter.Toplevel(master)
     toplevel.wm_title(title)
     help_ = textreadonly.TextReadonly(
-        toplevel, wrap='word', tabstyle='tabular')
+        toplevel, wrap=tkinter.WORD, tabstyle='tabular')
     scrollbar = tkinter.Scrollbar(
         toplevel, orient=tkinter.VERTICAL, command=help_.yview)
     help_.configure(yscrollcommand=scrollbar.set)

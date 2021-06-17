@@ -9,9 +9,9 @@ dialogue for choosing a font in a tkinter.Toplevel widget.
 
 import tkinter
 import tkinter.font
+import tkinter.messagebox
 
-from ..workarounds import dialogues
-from .exceptionhandler import ExceptionHandler
+from .exceptionhandler import ExceptionHandler, FOCUS_ERROR
 
 
 class AppSysFontChooser(ExceptionHandler):
@@ -156,7 +156,7 @@ class AppSysFontChooser(ExceptionHandler):
         if self.chosenfont:
             self.confirm.destroy()
         else:
-            dialogues.showerror(
+            tkinter.messagebox.showerror(
                 title='Font Chooser',
                 message='No font chosen')
 
@@ -164,7 +164,7 @@ class AppSysFontChooser(ExceptionHandler):
         """Display the sample text using the selected font and properties."""
         selection = self.families.curselection()
         if not selection:
-            dialogues.showerror(
+            tkinter.messagebox.showerror(
                 title='Font Chooser',
                 message='No font chosen')
             return
@@ -201,6 +201,6 @@ class AppSysFontChooser(ExceptionHandler):
             self.restore_focus.focus_set()
         except tkinter._tkinter.TclError as error:
             #application destroyed while confirm dialogue exists
-            if str(error) != dialogues.FOCUS_ERROR:
+            if str(error) != FOCUS_ERROR:
                 raise
 

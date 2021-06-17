@@ -73,7 +73,7 @@ class TextAndLogPanel(panel.PlainPanel):
 
         if taskdata is not None:
             ef, self.datawidget = make_scrolling_text_readonly(
-                master=pw, wrap='word', undo=tkinter.FALSE)
+                master=pw, wrap=tkinter.WORD, undo=tkinter.FALSE)
             pw.add(ef)
             self.datawidget.insert(tkinter.END, taskdata)
         
@@ -82,7 +82,7 @@ class TextAndLogPanel(panel.PlainPanel):
             get_app=self.get_appsys,
             logwidget=tasklog.LogText(
                 master=rf,
-                wrap='word',
+                wrap=tkinter.WORD,
                 undo=tkinter.FALSE,
                 get_app=self.get_appsys),
             )
@@ -183,7 +183,7 @@ class WidgetAndLogPanel(panel.PlainPanel):
             get_app=self.get_appsys,
             logwidget=tasklog.LogText(
                 master=rf,
-                wrap='word',
+                wrap=tkinter.WORD,
                 undo=tkinter.FALSE,
                 get_app=self.get_appsys),
             )

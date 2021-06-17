@@ -68,7 +68,7 @@ class TaskLog(ExceptionHandler):
         self.cancel.pack(side=tkinter.RIGHT, padx=12)
         self.report = LogText(
             master=self.logwidget,
-            wrap='word',
+            wrap=tkinter.WORD,
             undo=tkinter.FALSE,
             get_app=self.get_app,
             )
