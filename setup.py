@@ -2,31 +2,24 @@
 # Copyright 2011 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-import sys
 from distutils.core import setup
 
-from rmappsup import _rmappsup_version
+from version import _rmappsup_version
 
 setup(
-    name='-'.join(
-        ('rmappsup',
-         ''.join(
-             ('py',
-              '.'.join(
-                  (str(sys.version_info[0]),
-                   str(sys.version_info[1]))))),
-         )),
+    name='rmappsup',
     version=_rmappsup_version,
     description='Classes perhaps useful beyond original application',
     author='solentware.co.uk',
     author_email='roger.marsh@solentware.co.uk',
     url='http://www.solentware.co.uk',
+    package_dir={'rmappsup':''},
     packages=[
         'rmappsup',
         'rmappsup.api', 'rmappsup.gui',
         ],
     package_data={
-        'rmappsup': ['README', 'LICENCE'],
+        'rmappsup': ['LICENCE'],
         },
     long_description='''Classes perhaps useful beyond original application
 
@@ -38,8 +31,6 @@ setup(
     csvapi.py - basesup interface to a csv file
     dbaseapi.py - basesup interface to a dbaseIII file
     nulldatasource.py - basesup interface to nothing
-    dptdatasource.py - basesup interface to arbitrary DPT list or record set
-    dbdatasource.py - emulation of dptdatasource.py for Berkeley DB
     dptdatasourceset.py - display a set of DPT record sets in arbitrary order.
     datasourceset.py - emulation of dptdatasourceset.py for Berkeley DB
 

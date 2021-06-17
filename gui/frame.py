@@ -17,8 +17,10 @@ import Tkinter
 
 import gridsup.core.dataregister
 
+from exceptionhandler import ExceptionHandler
 
-class AppSysFrameButton(object):
+
+class AppSysFrameButton(ExceptionHandler):
     
     """Tab selection buttons for AppSysFrame.
 
@@ -71,7 +73,7 @@ class AppSysFrameButton(object):
                         '<Alt-KeyPress-',
                         text[underline].lower(),
                         '>')),
-                    func=self.command,
+                    func=self.try_event(self.command),
                     add=True)
         except:
             pass
@@ -83,10 +85,10 @@ class AppSysFrameButton(object):
             command(tab)
 
         self.command = on_click
-        self.button.configure(command=on_click)
+        self.button.configure(command=self.try_command(on_click, self.button))
         self.button.bind(
             sequence='<KeyPress-Return>',
-            func=on_click,
+            func=self.try_event(on_click),
             add=True)
 
     def unbind_frame_button(self, tab):
@@ -107,7 +109,7 @@ class AppSysFrameButton(object):
             pass
 
 
-class AppSysFrame(object):
+class AppSysFrame(ExceptionHandler):
     
     """Base class for database User Interface.
 
@@ -458,7 +460,7 @@ class AppSysFrame(object):
         
 
 # maybe combine AppSysTab and AppSysTabDefinition classes
-class AppSysTab(object):
+class AppSysTab(ExceptionHandler):
     
     """Instantiated Tab details for active tabs on AppSysFrame.
 
@@ -495,6 +497,7 @@ class AppSysTab(object):
 
 
 # maybe combine AppSysTab and AppSysTabDefinition classes
+# does this need to be subclass of ExceptionHandler or not?
 class AppSysTabDefinition(object):
     
     """Tab definitions for AppSysFrame.

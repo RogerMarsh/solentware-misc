@@ -15,8 +15,10 @@ import tkFont
 
 import basesup.tools.dialogues
 
+from exceptionhandler import ExceptionHandler
 
-class AppSysFontChooser(object):
+
+class AppSysFontChooser(ExceptionHandler):
     
     """Font chooser
 
@@ -52,8 +54,10 @@ class AppSysFontChooser(object):
         self.fontpanel = framefonts = Tkinter.Frame(self.confirm)
         self.families = Tkinter.Listbox(framefonts)
         scrollfont = Tkinter.Scrollbar(framefonts)
-        scrollfont.configure(command=self.families.yview)
-        self.families.configure(yscrollcommand=scrollfont.set)
+        scrollfont.configure(
+            command=self.try_command(self.families.yview, scrollfont))
+        self.families.configure(
+            yscrollcommand=self.try_command(scrollfont.set, self.families))
         for f in sorted(tkFont.families()):
             self.families.insert(Tkinter.END, f)
         self.families.pack(
@@ -66,16 +70,16 @@ class AppSysFontChooser(object):
         self.slant = Tkinter.IntVar()
         self.normal = Tkinter.Radiobutton(
             master=wssf, text='Normal', variable=self.weight, value=1,
-            command=self.on_show_font)
+            command=self.try_command(self.on_show_font, wssf))
         self.bold = Tkinter.Radiobutton(
             master=wssf, text='Bold', variable=self.weight, value=2,
-            command=self.on_show_font)
+            command=self.try_command(self.on_show_font, wssf))
         self.roman = Tkinter.Radiobutton(
             master=wssf, text='Roman', variable=self.slant, value=1,
-            command=self.on_show_font)
+            command=self.try_command(self.on_show_font, wssf))
         self.italic = Tkinter.Radiobutton(
             master=wssf, text='Italic', variable=self.slant, value=2,
-            command=self.on_show_font)
+            command=self.try_command(self.on_show_font, wssf))
         Tkinter.Label(master=wssf, text='Size').grid_configure(
             column=1, row=3)
         self.normal.grid_configure(column=0, row=0)
@@ -92,13 +96,18 @@ class AppSysFontChooser(object):
         self.size = Tkinter.IntVar()
         for i, s in enumerate((7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 20)):
             sb = Tkinter.Radiobutton(
-                master=sf, text=str(s), variable=self.size, value=s,
-                indicatoron=0, command=self.on_show_font)
+                master=sf,
+                text=str(s),
+                variable=self.size,
+                value=s,
+                indicatoron=0,
+                command=self.try_command(self.on_show_font, sf))
             sb.grid_configure(column=i, row=0, sticky='ew')
             sf.grid_columnconfigure(i, weight=1, uniform='fsb')
         sf.pack(fill=Tkinter.X)
 
-        self.families.bind('<<ListboxSelect>>', self.on_show_font)
+        self.families.bind(
+            '<<ListboxSelect>>', self.try_event(self.on_show_font))
 
         self.sample = Tkinter.Label(self.confirm)
         self.sample.pack(fill=Tkinter.BOTH, expand=Tkinter.TRUE)
@@ -133,7 +142,7 @@ class AppSysFontChooser(object):
                 master=self.buttons_frame,
                 text=buttons[i][0],
                 underline=buttons[i][3],
-                command=buttons[i][4])
+                command=self.try_command(buttons[i][4], self.buttons_frame))
             if buttonrow:
                 self.buttons_frame.grid_columnconfigure(i*2, weight=1)
                 button.grid_configure(column=i*2 + 1, row=0)

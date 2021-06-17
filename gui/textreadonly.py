@@ -19,6 +19,7 @@ unset_readonly_bindings - function to unset read only bindings on (text) widget.
 import Tkinter
 
 
+# Is ExceptionHandler appropriate to this class - Tkinter.Text not wrapped
 class TextReadonly(Tkinter.Text):
     
     """Read-only subclass of Text widget with full navigation.

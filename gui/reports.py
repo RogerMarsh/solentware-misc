@@ -27,10 +27,11 @@ import Tkinter
 
 import basesup.tools.dialogues
 
+from exceptionhandler import ExceptionHandler
 import textreadonly
 
 
-class AppSysReportBase(object):
+class AppSysReportBase(ExceptionHandler):
 
     """Base class for reports and dialogues.
     
@@ -103,7 +104,7 @@ class AppSysReportBase(object):
                 master=self.buttons_frame,
                 text=buttons[i][0],
                 underline=buttons[i][3],
-                command=buttons[i][4])
+                command=self.try_command(buttons[i][4], self.buttons_frame))
             if buttonrow:
                 self.buttons_frame.grid_columnconfigure(i*2, weight=1)
                 button.grid_configure(column=i*2 + 1, row=0)

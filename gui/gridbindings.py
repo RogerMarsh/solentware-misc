@@ -13,18 +13,24 @@ SelectorGridBindings - extend GridBindings to record selector Entry widget
 
 import Tkinter
 
+from exceptionhandler import ExceptionHandler
 
-class GridBindings(object):
+
+class GridBindings(ExceptionHandler):
 
     """Standard bindings for data grids.
 
     Methods added:
 
     bindings
+    bookmark_from_popup
+    cancel_bookmark_from_popup
+    cancel_select_from_popup
     give_and_set_focus
     grid_bindings
     make_focus_to_grid
     receive_focus
+    select_from_popup
     
     Methods overridden:
 
@@ -42,6 +48,23 @@ class GridBindings(object):
         self.receivefocuskey = receivefocuskey
         self.appsyspanel = appsyspanel
         self.make_focus_to_grid()
+        for label, function, accelerator in (
+            ('Select', self.select_from_popup, 'Left/Right Arrow'),
+            ('Cancel Select',
+             self.cancel_select_from_popup,
+             'Control + Delete'),
+            ('Select Visible',
+             self.move_selection_to_popup_selection,
+             'Control + L/R Arrow'),
+            ('Bookmark', self.bookmark_from_popup, 'Alt + Ins'),
+            ('Cancel Bookmark',
+             self.cancel_bookmark_from_popup,
+             'Alt + Delete'),
+            ):
+            self.menupopup.add_command(
+                label=label,
+                command=self.try_command(function, self.menupopup),
+                accelerator=accelerator)
 
     def bindings(self):
         # Assume, for now, that appsyspanel frame instance bindtag is to
@@ -88,7 +111,28 @@ class GridBindings(object):
     def receive_focus(self, widgets):
         """Bind take focus method to all exposed widgets taking focus"""
         for w in widgets:
-            w.bind(self.receivefocuskey, self.focus_to_grid)
+            w.bind(self.receivefocuskey, self.try_event(self.focus_to_grid))
+
+    def select_from_popup(self):
+        """Select row under pointer unless current selection not visible."""
+        if len(self.selection):
+            if self.selection[0] not in self.objects:
+                return
+        self.move_selection_to_popup_selection()
+
+    def cancel_select_from_popup(self):
+        """Cancel selection if selected row is under pointer."""
+        if self.pointer_popup_selection in self.selection:
+            self.cancel_visible_selection(self.pointer_popup_selection)
+
+    def bookmark_from_popup(self):
+        """Bookmark row under pointer."""
+        self.add_bookmark(self.pointer_popup_selection)
+
+    def cancel_bookmark_from_popup(self):
+        """Cancel bookmark for row under pointer."""
+        if self.pointer_popup_selection in self.bookmarks:
+            self.cancel_bookmark(self.pointer_popup_selection)
 
 
 class SelectorGridBindings(GridBindings):
@@ -138,6 +182,8 @@ class SelectorGridBindings(GridBindings):
         clearbinding must be a selector Entry widget or None or True
         
         """
+        if self.appsyspanel is None:
+            return
         gs = self.appsyspanel.gridselector
         if setbinding is None:
             if clearbinding is True:
@@ -150,15 +196,20 @@ class SelectorGridBindings(GridBindings):
         else:
             w = gs.get(setbinding.__self__)
             if w is not None:
-                w.bind(sequence='<KeyPress-Return>', func=setbinding)
+                w.bind(
+                    sequence='<KeyPress-Return>',
+                    func=self.try_event(setbinding))
 
     def bindings(self, function=None):
         """Extend to handle FocusIn event for superclass' frame"""
         super(SelectorGridBindings, self).bindings()
-        self.get_frame().bind(sequence='<FocusIn>', func=function)
+        self.get_frame().bind(
+            sequence='<FocusIn>', func=self.try_event(function))
 
     def focus_selector(self, event):
         """Give focus to the Entry for record selection"""
+        if self.appsyspanel is None:
+            return
         if self.appsyspanel.get_grid_selector(self) is not None:
             self.appsyspanel.give_focus(
                 self.appsyspanel.get_grid_selector(self))
@@ -168,6 +219,8 @@ class SelectorGridBindings(GridBindings):
     def keypress_selector(self, event):
         """Give focus to the Entry for record selection and set text"""
         if event.char.isalnum():
+            if self.appsyspanel is None:
+                return
             self.focus_selector(event)
             self.appsyspanel.get_grid_selector(self).delete(0, Tkinter.END)
             self.appsyspanel.get_grid_selector(self).insert(
@@ -183,29 +236,58 @@ class SelectorGridBindings(GridBindings):
 
     def make_grid_bindings(self, setfocuskey=None):
         """Bind grid switching methods to all exposed widgets taking focus"""
+        if self.appsyspanel is None:
+            return
         def bindings(siblings):
             widgets = (
                 self.get_frame(),
                 self.get_horizontal_scrollbar(),
                 self.get_vertical_scrollbar(),
                 self.appsyspanel.get_grid_selector(self))
+            rfk = self.receivefocuskey[1:-1].split('-')
+            rfk.insert(0, 'Control')
+            defaultsetfocuskey = '-'.join(rfk).join(('<', '>'))
             self.receive_focus(widgets[1:])
             for s in siblings:
                 s.receive_focus(widgets)
             if widgets[-1] is not None:
+                for s in siblings:
+                    ss = self.appsyspanel.get_grid_selector(s)
+                    if widgets[-1] is not ss:
+                        for w in (
+                            ss,
+                            s.get_frame(),
+                            s.get_horizontal_scrollbar(),
+                            s.get_vertical_scrollbar(),
+                            ):
+                            w.bind(
+                                defaultsetfocuskey,
+                                self.try_event(self.focus_selector))
+                            if setfocuskey is not None:
+                                w.bind(
+                                    setfocuskey,
+                                    self.try_event(self.focus_selector))
                 for w in widgets[:-1]:
-                    w.bind(setfocuskey, self.focus_selector)
-                    w.bind('<KeyRelease>', self.keypress_selector)
+                    w.bind(
+                        defaultsetfocuskey, self.try_event(self.focus_selector))
+                    if setfocuskey is not None:
+                        w.bind(setfocuskey, self.try_event(self.focus_selector))
+                    w.bind(
+                        '<KeyRelease>', self.try_event(self.keypress_selector))
                 # for shared selector __init__() targets last grid created
                 self.bind_return(setbinding=self.position_grid_at_record)
         self.grid_bindings = bindings
 
     def on_focus_in(self, event=None):
         """Clear the record selector Entry."""
+        if self.appsyspanel is None:
+            return
         self.appsyspanel.get_active_grid_hint(self).configure(
             text=self.selecthintlabel)
 
     def set_select_hint_label(self):
+        if self.appsyspanel is None:
+            return
         try:
             self.appsyspanel.get_active_grid_hint(self).configure(
                 text=self.selecthintlabel)

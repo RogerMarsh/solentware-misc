@@ -29,6 +29,7 @@ unset_tab_bindings - function to unset tab bindings on (text) widget.
 import Tkinter
 
 
+# Is ExceptionHandler appropriate to this class - Tkinter.Text not wrapped
 class TextTab(Tkinter.Text):
     
     """Subclass of Text widget with Alt-Shift-Tab replacing Tab.

@@ -22,12 +22,14 @@ PanedPanelGridSelectorShared
 
 import Tkinter
 
+from exceptionhandler import ExceptionHandler
+
 
 class AppSysPanelError(Exception):
     pass
 
 
-class AppSysPanelButton(object):
+class AppSysPanelButton(ExceptionHandler):
     """Action buttons for AppSysPanel.
     
     Methods added:
@@ -89,20 +91,20 @@ class AppSysPanelButton(object):
         self.button.bind(
             sequence=''.join((
                 '<ButtonPress-1>')),
-            func=self.command)
+            func=self.try_event(self.command))
         self.button.bind(
             sequence='<KeyPress-Return>',
-            func=self.command)
+            func=self.try_event(self.command))
         if self.enable:
             for f in (self.switch_context_check, switch_context):
                 self.button.bind(
                     sequence=''.join((
                         '<ButtonPress-1>')),
-                    func=f,
+                    func=self.try_event(f),
                     add=True)
                 self.button.bind(
                     sequence='<KeyPress-Return>',
-                    func=f,
+                    func=self.try_event(f),
                     add=True)
 
         conf = self.button.configure()
@@ -117,7 +119,7 @@ class AppSysPanelButton(object):
                         '<Alt-KeyPress-',
                         text[underline].lower(),
                         '>')),
-                    func=self.command)
+                    func=self.try_event(self.command))
                 if self.enable:
                     for f in (self.switch_context_check, switch_context):
                         self.parent.get_widget().bind(
@@ -125,7 +127,7 @@ class AppSysPanelButton(object):
                                 '<Alt-KeyPress-',
                                 text[underline].lower(),
                                 '>')),
-                            func=f,
+                            func=self.try_event(f),
                             add=True)
         except:
             print 'AppSysPanelButton bind exception', self.identity
@@ -200,7 +202,7 @@ class AppSysPanelButton(object):
             pass
 
 
-class AppSysPanel(object):
+class AppSysPanel(ExceptionHandler):
     
     """Base class for pages in notebook database User Interface.
 
@@ -220,10 +222,10 @@ class AppSysPanel(object):
     get_context
     get_widget
     give_focus
-    grid_bindings
     hide_panel
     hide_panel_buttons
     inhibit_context_switch
+    make_explicit_focus_bindings
     refresh_controls
     show_panel
     show_panel_buttons
@@ -232,11 +234,11 @@ class AppSysPanel(object):
     
     Methods overridden:
 
-    __init__
+    None
 
     Methods extended:
 
-    None
+    __init__
     
     """
 
@@ -289,7 +291,8 @@ class AppSysPanel(object):
                     definitions[b][2],
                     text=definitions[b][0],
                     underline=definitions[b][3],
-                    command=definitions[b][4])
+                    command=self.try_command(
+                        definitions[b][4], self.buttons_frame))
             self.buttons[b].raise_action_button()
             self.buttons[b].bind_panel_button()
             if buttonrow:
@@ -469,7 +472,6 @@ class PlainPanel(AppSysPanel):
 
     Methods added:
 
-    add_grid_to_panel
     make_grids
     
     Methods overridden:
@@ -499,6 +501,7 @@ class PanelWithGrids(AppSysPanel):
 
     Methods added:
 
+    add_grid_to_panel
     clear_selector
     get_active_grid_hint
     get_grid_selector
@@ -636,20 +639,17 @@ class PanelGridSelector(PanelWithGrids):
         equally to fill the remaining space in the application window.
 
         """
-        for ga in gridarguments:
-            if ga.get('selectfocuskey'):
-                def make_selector():
-                    s = Tkinter.Frame(master=self.gridpane)
-                    sl = Tkinter.Label(master=s)
-                    se = Tkinter.Entry(master=s)
-                    return (s, (sl, se))
-                break
-        else:
-            def make_selector():
+        def make_selector(a):
+            if a.get('selectfocuskey') is None:
                 return (None, None)
+            s = Tkinter.Frame(master=self.gridpane)
+            sl = Tkinter.Label(master=s)
+            se = Tkinter.Entry(master=s)
+            return (s, (sl, se))
+
         grids = []
         for e, ga in enumerate(gridarguments):
-            selector, selector_widgets = make_selector()
+            selector, selector_widgets = make_selector(ga)
             grids.append(
                 self.add_grid_to_panel(
                     self.gridpane,
@@ -741,21 +741,18 @@ class PanelGridSelectorBar(PanelWithGrids):
         equally to fill the remaining space in the application window.
 
         """
-        for ga in gridarguments:
-            if ga.get('selectfocuskey'):
-                def make_selector():
-                    s = Tkinter.Frame(master=self.gridpane)
-                    sl = Tkinter.Label(master=s)
-                    se = Tkinter.Entry(master=s)
-                    return (s, (sl, se))
-                break
-        else:
-            def make_selector():
+        def make_selector(a):
+            if a.get('selectfocuskey') is None:
                 return (None, None)
+            s = Tkinter.Frame(master=self.gridpane)
+            sl = Tkinter.Label(master=s)
+            se = Tkinter.Entry(master=s)
+            return (s, (sl, se))
+
         gsize = len(gridarguments)
         grids = []
         for e, ga in enumerate(gridarguments):
-            selector, selector_widgets = make_selector()
+            selector, selector_widgets = make_selector(ga)
             grids.append(
                 self.add_grid_to_panel(
                     self.gridpane,
@@ -966,25 +963,22 @@ class PanedPanelGridSelector(PanelWithGrids):
         sash between two panes.
 
         """
-        for ga in gridarguments:
-            if ga.get('selectfocuskey'):
-                def make_selector(sm):
-                    s = Tkinter.Frame(master=sm)
-                    sl = Tkinter.Label(master=s)
-                    se = Tkinter.Entry(master=s)
-                    s.grid_columnconfigure(0, weight=1)
-                    sl.grid(column=0, row=0, sticky='nes')
-                    s.grid_columnconfigure(1, weight=1)
-                    se.grid(column=1, row=0, sticky='nsw')
-                    return (s, (sl, se))
-                break
-        else:
-            def make_selector(sm):
+        def make_selector(a, sm):
+            if a.get('selectfocuskey') is None:
                 return (None, None)
+            s = Tkinter.Frame(master=sm)
+            sl = Tkinter.Label(master=s)
+            se = Tkinter.Entry(master=s)
+            s.grid_columnconfigure(0, weight=1)
+            sl.grid(column=0, row=0, sticky='nes')
+            s.grid_columnconfigure(1, weight=1)
+            se.grid(column=1, row=0, sticky='nsw')
+            return (s, (sl, se))
+
         grids = []
         for e, ga in enumerate(gridarguments):
             gridmaster = Tkinter.Frame(master=self.gridpane)
-            selector, selector_widgets = make_selector(gridmaster)
+            selector, selector_widgets = make_selector(ga, gridmaster)
             grids.append(
                 self.add_grid_to_panel(
                     gridmaster,
@@ -1070,25 +1064,22 @@ class PanedPanelGridSelectorBar(PanelWithGrids):
         panes.
 
         """
-        for ga in gridarguments:
-            if ga.get('selectfocuskey'):
-                def make_selector(col):
-                    sl = Tkinter.Label(master=self.selectormaster)
-                    se = Tkinter.Entry(master=self.selectormaster)
-                    self.selectormaster.grid_columnconfigure(col * 2, weight=1)
-                    sl.grid(column=col * 2, row=0, sticky='nes')
-                    self.selectormaster.grid_columnconfigure(
-                        col * 2 + 1, weight=1)
-                    se.grid(column=col * 2 + 1, row=0, sticky='nsw')
-                    return (self.selectormaster, (sl, se))
-                break
-        else:
-            def make_selector(col):
+        def make_selector(a, col):
+            if a.get('selectfocuskey') is None:
                 return (None, None)
+            sl = Tkinter.Label(master=self.selectormaster)
+            se = Tkinter.Entry(master=self.selectormaster)
+            self.selectormaster.grid_columnconfigure(col * 2, weight=1)
+            sl.grid(column=col * 2, row=0, sticky='nes')
+            self.selectormaster.grid_columnconfigure(
+                col * 2 + 1, weight=1)
+            se.grid(column=col * 2 + 1, row=0, sticky='nsw')
+            return (self.selectormaster, (sl, se))
+
         selector = False
         grids = []
         for e, ga in enumerate(gridarguments):
-            selector, selector_widgets = make_selector(e)
+            selector, selector_widgets = make_selector(ga, e)
             grids.append(
                 self.add_grid_to_panel(
                     self.gridpane,
@@ -1183,10 +1174,9 @@ class PanedPanelGridSelectorShared(PanelWithGrids):
         else:
             def make_selector():
                 return (None, None)
-        selector = False
+        selector, selector_widgets = make_selector()
         grids = []
         for ga in gridarguments:
-            selector, selector_widgets = make_selector()
             grids.append(
                 self.add_grid_to_panel(
                     self.gridpane,

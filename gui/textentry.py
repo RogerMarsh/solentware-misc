@@ -16,11 +16,13 @@ get_text_modal - Get text from a TextEntry dialogue
 
 import Tkinter
 
+from exceptionhandler import ExceptionHandler
+
 _TITLE = 'title'
 _TEXT = 'text'
 
 
-class TextEntry(object):
+class TextEntry(ExceptionHandler):
     
     """Modal text entry dialogue widget.
 
@@ -102,13 +104,13 @@ class TextEntry(object):
             master=buttonbar,
             text='Cancel',
             underline=0,
-            command=self._cancel)
+            command=self.try_command(self._cancel, buttonbar))
         cancel.pack(expand=Tkinter.TRUE, side=Tkinter.LEFT)
         ok = Tkinter.Button(
             master=buttonbar,
             text='Ok',
             underline=0,
-            command=self._ok)
+            command=self.try_command(self._ok, buttonbar))
         ok.pack(expand=Tkinter.TRUE, side=Tkinter.LEFT)
         entry.focus()
         toplevel.grab_set()

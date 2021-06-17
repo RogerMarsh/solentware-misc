@@ -17,8 +17,10 @@ ColourSlider
 import Tkinter
 import base64
 
+from exceptionhandler import ExceptionHandler
 
-class _Slider(object):
+
+class _Slider(ExceptionHandler):
 
     """A colour scale widget with a pointer and colour demonstration bar.
 
@@ -60,8 +62,8 @@ class _Slider(object):
 
         self.fill_scale(colourslider=colourslider)
 
-        self.canvas.bind('<Enter>', self.on_enter)
-        self.canvas.bind('<Leave>', self.on_leave)
+        self.canvas.bind('<Enter>', self.try_event(self.on_enter))
+        self.canvas.bind('<Leave>', self.try_event(self.on_leave))
 
     def on_enter(self, event=None):
         self.canvas.itemconfigure(self.slider, fill='cyan')
@@ -195,7 +197,7 @@ class BlueSlider(_Slider):
         self.move_slider(self.slider, 10, colourslider.blue)
 
 
-class ColourSlider(object):
+class ColourSlider(ExceptionHandler):
 
     """A colour chooser widget consisting of a red green and blue colour scale
 
@@ -248,12 +250,15 @@ class ColourSlider(object):
             row=row,
             resolution=resolution,
             colourslider=self)
-        self.redslider.canvas.bind('<ButtonPress-1>', self.delta_red_colour)
-        self.redslider.canvas.bind('<ButtonPress-3>', self.set_red_colour)
-        self.greenslider.canvas.bind('<ButtonPress-1>', self.delta_green_colour)
-        self.greenslider.canvas.bind('<ButtonPress-3>', self.set_green_colour)
-        self.blueslider.canvas.bind('<ButtonPress-1>', self.delta_blue_colour)
-        self.blueslider.canvas.bind('<ButtonPress-3>', self.set_blue_colour)
+        for widget, sequence, function in (
+            (self.redslider, '<ButtonPress-1>', self.delta_red_colour),
+            (self.redslider, '<ButtonPress-3>', self.set_red_colour),
+            (self.greenslider, '<ButtonPress-1>', self.delta_green_colour),
+            (self.greenslider, '<ButtonPress-3>', self.set_green_colour),
+            (self.blueslider, '<ButtonPress-1>', self.delta_blue_colour),
+            (self.blueslider, '<ButtonPress-3>', self.set_blue_colour),
+            ):
+            widget.canvas.bind(sequence, self.try_event(function))
 
     def get_colour(self):
         return ''.join(('#', self.redhex, self.greenhex, self.bluehex))

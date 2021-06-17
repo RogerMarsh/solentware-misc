@@ -1,0 +1,26 @@
+To install the rmappsup package type
+
+python setup.py install
+
+at the command prompt with setup.py in the current directory.
+
+
+This is rmappsup-0.29
+
+
+Dependencies:
+
+Python 2.6 or Python 2.7 installed.
+basesup-0.8 package from www.solentware.co.uk.
+gridsup-0.8 package from www.solentware.co.uk.
+
+
+Notes:
+
+There are three kinds of modules in this package.  Those implementing facilities that do not have an obvious home elsewhere (bz2textapi.py for example); those for which a decision has not been made (dptdatasource.py for example); and those which do things the way I want to do them (gui/frame.py and gui/panel.py for example).
+
+
+Contact:
+
+roger.marsh@solentware.co.uk
+

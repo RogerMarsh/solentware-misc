@@ -19,7 +19,6 @@ class NullDataSource(DataSource):
     
     Methods added:
 
-    build_recordset
     set_recordset
 
     Methods overridden:
@@ -31,10 +30,6 @@ class NullDataSource(DataSource):
     None
     
     """
-
-    def build_recordset(self, specification):
-        """Retun null record."""
-        return dict()
 
     def get_cursor(self):
         """Return cursor on the record set associated with datasource."""
@@ -56,13 +51,18 @@ class CursorNull(Cursor):
     Methods overridden:
 
     close
+    count_records
+    database_cursor_exists
     first
+    get_position_of_record
+    get_record_at_position
     last
-    set_partial_key
     nearest
     next
     prev
+    refresh_recordset
     setat
+    set_partial_key
 
     Methods extended:
 
@@ -77,7 +77,19 @@ class CursorNull(Cursor):
     def close(self):
         return None
 
+    def count_records(self):
+        return None
+
+    def database_cursor_exists(self):
+        return False
+
     def first(self):
+        return None
+
+    def get_position_of_record(self):
+        return 0
+
+    def get_record_at_position(self):
         return None
 
     def last(self):
@@ -93,6 +105,9 @@ class CursorNull(Cursor):
         return None
 
     def prev(self):
+        return None
+
+    def refresh_recordset(self):
         return None
 
     def setat(self, record):
