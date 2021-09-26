@@ -2,25 +2,26 @@
 # Copyright 2013 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""This module provides the CallThreadQueue class which runs methods from
-a queue in a dedicated thread and rejects requests to run methods while
-the thread is running a method.
+"""Provide the CallThreadQueue class to run methods in a dedicated thread.
+
+Methods are read from a queue and requests to run methods while the thread
+is running a method are rejected.
 
 """
 import queue
 import threading
 
 
-class CallThreadQueue(object):
+class CallThreadQueue:
     """Provide a queue and a thread which runs methods placed on the queue.
 
     The maximum size of the queue is one.
-    
+
     """
 
     def __init__(self):
-        """Create the queue andstart the thread."""
-        super(CallThreadQueue, self).__init__()
+        """Create the queue and start the thread."""
+        super().__init__()
         self.queue = queue.Queue(maxsize=1)
         threading.Thread(target=self.__call_method, daemon=True).start()
 
@@ -36,7 +37,7 @@ class CallThreadQueue(object):
             method(*args, **kwargs)
             self.queue.task_done()
 
-    def put_method(self, method, args=(), kwargs={}):
+    def put_method(self, method, args=(), kwargs=None):
         """Append the method and it's arguments to the queue.
 
         method - the method to be run.
@@ -47,4 +48,4 @@ class CallThreadQueue(object):
 
         (method, args, kwargs).
         """
-        self.queue.put((method, args, kwargs))
+        self.queue.put((method, args, {} if kwargs is None else kwargs))

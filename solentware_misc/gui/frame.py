@@ -2,8 +2,7 @@
 # Copyright 2007 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""This module provides classes to support a notebook style database User
-Interface.
+"""Provide classes to support a notebook style database User Interface.
 
 (To do: convert to ttk::notebook, which might mean converting applications
 using these classes and not using this module.)
@@ -22,11 +21,11 @@ try:
     from solentware_grid.core.dataregister import DataRegister
 except ImportError:
 
+    class DataRegister:
+        """Provide a 'do-nothing' DataRegister class.
 
-    class DataRegister(object):
-        """Provide a 'do-nothing' emulation of solentware_grid's DataRegister
-        class which is used if importing from solentware_grid.core.dataregister
-        raises ImportError.
+        This class is used if importing DataRegister from
+        solentware_grid.core.dataregister raises ImportError.
 
         The consequence is none of the expected automatic refreshing of
         related widgets will occur.
@@ -53,16 +52,13 @@ from .exceptionhandler import ExceptionHandler
 
 
 class AppSysFrameButton(ExceptionHandler):
-    
-    """This class provides the tab selection buttons for an AppSysFrame.
-    
-    """
-    
-    def __init__(self, parent, cnf=dict(), **kargs):
+    """This class provides the tab selection buttons for an AppSysFrame."""
+
+    def __init__(self, parent, cnf=None, **kargs):
         """Create tab selection button, a tkinter.Button instance.
 
         parent - the parent widget
-        cnf - used as cnf argument in tkinter.Button() call
+        cnf - used as cnf argument in tkinter.Button() call, default {}
         **kargs - used as **kargs argument in tkinter.Button() call
 
         Note the command entry in kargs, if there is one, for use in
@@ -71,10 +67,11 @@ class AppSysFrameButton(ExceptionHandler):
         """
         self.button = tkinter.Button(
             master=parent.get_tab_buttons_frame(),
-            cnf=cnf,
-            **kargs)
+            cnf={} if cnf is None else cnf,
+            **kargs
+        )
 
-        self.command = kargs.get('command')
+        self.command = kargs.get("command")
 
         tags = list(self.button.bindtags())
         tags.insert(0, parent.explicit_focus_tag)
@@ -83,19 +80,19 @@ class AppSysFrameButton(ExceptionHandler):
     def bind_frame_button(self, tab):
         """Bind button command to tab in Alt-key style."""
         conf = self.button.configure()
-        underline = conf['underline'][-1]
-        text = conf['text'][-1]
+        underline = conf["underline"][-1]
+        text = conf["text"][-1]
         if isinstance(text, tuple):
-            text = ' '.join(text)
+            text = " ".join(text)
         try:
             if not underline < 0:
                 tab.panel.bind(
-                    sequence=''.join((
-                        '<Alt-KeyPress-',
-                        text[underline].lower(),
-                        '>')),
+                    sequence="".join(
+                        ("<Alt-KeyPress-", text[underline].lower(), ">")
+                    ),
                     func=self.try_event(self.command),
-                    add=True)
+                    add=True,
+                )
         except:
             pass
 
@@ -108,32 +105,31 @@ class AppSysFrameButton(ExceptionHandler):
         self.command = on_click
         self.button.configure(command=self.try_command(on_click, self.button))
         self.button.bind(
-            sequence='<KeyPress-Return>',
+            sequence="<KeyPress-Return>",
             func=self.try_event(on_click),
-            add=True)
+            add=True,
+        )
 
     def unbind_frame_button(self, tab):
         """Unbind button command from tab in Alt-key style."""
         conf = self.button.configure()
-        underline = conf['underline'][-1]
-        text = conf['text'][-1]
+        underline = conf["underline"][-1]
+        text = conf["text"][-1]
         if isinstance(text, tuple):
-            text = ' '.join(text)
+            text = " ".join(text)
         try:
             if not underline < 0:
                 tab.panel.bind(
-                    sequence=''.join((
-                        '<Alt-KeyPress-',
-                        text[underline].lower(),
-                        '>')))
+                    sequence="".join(
+                        ("<Alt-KeyPress-", text[underline].lower(), ">")
+                    )
+                )
         except:
             pass
 
 
 class AppSysFrame(ExceptionHandler):
-    
-    """This class provides the container for the tabs of a notebook style
-    user interface.
+    """Provide container for tabs of a notebook style user interface.
 
     The main frame of an application. Contains a frame for buttons that
     switch between the detail frames (panels) of application and a frame
@@ -152,22 +148,21 @@ class AppSysFrame(ExceptionHandler):
 
     """
 
-    explicit_focus_tag = 'explicitfocus'
+    explicit_focus_tag = "explicitfocus"
 
-    def __init__(self, master=None, cnf=dict(), **kargs):
+    def __init__(self, master=None, cnf=None, **kargs):
         """Define the basic structure of the notebook-like application.
 
         Subclasses define the tabs and their interactions.
 
         The following arguments are passed on to Tkinter.Frame
-        cnf = Tkinter.Frame configuration
+        cnf = Tkinter.Frame configuration, default {}
         **kargs = Tkinter.Frame arguments.
-        
+
         """
         self._frame = tkinter.Frame(
-            master=master,
-            cnf=cnf,
-            **kargs)
+            master=master, cnf={} if cnf is None else cnf, **kargs
+        )
 
         self._tab_description = dict()
         self._tab_order = []
@@ -182,7 +177,7 @@ class AppSysFrame(ExceptionHandler):
         # to screen until a tab is actually created
         self._tab_button_frame = tkinter.Frame(master=self._frame)
         # _TAB_FRAME
-        #self._tab_frame = Tkinter.Frame(master=self._frame)
+        # self._tab_frame = Tkinter.Frame(master=self._frame)
 
         # Hook for tab __init__ keyword arguments
         self._tab_init_kwargs = None
@@ -195,10 +190,10 @@ class AppSysFrame(ExceptionHandler):
         is clicked, it is created.  This method does not create the tab.
 
         """
-        for p, l, t in sorted(self._tab_order):
-            if t not in self._tabs:
-                self._tabs[t] = AppSysTab(self, self._tab_description[t])
-                self._tabs[t].bind_tab_button(self.show_current_tab)
+        for i, j, tab in sorted(self._tab_order):
+            if tab not in self._tabs:
+                self._tabs[tab] = AppSysTab(self, self._tab_description[tab])
+                self._tabs[tab].bind_tab_button(self.show_current_tab)
 
     def get_data_register(self):
         """Return the data register object.
@@ -208,11 +203,8 @@ class AppSysFrame(ExceptionHandler):
 
         """
         return self._datasources
-    
-    def define_state_transitions(
-        self,
-        tab_state=None,
-        switch_state=None):
+
+    def define_state_transitions(self, tab_state=None, switch_state=None):
         """Define tab navigation for application.
 
         Subclasses must extend this method to define the application's
@@ -230,42 +222,43 @@ class AppSysFrame(ExceptionHandler):
         {..,(<current state>,<panel button>):[<new state>,<new panel>],..}.
 
         <current state> and <new state> values must be keys in tab_state.
-        
+
         """
         if isinstance(tab_state, dict):
             self._tab_state.update(tab_state)
         if isinstance(switch_state, dict):
             self._switch_state.update(switch_state)
-    
+
     def define_tab(
         self,
         identity,
-        text='',
-        tooltip='',
+        text="",
+        tooltip="",
         underline=-1,
         tabclass=None,
         position=-1,
         create_actions=None,
-        destroy_actions=None):
+        destroy_actions=None,
+    ):
         """Create a tab description.
 
         see AppSysTab for description of remaining arguments.
 
         It is sensible to ensure that the order of buttons in _tab_order is
         the same as the order of buttons in _tab_state entries.
-        
+
         """
         if identity in self._tab_description:
-            for e in range(len(self._tab_order)):
-                t = self._tab_order.pop(0)
-                if t[-1] != identity:
-                    self._tab_order.append(t)
+            for i in range(len(self._tab_order)):
+                tab = self._tab_order.pop(0)
+                if tab[-1] != identity:
+                    self._tab_order.append(tab)
         if position < 0:
             self._tab_order.append(
-                (len(self._tab_order), len(self._tab_order), identity))
+                (len(self._tab_order), len(self._tab_order), identity)
+            )
         else:
-            self._tab_order.append(
-                (position, len(self._tab_order), identity))
+            self._tab_order.append((position, len(self._tab_order), identity))
         self._tab_description[identity] = AppSysTabDefinition(
             identity,
             text=text,
@@ -273,8 +266,9 @@ class AppSysFrame(ExceptionHandler):
             tabclass=tabclass,
             underline=underline,
             create_actions=create_actions,
-            destroy_actions=destroy_actions)
-    
+            destroy_actions=destroy_actions,
+        )
+
     def get_tab_buttons_frame(self):
         """Return Frame containing tab buttons."""
         return self._tab_button_frame
@@ -340,17 +334,17 @@ class AppSysFrame(ExceptionHandler):
         """
         self._hide_buttons()
         state, tab = self._switch_state[(self._state, eid)]
-        if state != None:
+        if state is not None:
             self._hide_tab()
-            for t in self._tabs.values():
+            for k in self._tabs.values():
                 # destroy tabs from AppSysTabDefinition.destroy_actions
-                if eid in t.description.destroy_actions:
-                    if t.tab is not None:
-                        t.tab.close()
-                        t.tab = None
+                if eid in k.description.destroy_actions:
+                    if k.tab is not None:
+                        k.tab.close()
+                        k.tab = None
                 # create tabs from AppSysTabDefinition.create_actions
-                if eid in t.description.create_actions:
-                    self._make_tab(t.description.identity)
+                if eid in k.description.create_actions:
+                    self._make_tab(k.description.identity)
             self._make_tab(tab)
             self.set_state(state)
             # display the tab if it is one displayable in new state ??????
@@ -359,53 +353,52 @@ class AppSysFrame(ExceptionHandler):
                 self._show_tab()
             # forget frame containing tab switching buttons and tab if no tab
             # exists
-            for t in self._tabs.values():
-                if t.tab is not None:
+            for k in self._tabs.values():
+                if k.tab is not None:
                     break
             else:
                 if self._tab_button_frame.winfo_ismapped() == 1:
                     self._tab_button_frame.pack_forget()
                 # _TAB_FRAME
-                '''if self._tab_frame.winfo_ismapped() == 1:
-                    self._tab_frame.pack_forget()'''
             self._show_buttons()
-    
+
     def switch_context(self, button):
         """Provide switch_context interface to show_state for AppSysPanel.
 
         This allows AppSysPanel to call switch_context without worrying
         about whether it is calling an AppSysPanel or AppSysFrame method.
         If it is calling the AppSysFrame method show_state does the work.
-        
+
         """
         self.show_state(eid=button)
 
     def _hide_buttons(self):
         """Hide the frame buttons."""
-        for p, l, b in self._tab_order:
+        for i, j, tab in self._tab_order:
             if self._current_tab:
-                self._tabs[b].button.unbind_frame_button(
-                    self._tabs[self._current_tab].tab)
-            self._tabs[b].button.button.pack_forget()
+                self._tabs[tab].button.unbind_frame_button(
+                    self._tabs[self._current_tab].tab
+                )
+            self._tabs[tab].button.button.pack_forget()
 
     def _hide_tab(self):
         """Hide the current tab."""
-        if self._state == None:
+        if self._state is None:
             return
         tab = self._current_tab
         if tab is None:
             return
-        if self._tabs[tab].tab == None:
+        if self._tabs[tab].tab is None:
             return
         self._tabs[tab].tab.hide_panel()
-        for s in self._frame.bind_class(self.explicit_focus_tag):
-            self._frame.unbind_class(self.explicit_focus_tag, s)
+        for k in self._frame.bind_class(self.explicit_focus_tag):
+            self._frame.unbind_class(self.explicit_focus_tag, k)
 
     def _make_tab(self, tab):
         """Create tab if it does not exist."""
         if tab is None:
             return
-        if self._tabs[tab].tab != None:
+        if self._tabs[tab].tab is not None:
             return
         # Assume some tab will be displayed if a tab is created so ensure
         # that tab switching buttons are displayed.  Actually need this even
@@ -418,7 +411,7 @@ class AppSysFrame(ExceptionHandler):
         if self._tab_init_kwargs is not None:
             if isinstance(self._tab_init_kwargs, dict):
                 try:
-                    tabbuttontext = self._tab_init_kwargs.pop('tabtitle')
+                    tabbuttontext = self._tab_init_kwargs.pop("tabtitle")
                 except KeyError:
                     pass
                 kwargs.update(self._tab_init_kwargs)
@@ -429,11 +422,12 @@ class AppSysFrame(ExceptionHandler):
 
     def _show_buttons(self):
         """Show frame buttons for current location in navigation map."""
-        for b in self._tab_state[self._state]:
-            self._tabs[b].button.button.pack(side=tkinter.LEFT)
+        for button in self._tab_state[self._state]:
+            self._tabs[button].button.button.pack(side=tkinter.LEFT)
             if self._current_tab:
-                self._tabs[b].button.bind_frame_button(
-                    self._tabs[self._current_tab].tab)
+                self._tabs[button].button.bind_frame_button(
+                    self._tabs[self._current_tab].tab
+                )
 
     def _show_tab(self):
         """Show current tab and give it the focus."""
@@ -441,23 +435,18 @@ class AppSysFrame(ExceptionHandler):
         if tab is None:
             return
         # pack frame containing tab switch buttons and tab if any tab exists
-        for t in self._tabs.values():
-            if t.tab is not None:
-                if t.description.identity in self._tab_state[self._state]:
+        for value in self._tabs.values():
+            if value.tab is not None:
+                if value.description.identity in self._tab_state[self._state]:
                     # _TAB_FRAME
-                    '''if self._tab_frame.winfo_ismapped() == 0:
-                        self._tab_frame.pack(fill=Tkinter.BOTH)'''
                     break
         self._tabs[tab].tab.show_panel()
         self._tabs[tab].tab.panel.focus_set()
-        
+
 
 # maybe combine AppSysTab and AppSysTabDefinition classes
 class AppSysTab(ExceptionHandler):
-    
-    """This class creates a tab using a tab definition.
-    
-    """
+    """This class creates a tab using a tab definition."""
 
     def __init__(self, parent, description):
         """Create the tab's button in parent frame using the tab description.
@@ -468,9 +457,8 @@ class AppSysTab(ExceptionHandler):
         """
         self.tab = None
         self.button = AppSysFrameButton(
-            parent,
-            text=description.text,
-            underline=description.underline)
+            parent, text=description.text, underline=description.underline
+        )
         self.description = description
 
     def bind_tab_button(self, command):
@@ -484,22 +472,20 @@ class AppSysTab(ExceptionHandler):
 
 # maybe combine AppSysTab and AppSysTabDefinition classes
 # does this need to be subclass of ExceptionHandler or not?
-class AppSysTabDefinition(object):
-    
-    """This class describes a tab which can be included on an AppSysFrame.
-    
-    """
+class AppSysTabDefinition:
+    """This class describes a tab which can be included on an AppSysFrame."""
 
     def __init__(
         self,
         identity,
-        text='',
-        tooltip='',
+        text="",
+        tooltip="",
         underline=-1,
         tabclass=None,
         position=-1,
         create_actions=None,
-        destroy_actions=None):
+        destroy_actions=None,
+    ):
         """Create tab definition.
 
         identity - arbitrary identity number for tab.
@@ -539,4 +525,3 @@ class AppSysTabDefinition(object):
             self.destroy_actions = set(destroy_actions)
         except:
             self.destroy_actions = set()
-

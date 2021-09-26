@@ -2,24 +2,18 @@
 # Copyright 2009 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""This module provides a text entry dialogue class and a function which
-returns the text entered using this class as a modal dialogue.
-
-"""
+"""Provide text entry dialogue class and a modal dialogue function."""
 
 import tkinter
 
 from .exceptionhandler import ExceptionHandler
 
-_TITLE = 'title'
-_TEXT = 'text'
+_TITLE = "title"
+_TEXT = "text"
 
 
 class TextEntry(ExceptionHandler):
-    
-    """Text entry dialogue widget.
-    
-    """
+    """Text entry dialogue widget."""
 
     def __init__(self, master=None, **options):
         """Initialise dialogue attributes.
@@ -53,8 +47,7 @@ class TextEntry(ExceptionHandler):
         self.entry = None
 
     def show_modal(self):
-        """Create and show the text entry dialogue, preventing interaction
-        with the rest of the application.
+        """Create and show the modal text entry dialogue.
 
         Remove text and title from options before passing rest to Entry.
         Title is passed to Toplevel.
@@ -67,12 +60,12 @@ class TextEntry(ExceptionHandler):
             title = options[_TITLE]
             del options[_TITLE]
         else:
-            title = 'Text Entry'
+            title = "Text Entry"
         if _TEXT in options:
             text = options[_TEXT]
             del options[_TEXT]
         else:
-            text = 'Enter text'
+            text = "Enter text"
 
         self.toplevel = toplevel = tkinter.Toplevel(master=self.master)
         toplevel.wm_title(title)
@@ -84,16 +77,18 @@ class TextEntry(ExceptionHandler):
         buttonbar.pack(fill=tkinter.X, expand=tkinter.TRUE)
         cancel = tkinter.Button(
             master=buttonbar,
-            text='Cancel',
+            text="Cancel",
             underline=0,
-            command=self.try_command(self._cancel, buttonbar))
+            command=self.try_command(self._cancel, buttonbar),
+        )
         cancel.pack(expand=tkinter.TRUE, side=tkinter.LEFT)
-        ok = tkinter.Button(
+        button = tkinter.Button(
             master=buttonbar,
-            text='Ok',
+            text="Ok",
             underline=0,
-            command=self.try_command(self._ok, buttonbar))
-        ok.pack(expand=tkinter.TRUE, side=tkinter.LEFT)
+            command=self.try_command(self._ok, buttonbar),
+        )
+        button.pack(expand=tkinter.TRUE, side=tkinter.LEFT)
         entry.focus()
         toplevel.grab_set()
         toplevel.wait_window()
@@ -108,10 +103,9 @@ class TextEntry(ExceptionHandler):
 
 def get_text_modal(master=None, **options):
     """Return text from modal TextEntry dialogue.
-    
+
     master - passed to TextEntry as master argument.
     **options - passed to TextEntry as **options argument.
     """
-    te = TextEntry(master=master, **options)
-    return te.show_modal()
-
+    widget = TextEntry(master=master, **options)
+    return widget.show_modal()

@@ -2,24 +2,22 @@
 # Copyright 2013 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""This module provides the AppSysThreadQueue class which adds the ability to
-run background tasks and report their progress to the frame.AppSysFrame class.
+"""Provide the AppSysThreadQueue class to run background tasks.
+
+It extends the frame.AppSysFrame class which supports progress reports.
 
 """
 
-import tkinter
 import queue
 import threading
 
-from ..api import callthreadqueue
+from ..core import callthreadqueue
 
 from . import frame
-        
+
 
 class AppSysThreadQueue(frame.AppSysFrame):
-    
-    """Add a thread task queue and a user interface update queue to the
-    frame.AppSysFrame class.
+    """Add thread task queue and UI update queue to frame.AppSysFrame class.
 
     Provide a background thread and associated queue for submitting tasks using
     a CallThreadQueue instance.  One background task can be run at a time.
@@ -27,14 +25,14 @@ class AppSysThreadQueue(frame.AppSysFrame):
 
     Use a queue to pass user interface update requests to the main thread for
     execution.  (The background task can report progress to the task log.)
-    
+
     This means all user interface update calls have to be done as:
     do_ui_task(<method>, tuple, dictionary).
 
     Just do <method>(*tuple, **dictionary) if the main thread does the call.
 
     Do <queue>.put((<method>, tuple, dictionary)) for other threads.
-    
+
     """
 
     # Start of comments copied from chesstab.gui.chessdu on 2017-09-05.
@@ -58,13 +56,14 @@ class AppSysThreadQueue(frame.AppSysFrame):
     # End of comments copied from chesstab.gui.chessdu on 2017-09-05.
 
     def __init__(self, interval=5000, **kargs):
-        """Delegate to superclass then create the task and report queues and
-        start the report queue reader.
+        """Delegate to superclass then create and start task.
+
+        Tasks are taken from a queue of maximum length 1.
 
         interval - poll report queue after a time delay (default 5 seconds).
         **kargs - passed to superclass as **kargs argument.
         """
-        super(AppSysThreadQueue, self).__init__(**kargs)
+        super().__init__(**kargs)
         self.queue = callthreadqueue.CallThreadQueue()
         self.reportqueue = queue.Queue(maxsize=1)
         self.__run_ui_task_from_queue(interval)
@@ -86,17 +85,19 @@ class AppSysThreadQueue(frame.AppSysFrame):
                 self.get_widget().after(
                     interval,
                     self.try_command(
-                        self.__run_ui_task_from_queue, self.get_widget()),
-                    *(interval,))
+                        self.__run_ui_task_from_queue, self.get_widget()
+                    ),
+                    *(interval,)
+                )
                 break
             self.reportqueue.task_done()
 
-    def do_ui_task(self, method, args=(), kwargs={}):
+    def do_ui_task(self, method, args=(), kwargs=None):
         """Run method on main thread or add to queue on other threads.
 
         method - the method to be run.
         args - passed to method as *args.
-        kwargs - passed to method as **kwargs.
+        kwargs - passed to method as **kwargs, default {}.
 
         The method is called directly if do_ui_task is running in the main
         thread.
@@ -106,7 +107,9 @@ class AppSysThreadQueue(frame.AppSysFrame):
 
         (method, args, kwargs).
         """
-        if threading.current_thread().name == 'MainThread':
+        if kwargs is None:
+            kwargs = {}
+        if threading.current_thread().name == "MainThread":
             method(*args, **kwargs)
         else:
             self.reportqueue.put((method, args, kwargs))

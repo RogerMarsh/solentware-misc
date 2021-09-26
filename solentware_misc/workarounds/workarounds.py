@@ -2,13 +2,16 @@
 # Copyright 2011 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""Workarounds for problems encountered with Tkinter functions at Tcl/Tk 8.5
-at Python2.6 or Python2.7.
+"""Tkinter function workarounds at Tcl/Tk 8.5 at Python2.6 or Python2.7.
+
+Both grid_configure_query and text_count became redundant at an unknown
+point after the problems they fix were spotted.
 
 It is assumed the genuine functions work at Python 2.5 with Tcl/Tk 8.4, if
 the feature is supported, and changes in Tcl/Tk 8.5 raise the problem.
 
 """
+
 
 def grid_configure_query(widget, command, index, option=None):
     """Hack of Tkinter.py Misc method _grid_configure for option queries.
@@ -25,36 +28,37 @@ def grid_configure_query(widget, command, index, option=None):
 
     """
     if option is None:
-        res = widget.tk.call('grid', command, widget._w, index)
+        res = widget.tk.call("grid", command, widget._w, index)
         words = widget.tk.splitlist(res)
-        dict = {}
+        dict_ = {}
         for i in range(0, len(words), 2):
             key = words[i][1:]
-            value = words[i+1]
-            # perhaps just testing value == '' is enough
-            if key == 'uniform':
+            value = words[i + 1]
+            # perhaps just testing value == '' is enough.
+            if key == "uniform":
                 if not value:
                     value = None
-            elif value == '':
+            elif value == "":
                 value = None
-            dict[key] = value
-        return dict
-    else:
-        # should precisely one leading '-' and one trailing '_' be adjusted
-        res = widget.tk.call(
-            ('grid',
-             command,
-             widget._w,
-             index,
-             ''.join(('-', option.rstrip('_').lstrip('-'))),
-             ))
-        # perhaps just testing res == '' is enough
-        if option == 'uniform':
-            if not res:
-                res = None
-        elif res == '':
+            dict_[key] = value
+        return dict_
+    # should precisely one leading '-' and one trailing '_' be adjusted.
+    res = widget.tk.call(
+        (
+            "grid",
+            command,
+            widget._w,
+            index,
+            "".join(("-", option.rstrip("_").lstrip("-"))),
+        )
+    )
+    # perhaps just testing res == '' is enough.
+    if option == "uniform":
+        if not res:
             res = None
-        return res
+    elif res == "":
+        res = None
+    return res
 
 
 def text_count(widget, index1, index2, *options):
@@ -77,4 +81,4 @@ def text_count(widget, index1, index2, *options):
     chars, lines = text_count(widget, start, end, '-chars', '-lines')
 
     """
-    return widget.tk.call((widget._w, 'count') + options + (index1, index2))
+    return widget.tk.call((widget._w, "count") + options + (index1, index2))

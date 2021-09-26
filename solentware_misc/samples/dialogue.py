@@ -2,10 +2,10 @@
 # Copyright 2020 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""Provide classes which do modal dialogues and non-modal reports.
+"""Provide classes which demonstrate modal dialogues.
 
-The Dialog and SimpleDialog classes in the tkinter.simpledialog module
-are used to guide implementation.
+The examples of the Dialog and SimpleDialog classes in the
+tkinter.simpledialog module are followed.
 
 ModalDialogueGo follows the example of tkinter.simpledialog.SimpleDialog,
 and ModalDialogue follows the example of tkinter.simpledialog.Dialog, in
@@ -29,13 +29,10 @@ ModalDialogue does:
 in it's __init__() method and the button methods do self.root.destroy().
 
 ModalDialogue assumes a tkinter mainloop() is running in the caller's
-environment, while ModalDialogueGo runs it's own tkinter mainloop().
-
-Report does not do a grab_set sequence, and does self.root.destroy() in
-it's Close button's method only.
+environment, while ModalDialogueGo runs it's own tkinter mainloop()
 
 Construction of the dialogue widget is done by this module's Dialogue class,
-a superclass of ModalDialogueGo, ModalDialogue, and Report.
+a superclass of both ModalDialogueGo and ModalDialogue.
 
 This module's Dialogue class does not do:
 
@@ -112,6 +109,7 @@ class Dialogue(ExceptionHandler):
     character in the button label are provided by default.
 
     Buttons do not take focus via keyboard traversal by default.
+
     """
 
     underline_buttons = True
@@ -131,7 +129,7 @@ class Dialogue(ExceptionHandler):
         cnf=None,
         **kargs
     ):
-        """Create modal or non-modal dialogue."""
+        """Define widget to demonstrate modal and non-modal dialogues."""
         super().__init__()
         self.action = None
         if buttons is None:
@@ -154,26 +152,22 @@ class Dialogue(ExceptionHandler):
         if geometry:
             self._set_geometry(self.parent.get_widget())
 
-        def button_action():
+        def ba():
             return self.action
 
-        def button_function(action):
-            def function():
-                return bool(action == button_action())
+        def bf(a):
+            def f():
+                return bool(a == ba())
 
-            return function
+            return f
 
         # Create methods <button name>_pressed which return True if self.action
         # equals name of button.  For example a button labelled 'Add Name' will
         # get the method self.add_name_pressed().  It is assumed clicking a
         # button causes self.action to be set to the button label (the text
         # argument in the tkinter.Button() call for the button).
-        for button in buttons:
-            setattr(
-                self,
-                "_".join(button.split()).lower() + "_pressed",
-                button_function(button),
-            )
+        for b in buttons:
+            setattr(self, "_".join(b.split()).lower() + "_pressed", bf(b))
 
     def append(self, text):
         """Append text to body widget."""
@@ -195,11 +189,11 @@ class Dialogue(ExceptionHandler):
         """Create the report or dialogue widget."""
         if action_titles is None:
             action_titles = {}
-        for k, action in action_titles.items():
-            if isinstance(action, str):
-                action_titles[k] = (action, "")
-            elif len(action) < 2:
-                action_titles[k] += ("",) * (2 - len(action))
+        for k, v in action_titles.items():
+            if isinstance(v, str):
+                action_titles[k] = (v, "")
+            elif len(v) < 2:
+                action_titles[k] += ("",) * (2 - len(v))
         self.parent = parent
         self.root = tkinter.Toplevel(master=parent.get_widget())
         self.root.title(title)
@@ -243,54 +237,48 @@ class Dialogue(ExceptionHandler):
         else:
             bchars = set("".join(buttons).lower())
             underline = [-1] * len(buttons)
-            for index, action in enumerate(buttons):
-                for i, char in enumerate(action):
-                    if char in bchars:
-                        underline[index] = i
-                        bchars.discard(char)
+            for e, b in enumerate(buttons):
+                for i, c in enumerate(b):
+                    if c in bchars:
+                        underline[e] = i
+                        bchars.discard(c)
                         break
         self.action_title = {}
-        for index, action in enumerate(buttons):
-            on_b_attr_name = "on_" + "_".join(action.split()).lower()
+        for e, b in enumerate(buttons):
+            on_b_attr_name = "on_" + "_".join(b.split()).lower()
             if not hasattr(self, on_b_attr_name):
-                setattr(self, on_b_attr_name, self.button_on_attr(action))
+                setattr(self, on_b_attr_name, self.button_on_attr(b))
             on_b = getattr(self, on_b_attr_name)
-            if action in action_titles:
-                self.action_title[on_b] = action_titles[action][0]
+            if b in action_titles:
+                self.action_title[on_b] = action_titles[b][0]
             else:
-                self.action_title[on_b] = action
+                self.action_title[on_b] = b
             button = tkinter.Button(
                 master=reportframe,
-                text=action,
+                text=b,
                 takefocus=self.buttons_takefocus,
-                underline=underline[index],
+                underline=underline[e],
                 command=self.try_command(on_b, self.root),
             )
             if side == tkinter.BOTTOM:
-                button.grid_configure(column=index, row=1, padx=5)
+                button.grid_configure(column=e, row=1, padx=5)
                 if scroll:
-                    reportframe.grid_columnconfigure(index, weight=1)
+                    reportframe.grid_columnconfigure(e, weight=1)
             elif side == tkinter.RIGHT:
-                button.grid_configure(row=index, column=1, padx=5)
+                button.grid_configure(row=e, column=1, padx=5)
                 if scroll:
-                    reportframe.grid_rowconfigure(index, weight=1)
+                    reportframe.grid_rowconfigure(e, weight=1)
             elif side == tkinter.TOP:
-                button.grid_configure(column=index, row=0, padx=5)
+                button.grid_configure(column=e, row=0, padx=5)
                 if scroll:
-                    reportframe.grid_columnconfigure(index, weight=1)
+                    reportframe.grid_columnconfigure(e, weight=1)
             elif side == tkinter.LEFT:
-                button.grid_configure(row=index, column=0, padx=5)
+                button.grid_configure(row=e, column=0, padx=5)
                 if scroll:
-                    reportframe.grid_rowconfigure(index, weight=1)
-            if underline[index] >= 0:
+                    reportframe.grid_rowconfigure(e, weight=1)
+            if underline[e] >= 0:
                 self.body.bind(
-                    "".join(
-                        (
-                            "<Alt-KeyPress-",
-                            action[underline[index]].lower(),
-                            ">",
-                        )
-                    ),
+                    "".join(("<Alt-KeyPress-", b[underline[e]].lower(), ">")),
                     self.try_event(on_b),
                 )
         self.focus_set()
@@ -320,30 +308,20 @@ class Dialogue(ExceptionHandler):
             side=tkinter.LEFT, fill=tkinter.BOTH, expand=tkinter.TRUE
         )
 
-    def button_on_attr(self, action):
-        """Return event handler which sets action and destroys dialogue.
-
-        Action indicates the action requested by dialogue.
-
-        The requested action is not done by the event handler.
-        """
+    def button_on_attr(self, a):
+        """Return method to handle button event for action 'a'."""
 
         def on_f(event=None):
-            self.action = action
+            self.action = a
             self.root.destroy()
 
         return on_f
 
+    # Copied from tkinter.simpledialog.SimpleDialog._set_transient but renamed
+    # _set_geometry because that seems more appropriate to what is done.
+    # The widget.transient() call is wrapped because Dialogue should
+    # not do it but ModalDialogue and ModalDialogueGo should.
     def _set_geometry(self, master, relx=0.5, rely=0.3):
-        """Set the widget geometry and make the widget visible.
-
-        Copied from tkinter.simpledialog.SimpleDialog._set_transient but
-        renamed _set_geometry because that seems more appropriate to what
-        is done.
-
-        The original widget.transient() call is wrapped because Dialogue
-        should not do it but ModalDialogue and ModalDialogueGo should.
-        """
         widget = self.root
         widget.withdraw()  # Remain invisible while we figure out the geometry.
         self.widget_transient(widget, master)
@@ -372,8 +350,9 @@ class Dialogue(ExceptionHandler):
         widget.geometry("+%d+%d" % (x, y))
         widget.deiconify()  # Become visible at the desired location.
 
-    def widget_transient(self, *args):
+    def widget_transient(self, *a):
         """Do nothing.  Dialogue is for persistent widgets."""
+        pass
 
     def wm_delete_window(self):
         """Do nothing.  Deletion is not tied to a button action by default.
@@ -382,9 +361,11 @@ class Dialogue(ExceptionHandler):
         appropriate action by overriding this method.
 
         """
+        pass
 
-    def focus_set(self, *args, **kargs):
+    def focus_set(self, *a, **k):
         """Do nothing.  Dialogies which accept input will likely override."""
+        pass
 
 
 class ModalDialogueGo(Dialogue):
@@ -394,10 +375,11 @@ class ModalDialogueGo(Dialogue):
     geometry - position the report relative to parent if True, default True.
                (parent is the first argument in *args)
     **kargs - passed to superclass as **kargs argument.
+
     """
 
     def __init__(self, *args, geometry=True, **kargs):
-        """Extend and note widget with focus on opening dialogue."""
+        """Extend but implement modal dialogue later in go() method."""
         super().__init__(*args, geometry=geometry, **kargs)
         self.restore_focus = self.root.focus_get()
 
@@ -412,7 +394,7 @@ class ModalDialogueGo(Dialogue):
         self.root.mainloop()
         try:
             self.root.destroy()
-        except tkinter.TclError as error:
+        except tkinter._tkinter.TclError as error:
             # application destroyed while confirm dialogue exists.
             if str(error) != DESTROY_ERROR:
                 raise
@@ -429,11 +411,11 @@ class ModalDialogueGo(Dialogue):
             if str(error) != FOCUS_ERROR:
                 raise
 
-    def button_on_attr(self, action):
+    def button_on_attr(self, a):
         """Return default event handler for button name 'a'."""
 
         def on_f(event=None):
-            self.action = action
+            self.action = a
             if self.restore_focus is not None:
                 self.restore_focus.focus_set()
             self.root.quit()
@@ -446,8 +428,6 @@ class ModalDialogueGo(Dialogue):
         The widget is marked transient because it is modal.  Particular window
         managers may ignore the mark.
 
-        Copied from tkinter.simpledialog.SimpleDialog._set_transient but
-        wrapped.
         """
         widget.transient(master)
 
@@ -457,10 +437,11 @@ class ModalDialogue(Dialogue):
 
     *args - passed to superclass as *args argument.
     **kargs - passed to superclass as **kargs argument.
+
     """
 
     def __init__(self, *args, **kargs):
-        """Extend and note widget with focus on opening dialogue."""
+        """Extend to implement modal dialogue."""
         super().__init__(*args, **kargs)
         self.restore_focus = self.root.focus_get()
 
@@ -507,6 +488,7 @@ class Report(Dialogue):
     this can be done only in the main thread on Microsoft Windows.  Passing
     the text to the main thread via a queue and getting the main thread to
     do the insert call is fine on both platforms so do it that way.
+
     """
 
     buttons = "Save", "Close"
@@ -630,9 +612,9 @@ def show_modal_confirm(parent, title, **kargs):
     title - passed to ModalConfirmGo as title argument.
     **kargs - passed to ModalConfirmGo as **kargs argument.
     """
-    widget = ModalConfirmGo(parent, title, **kargs)
-    widget.go()
-    return widget
+    d = ModalConfirmGo(parent, title, **kargs)
+    d.go()
+    return d
 
 
 # ModalInformation is the replacement for the reports.AppSysInformation class
@@ -674,25 +656,22 @@ def show_modal_information(parent, title, **kargs):
     title - passed to ModalInformationGo as title argument.
     **kargs - passed to ModalInformationGo as **kargs argument.
     """
-    widget = ModalInformationGo(parent, title, **kargs)
-    widget.go()
-    return widget
+    d = ModalInformationGo(parent, title, **kargs)
+    d.go()
+    return d
 
 
 class _Entry:
     """A data entry modal dialogue with Ok and Cancel options.
 
     buttons - ignored, the Ok and Cancel buttons are supplied.
-    scroll - ignored, set to False in super().__init__() call.
+    scroll - provide scrollbar for text, default is False.
     body - either a function which returns a widget of data entry elements,
            or an iterable of prompts, initial values, and substitute characters
            displayed instead of actual values, for data entries,
            or None when a default Entry widget is created.
     *args - passed to superclass as *args argument.
     **kargs - passed to superclass as **kargs argument.
-
-    Expected use is like C(_OnEntry, _Entry, ModalDialogue) where
-    ModuleDialogue provides the __init__ method assumed by the super() call.
 
     Provide default behaviour for modal data entry dialogues.
 
@@ -708,12 +687,17 @@ class _Entry:
     are defined.  All do nothing except focus_set which searches the actual
     widget for something which accepts the focus on keyboard traversal and
     sets the initial focus to the first one found.
+
     """
 
     buttons = "Ok", "Cancel"
 
     def __init__(self, *args, buttons=None, scroll=False, body=None, **kargs):
-        """Extend to provide Ok and Cancel buttons and dialogue body."""
+        """Extend and override using buttons, scroll, and body, arguments.
+
+        By default Ok and Cancel buttons are provided.
+
+        """
         if body is None:
             body = (("", "", None, False),)
         if isinstance(body, (tuple, list)):
@@ -721,7 +705,7 @@ class _Entry:
         self.entries = {}
         self.result = None
         super().__init__(
-            *args, buttons=self.buttons, scroll=False, body=body, **kargs
+            *args, buttons=self.buttons, scroll=scroll, body=body, **kargs
         )
 
     def __del__(self):
@@ -732,61 +716,59 @@ class _Entry:
 
     def append(self, text):
         """Override, do nothing."""
+        pass
 
     def bind(self, *a, **k):
         """Do nothing."""
+        pass
 
     def cget(self, *a, **k):
         """Do nothing."""
+        pass
 
     def configure(self, *a, **k):
         """Do nothing."""
+        pass
 
     def yview(self, *a, **k):
         """Do nothing."""
+        pass
 
     def pack(self, *a, **k):
         """Do nothing."""
+        pass
 
-    def focus_set(self, *args, **kargs):
-        """Set focus to first widget found in keyboard traversal order.
-
-        Child widgets are searched before siblings.
-        """
-        widget = self._child_focus_set(self.body)
-        if widget:
-            widget.focus_set()
+    def focus_set(self, *a, **k):
+        """Set focus to first widget in keyboard traversal order."""
+        w = self._child_focus_set(self.body)
+        if w:
+            w.focus_set()
 
     def _child_focus_set(self, widget):
-        """Return widget or child widget if it takes focus.
-
-        Children are searched first.  False is returned if no children of
-        widget nor widget take focus.
-        """
         children = widget.winfo_children()
         if not children:
             if widget.cget("takefocus") != str(tkinter.FALSE):
                 return widget
-            return False
-        for child in children:
-            focus_widget = self._child_focus_set(child)
-            if focus_widget:
-                return focus_widget
+            else:
+                return False
+        for c in children:
+            w = self._child_focus_set(c)
+            if w:
+                return w
         return False
 
     # tkinter.simpledialog.Dialog equivalent is 'body', but this name is taken.
     def body_factory(self, body_definition):
         """Return function which creates the dialogue body."""
 
-        def make_body(master=None, cnf=None, **k):
+        def make_body(master=None, cnf={}, **k):
             # Create dialog body and return dictionary of Entry widgets.
-            if cnf is None:
-                cnf = {}
+            entries = {}
             frame = tkinter.Frame(master)
-            for index, body in enumerate(body_definition):
-                prompt, initialvalue, substitute, select = body
-                label = tkinter.Label(frame, text=prompt, justify=tkinter.LEFT)
-                label.grid(row=index * 2, padx=5, sticky=tkinter.W)
+            for e, b in enumerate(body_definition):
+                prompt, initialvalue, substitute, select = b
+                w = tkinter.Label(frame, text=prompt, justify=tkinter.LEFT)
+                w.grid(row=e * 2, padx=5, sticky=tkinter.W)
                 if initialvalue is not None:
                     width = max(30, min(80, len(str(initialvalue))))
                 else:
@@ -795,9 +777,7 @@ class _Entry:
                     entry = tkinter.Entry(frame, show=substitute, width=width)
                 else:
                     entry = tkinter.Entry(frame, width=width)
-                entry.grid(
-                    row=index * 2 + 1, padx=5, sticky=tkinter.W + tkinter.E
-                )
+                entry.grid(row=e * 2 + 1, padx=5, sticky=tkinter.W + tkinter.E)
                 if initialvalue is not None:
                     entry.insert(0, initialvalue)
                 if select:
@@ -815,9 +795,9 @@ class _Entry:
 class _OnEntry:
     """Provide on_ok and on_cancel methods.
 
-    When used like C(_OnEntry, _Entry, ModalDialogue), the on_ok and
-    on_cancel methods are bound to the Ok and Cancel buttons by the
-    Dialogue._create_widget method.
+    The ModalEntry and ModalEntryGo classes are subclasses, so the
+    Dialogue._create_widget method will do the correct actions setting
+    up these methods.
 
     _OnEntry follows the example of tkinter.simpledialog.SimpleDialog in it's
     reaction to events.  The dialogue response indicates which button was used
@@ -829,7 +809,6 @@ class _OnEntry:
     """
 
     def on_ok(self, event=None):
-        """Handle Ok button event."""
         if self.parent is not None:
             self.parent.get_widget().focus_set()
         self.action = self.action_title[self.on_ok]
@@ -837,7 +816,6 @@ class _OnEntry:
         self.root.destroy()
 
     def on_cancel(self, event=None):
-        """Handle Cancel button event."""
         if self.parent is not None:
             self.parent.get_widget().focus_set()
         self.action = self.action_title[self.on_cancel]
@@ -845,42 +823,27 @@ class _OnEntry:
 
 
 class ModalEntry(_OnEntry, _Entry, ModalDialogue):
-    """A data entry modal dialogue with Ok and Cancel options.
+    """A data entry modal dialogue which uses the existing event loop."""
 
-    _OnEntry provides the button event handlers.
-
-    _Entry provides the button definitions and a function to createthe
-    dialogue content.
-
-    ModalDialogue provides the dialogue.
-
-    The event loop is assumed to be active already.
-    """
+    pass
 
 
 class ModalEntryGo(_OnEntry, _Entry, ModalDialogueGo):
-    """A data entry modal dialogue with Ok and Cancel options.
+    """A data entry modal dialogue with it's own event loop."""
 
-    _OnEntry provides the button event handlers.
-
-    _Entry provides the button definitions and a function to createthe
-    dialogue content.
-
-    ModalDialogueGo provides the dialogue.
-
-    The event loop is activated by the ModalDialogueGo.go() method.
-    """
+    pass
 
 
 class _EntryApply(_Entry):
     """Provide default validate and apply methods.
 
-    The tkinter.simpledialog.Dialog class example is followed.
+    The methods in the tkinter.simpledialog.Dialog class are followed.
 
     The keyboard equivalents for button click events defined by underlining
     a charcter in the button name are suppressed because Ok is bound to the
     Return key and Cancel to Escape in the ModalEntryApplyGo and
     ModalEntryApply classes.
+
     """
 
     underline_buttons = False
@@ -906,14 +869,16 @@ class _EntryApply(_Entry):
         return True should be done in the overriding apply() method.)
 
         """
+        pass
 
 
 class _OnEntryApply:
     """Provide _on_ok and _on_cancel methods.
 
-    The ModalEntryApply and ModalEntryApplyGo subclasses will alias these
-    as on_ok and on_cancel in their own ways, so the Dialogue._create_widget
-    method will do the correct actions setting up these methods.
+    The ModalEntryApply and ModalEntryApplyGo subclasses will alias _on_ok
+    as on_ok and _on_cancel as on_cancel in two ways, so the
+    Dialogue._create_widget method will do the correct actions setting up
+    these methods.
 
     _OnEntryApply follows the example of the ok and cancel methods in
     tkinter.simpledialog.Dialog in the way _on_ok and _on_cancel react to
@@ -923,14 +888,10 @@ class _OnEntryApply:
 
     By default content is assumed valid, but no is action taken, before the
     content is exposed when the _EntryApply class is used too.
+
     """
 
     def _on_ok(self, event=None):
-        """Handle ok button events.
-
-        The _on_ok method is not used directly.  The name 'on_ok' is bound
-        and used.
-        """
         if not self.validate():
             self.initial_focus.focus_set()
             return
@@ -942,11 +903,6 @@ class _OnEntryApply:
             self.on_cancel()
 
     def _on_cancel(self, event=None):
-        """Handle cancel button events.
-
-        The _on_cancel method is not used directly.  The name 'on_cancel'
-        is bound and used.
-        """
         if self.parent is not None:
             self.parent.get_widget().focus_set()
         self.root.destroy()
@@ -955,32 +911,33 @@ class _OnEntryApply:
 class ModalEntryApply(_OnEntryApply, _EntryApply, ModalDialogue):
     """A data entry modal dialogue which uses the existing event loop.
 
-    The event loop is assumed to be active already.
+    The _on_ok and _on_cancel methods from _OnEntryApply are aliased as on_ok
+    and on_cancel by the button_on_attr method which overrides the version in
+    Dialogue.  The two methods are bound to keys Return and Escape
+    respectively.
 
-    The _on_ok and _on_cancel methods from _OnEntryApply are used by the
-    button_on_attr method which overrides the version in Dialogue.  The
-    two methods are bound to keys Return and Escape respectively.
     """
 
     bindings = {"Ok": "<Return>", "Cancel": "<Escape>"}
 
-    def button_on_attr(self, action):
+    def button_on_attr(self, a):
         """Override to bind buttons to methods in _OnEntryApply class."""
-        on_b_attr_name = "_on_" + "_".join(action.split()).lower()
+        on_b_attr_name = "_on_" + "_".join(a.split()).lower()
         on_f = getattr(self, on_b_attr_name)
-        self.root.bind(ModalEntryApply.bindings[action], on_f)
+        self.root.bind(ModalEntryApply.bindings[a], on_f)
         return on_f
 
 
 class ModalEntryApplyGo(_OnEntryApply, _EntryApply, ModalDialogueGo):
-    """A data entry modal dialogue which uses it's own event loop.
+    """A data entry modal dialogue with it's own event loop.
 
-    The event loop is activated by the ModalDialogueGo.go() method.
+    The dialogue has Ok and Cancel options, and a go() method to activate
+    the event loop.
 
-    The _on_ok and _on_cancel methods from _OnEntryApply are aliased as
-    on_ok and on_cancel so Dialogue._create_widget() will use these rather
-    than create the default methods.  The two methods are bound to keys
-    Return and Escape respectively.
+    The _on_ok and _on_cancel methods from _OnEntryApply are aliased as on_ok
+    and on_cancel so Dialogue._create_widget() will not create them.  The two
+    methods are bound to keys Return and Escape respectively.
+
     """
 
     on_ok = _OnEntryApply._on_ok
@@ -995,75 +952,25 @@ class ModalEntryApplyGo(_OnEntryApply, _EntryApply, ModalDialogueGo):
 
 if __name__ == "__main__":
 
-    # Extend tkinter.Frame with get_widget() method.
-    # This case is simple enough to get away with subclassing rather than
-    # defining MainFrame as a container for a tkinter.Frame() instance.
-    # The dialogue classes expect get_widget, get_appsys, and do_ui_task
-    # to be methods of a container, see panel.Panel for example.
-    class MainFrame(tkinter.Frame):
-        """Provide get_widget method expected by Dialogue classes.
-
-        MainFrame is a subclass of tkinter.Frame, and is defined when the
-        dialogue module is run rather than imported.
-        """
+    # Extend Frame with get_widget() method because the dialogue classes
+    # expect a widget wrapper defining this method as the parent argument.
+    class F(tkinter.Frame):
+        """Extend tkinter.Frame class to provide get_widget() method."""
 
         def get_widget(self):
-            """Return self.
-
-            The get_widget methods in classes like panel.Panel return the
-            attribute bound to the tkinter.Frame because Panel contains a
-            tkinter.Frame instance rather than subclasses it.
-            """
+            """Return self."""
             return self
-
-        def get_appsys(self):
-            """Return self.
-
-            The get_appsys method in class panel.Panel returns the object
-            containing the application's do_ui_task() method.  Here
-            do_ui_task is defined in MainFrame, this class.
-            """
-            return self
-
-        def do_ui_task(self, method, args=(), kwargs=None):
-            """Run method(*args, **kwargs).
-
-            The do_ui_task method in class threadqueue.AppSysThreadQueue
-            places the method and it's arguments on a queue which the
-            AppSysThreadQueue instance has set up to be read at intervals
-            via the tkinter.after command and run the methods found.  Here
-            just run the method.
-            """
-            if kwargs is None:
-                kwargs = {}
-            method(*args, **kwargs)
 
     # Define on_* methods corresponding to buttons named in D() call later.
     # The on_* methods generated by default allow the button pressed to be
     # retrieved, but this way the loop to try things exists already.
-    # The 'del event' statements in each on_* method are good practice
-    # because event is ignored, but are really included to silence reports
-    # by pylint.
-    class MainDialogue(Dialogue):
-        """Provide button event handlers for Dialogue classes.
-
-        MainDialogue is a subclass of Dialogue, and is defined when the
-        dialogue module is run rather than imported.
-
-        The on_* method names correspond to the button names in the
-        MainDialogue() call made when the dialogue module is run.  These
-        methods become the event handlers for the buttons rather than
-        the ones which would be created by default.
-
-        The dialogues created by these event handlers use the event
-        handlers created by default.
-        """
+    class D(Dialogue):
+        """Methods to handle various modal and non-modal dialogues."""
 
         def on_dialogue(self, event=None):
-            """Handle Dialogue button events."""
-            del event
+            """Handle dialogue button event."""
             Dialogue(
-                mainframe,
+                frame,
                 "Dialogue",
                 text="Message longer than width",
                 buttons=("Ok",),
@@ -1075,10 +982,9 @@ if __name__ == "__main__":
             ).root.mainloop()
 
         def on_modaldialoguego(self, event=None):
-            """Handle ModalDialogueGo button events."""
-            del event
+            """Handle modal dialogue go button event."""
             ModalDialogueGo(
-                mainframe,
+                frame,
                 "ModalDialogueGo",
                 text="Message longer than width",
                 buttons=("Ok",),
@@ -1090,10 +996,9 @@ if __name__ == "__main__":
             ).go()
 
         def on_modaldialogue(self, event=None):
-            """Handle ModalDialogue button events."""
-            del event
+            """Handle modal dialogue button event."""
             ModalDialogue(
-                mainframe,
+                frame,
                 "ModalDialogue",
                 text="Message longer than width",
                 buttons=("Ok",),
@@ -1105,10 +1010,9 @@ if __name__ == "__main__":
             ).root.mainloop()
 
         def on_modalconfirmgo(self, event=None):
-            """Handle ModalConfirmGo button events."""
-            del event
+            """Handle modal confirm go button event."""
             ModalConfirmGo(
-                mainframe,
+                frame,
                 "ModalConfirmGo",
                 text="Message longer than width",
                 side=tkinter.TOP,
@@ -1118,10 +1022,9 @@ if __name__ == "__main__":
             ).go()
 
         def on_modalconfirm(self, event=None):
-            """Handle ModalConfirm button events."""
-            del event
+            """Handle modal confirm button event."""
             ModalConfirm(
-                mainframe,
+                frame,
                 "ModalConfirm",
                 text="Message longer than width",
                 side=tkinter.TOP,
@@ -1131,10 +1034,9 @@ if __name__ == "__main__":
             ).root.mainloop()
 
         def on_modalinformationgo(self, event=None):
-            """Handle ModalInformationGo button events."""
-            del event
+            """Handle modal information go button event."""
             ModalInformationGo(
-                mainframe,
+                frame,
                 "ModalInformationGo",
                 text="Message longer than width",
                 side=tkinter.TOP,
@@ -1145,10 +1047,9 @@ if __name__ == "__main__":
             ).go()
 
         def on_modalinformation(self, event=None):
-            """Handle ModalInformation button events."""
-            del event
+            """Handle modal information button event."""
             ModalInformation(
-                mainframe,
+                frame,
                 "ModalInformation",
                 text="Message longer than width",
                 side=tkinter.TOP,
@@ -1159,20 +1060,17 @@ if __name__ == "__main__":
             ).root.mainloop()
 
         def on_modalentrygo_1(self, event=None):
-            """Handle ModalEntryGo button events."""
-            del event
-            ModalEntryGo(mainframe, "ModalEntryGo").go()
+            """Handle modal entry go 1 button event."""
+            ModalEntryGo(frame, "ModalEntryGo").go()
 
         def on_modalentry_1(self, event=None):
-            """Handle ModalEntry button events."""
-            del event
-            ModalEntry(mainframe, "ModalEntry").root.mainloop()
+            """Handle modal entry 1 button event."""
+            ModalEntry(frame, "ModalEntry").root.mainloop()
 
         def on_modalentrygo(self, event=None):
-            """Handle ModalEntryGo button events."""
-            del event
+            """Handle modal entry go button event."""
             ModalEntryGo(
-                mainframe,
+                frame,
                 "ModalEntryGo",
                 body=(
                     ("URL", "", None, False),
@@ -1181,10 +1079,9 @@ if __name__ == "__main__":
             ).go()
 
         def on_modalentry(self, event=None):
-            """Handle ModalEntry button events."""
-            del event
+            """Handle modal entry button event."""
             ModalEntry(
-                mainframe,
+                frame,
                 "ModalEntry",
                 body=(
                     ("URL", "", None, False),
@@ -1193,10 +1090,9 @@ if __name__ == "__main__":
             ).root.mainloop()
 
         def on_modalentryapplygo(self, event=None):
-            """Handle ModalEntryApplyGo button events."""
-            del event
+            """Handle modal entry apply go button event."""
             ModalEntryApplyGo(
-                mainframe,
+                frame,
                 "ModalEntryApplyGo",
                 body=(
                     ("URL", "", None, False),
@@ -1205,10 +1101,9 @@ if __name__ == "__main__":
             ).go()
 
         def on_modalentryapply(self, event=None):
-            """Handle ModalEntryApply button events."""
-            del event
+            """Handle modal entry apply button event."""
             ModalEntryApply(
-                mainframe,
+                frame,
                 "ModalEntryApply",
                 body=(
                     ("URL", "", None, False),
@@ -1216,29 +1111,21 @@ if __name__ == "__main__":
                 ),
             ).root.mainloop()
 
-        def on_report(self, event=None):
-            """Handle Report button events."""
-            del event
-            Report(
-                mainframe, "Report", text="Some report text"
-            ).root.mainloop()
-
         # self.parent to quit application.
         # widget shown by on_dialogue method does 'self.root.destroy()'.
         def on_quit(self, event=None):
-            """Handle Quit button events."""
-            del event
+            """Handle quit button event."""
             self.parent.winfo_toplevel().destroy()
 
-    mainframe = MainFrame(tkinter.Tk(), height=300, width=400)
-    mainframe.pack()
-    mainframe.winfo_toplevel().wm_title("Main Window")
+    frame = F(tkinter.Tk(), height=300, width=400)
+    frame.pack()
+    frame.winfo_toplevel().wm_title("Main Window")
 
-    # So MainDialogue's Toplevel appears above mainframe's Toplevel.
-    mainframe.wait_visibility()
+    # So D's Toplevel appears above frame's Toplevel.
+    frame.wait_visibility()
 
-    MainDialogue(
-        mainframe,
+    D(
+        frame,
         "Dialogues",
         text="".join(
             (
@@ -1246,10 +1133,10 @@ if __name__ == "__main__":
                 "widgets appear above the Main Window but the others appear ",
                 "anywhere.\n\nThis dialogue is non-modal so the focus is not ",
                 "moved here.  Press Tab or click pointer on text area to get ",
-                "focus and enable the keyboard equivalents of clicking ",
-                "on a button.\n\nA different layout of this dialogue, with ",
-                "different text, is available via the Dialogue button, and ",
-                "many can be open at once.",
+                "focus and enable the keyboard equivalents of of clicking ",
+                "on a button.\n\nAnother layout of this dialogue is ",
+                "available via the Dialogue button, and many can be open ",
+                "at once.",
             )
         ),
         buttons=(
@@ -1266,7 +1153,6 @@ if __name__ == "__main__":
             "ModalEntry",
             "ModalEntryApplyGo",
             "ModalEntryApply",
-            "Report",
             "Quit",
         ),
         side=tkinter.RIGHT,

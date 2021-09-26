@@ -2,8 +2,10 @@
 # Copyright 2013 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""This module provides classes which run tasks one at a time in a background
-thread and log reported progress to a visible transaction log.
+"""Provide classes which run tasks in a background thread.
+
+The tasks are run one at a time and progress is reported to a visible
+transaction log.
 
 """
 
@@ -18,17 +20,15 @@ from .textreadonly import TextReadonly
 
 
 class TaskLog(ExceptionHandler):
-    """Run a function in a separate thread and provide a progress report log.
-    
-    """
+    """Run function in separate thread and provide progress report log."""
 
     def __init__(
         self,
-        title='Action Log',
+        title="Action Log",
         get_app=None,
         cancelmethod=None,
         logwidget=None,
-        ):
+    ):
         """Configure class instance for it's environment.
 
         title - tasklog title text.
@@ -36,7 +36,7 @@ class TaskLog(ExceptionHandler):
         cancelmethod - method called when Cancel button clicked.
         logwidget - tasklog Toplevel widget.
         """
-        super(TaskLog, self).__init__()
+        super().__init__()
         self._title = title
         self.get_app = get_app
         if callable(get_app):
@@ -62,18 +62,19 @@ class TaskLog(ExceptionHandler):
         self.message.pack(side=tkinter.BOTTOM)
         self.cancel = tkinter.Button(
             master=self.buttonframe,
-            text='Cancel',
-            command=self.try_command(
-                self.do_cancel, self.buttonframe))
+            text="Cancel",
+            command=self.try_command(self.do_cancel, self.buttonframe),
+        )
         self.cancel.pack(side=tkinter.RIGHT, padx=12)
         self.report = LogText(
             master=self.logwidget,
             wrap=tkinter.WORD,
             undo=tkinter.FALSE,
             get_app=self.get_app,
-            )
+        )
         self.report.pack(
-            side=tkinter.LEFT, fill=tkinter.BOTH, expand=tkinter.TRUE)
+            side=tkinter.LEFT, fill=tkinter.BOTH, expand=tkinter.TRUE
+        )
         self.logwidget.iconify()
         self.logwidget.update()
         self.logwidget.deiconify()
@@ -87,7 +88,8 @@ class TaskLog(ExceptionHandler):
         button = tkinter.Button(
             master=self.buttonframe,
             text=text,
-            command=self.try_command(command, self.buttonframe))
+            command=self.try_command(command, self.buttonframe),
+        )
         button.pack(side=tkinter.RIGHT, padx=12)
         return button
 
@@ -105,76 +107,87 @@ class TaskLog(ExceptionHandler):
         text - text to be appended to log.
         """
         self.report.append_text(text, timestamp=False)
-            
+
     def do_cancel(self):
         """Cancel button action."""
         if self._threadqueue.queue.unfinished_tasks == 0:
             if callable(self._cancelmethod):
                 self._cancelmethod()
             self.logwidget.destroy()
-            
-    def run_method(self, method, message=None, args=(), kwargs={}):
+
+    def run_method(self, method, message=None, args=(), kwargs=None):
         """Add the task method to queue for processing in separate thread.
 
         method - method to be run in separate thread.
         message - log entry if method is placed on queue for running.
         args - positional arguments for method.
-        kwargs - keyword arguments for method.
+        kwargs - keyword arguments for method, default {}.
         """
         self._create_log_widget()
         if not callable(method):
-            self.report.append_text(''.join(
-                ('No action.  Must be either an error in Application or a ',
-                 'feature that has not been implemented.',
-                 )))
+            self.report.append_text(
+                "".join(
+                    (
+                        "No action.  Must be either an error in Application or a ",
+                        "feature that has not been implemented.",
+                    )
+                )
+            )
         elif self._threadqueue:
-            kwargs['logwidget'] = self.report
+            if kwargs is None:
+                kwargs = {}
+            kwargs["logwidget"] = self.report
             try:
                 self._threadqueue.put_method(
-                    self.try_command(method, self.logwidget),
-                    args,
-                    kwargs)
+                    self.try_command(method, self.logwidget), args, kwargs
+                )
                 if isinstance(message, str):
                     self.report.append_text(message)
             except queue.Full:
                 self.report.append_text(
-                    'Application busy.  Please try again shortly.')
+                    "Application busy.  Please try again shortly."
+                )
         else:
-            self.report.append_text(''.join(
-                ('Action in progress but application will be unresponsive ',
-                 'until it is finished',
-                 )))
+            self.report.append_text(
+                "".join(
+                    (
+                        "Action in progress but application will be unresponsive ",
+                        "until it is finished",
+                    )
+                )
+            )
+            if kwargs is None:
+                kwargs = {}
             self.try_command(method, self.logwidget)(*args, **kwargs)
 
 
 class _LogText(TextReadonly):
-    """A progress report log.
-    
-    """
+    """A progress report log."""
 
-    def __init__(self, get_app=None, master=None, cnf={}, **kargs):
+    def __init__(self, get_app=None, master=None, cnf=None, **kargs):
         """Add a vertical scrollbar to a read-only tkinter.Text widget.
 
         get_app - method which returns the application instance.
         master - parent widget for log widget.
-        cnf - ignored
+        cnf - ignored, default {}.
         **kargs - passed to superclass as **kargs argument.
         """
-        super(_LogText, self).__init__(master=master, cnf={}, **kargs)
+        super().__init__(master=master, cnf={}, **kargs)
         self.get_app = get_app
         self.set_readonly_bindings()
         scrollbar = tkinter.Scrollbar(
-            master,
-            orient=tkinter.VERTICAL,
-            command=self.yview)
+            master, orient=tkinter.VERTICAL, command=self.yview
+        )
         self.configure(yscrollcommand=scrollbar.set)
         self.tag_configure(
-            'margin',
-            lmargin2=tkinter.font.nametofont(
-                self.cget('font')).measure('2010-05-23 10:20:57  '))
+            "margin",
+            lmargin2=tkinter.font.nametofont(self.cget("font")).measure(
+                "2010-05-23 10:20:57  "
+            ),
+        )
         scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
         self.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=tkinter.TRUE)
-        self.tagstart = '1.0'
+        self.tagstart = "1.0"
 
     def append_bytestring(self, text, timestamp=True):
         """Append text to the log widget with timestamp by default.
@@ -183,20 +196,23 @@ class _LogText(TextReadonly):
         timestamp - if True the entry is timestamped.
         """
         if timestamp:
-            day, time = datetime.datetime.isoformat(
-                datetime.datetime.today()).encode('utf8').split(b'T')
-            time = time.split(b'.')[0]
+            day, time = (
+                datetime.datetime.isoformat(datetime.datetime.today())
+                .encode("utf8")
+                .split(b"T")
+            )
+            time = time.split(b".")[0]
             self.insert(
-                tkinter.END,
-                b''.join((day, b' ', time, b'  ', text, b'\n')))
+                tkinter.END, b"".join((day, b" ", time, b"  ", text, b"\n"))
+            )
         else:
             self.insert(
-                tkinter.END,
-                b''.join((b'                     ', text, b'\n')))
+                tkinter.END, b"".join((b"                     ", text, b"\n"))
+            )
         try:
-            self.tag_add('margin', self.tagstart, tkinter.END)
+            self.tag_add("margin", self.tagstart, tkinter.END)
         except:
-            self.tag_add('margin', '1.0', tkinter.END)
+            self.tag_add("margin", "1.0", tkinter.END)
         self.tagstart = self.index(tkinter.END)
         self.see(tkinter.END)
 
@@ -208,19 +224,20 @@ class _LogText(TextReadonly):
         """
         if timestamp:
             day, time = datetime.datetime.isoformat(
-                datetime.datetime.today()).split('T')
-            time = time.split('.')[0]
+                datetime.datetime.today()
+            ).split("T")
+            time = time.split(".")[0]
             self.insert(
-                tkinter.END,
-                ''.join((day, ' ', time, '  ', text, '\n')))
+                tkinter.END, "".join((day, " ", time, "  ", text, "\n"))
+            )
         else:
             self.insert(
-                tkinter.END,
-                ''.join(('                     ', text, '\n')))
+                tkinter.END, "".join(("                     ", text, "\n"))
+            )
         try:
-            self.tag_add('margin', self.tagstart, tkinter.END)
+            self.tag_add("margin", self.tagstart, tkinter.END)
         except:
-            self.tag_add('margin', '1.0', tkinter.END)
+            self.tag_add("margin", "1.0", tkinter.END)
         self.tagstart = self.index(tkinter.END)
         self.see(tkinter.END)
 
@@ -250,36 +267,45 @@ class LogText(_LogText):
 
     It is assumed that caller of LogText(...) arranges for call to be made in
     the main thread.
-    
+
     """
 
     def append_bytestring(self, text, timestamp=True):
-        """Delegate to superclass in main thread otherwise add entry to queue
+        """Append bytestring to task log.
+
+        Delegate to superclass in main thread otherwise add entry to queue
         for running in main thread.
 
         The queue entry is a tuple:
         (super().append_bytestring, (text,), dict(timestamp=timestamp)).
         """
-        if threading.current_thread().name == 'MainThread':
-            super(LogText, self).append_bytestring(
-                text, timestamp=timestamp)
+        if threading.current_thread().name == "MainThread":
+            super().append_bytestring(text, timestamp=timestamp)
         else:
             self.get_app().get_reportqueue().put(
-                (super(LogText, self).append_bytestring,
-                 (text,),
-                 dict(timestamp=timestamp)))
+                (
+                    super().append_bytestring,
+                    (text,),
+                    dict(timestamp=timestamp),
+                )
+            )
 
     def append_text(self, text, timestamp=True):
-        """Delegate to superclass in main thread otherwise add entry to queue
+        """Append text to task log.
+
+        Delegate to superclass in main thread otherwise add entry to queue
         for running in main thread.
 
         The queue entry is a tuple:
         (super().append_text, (text,), dict(timestamp=timestamp)).
         """
-        if threading.current_thread().name == 'MainThread':
-            super(LogText, self).append_text(text, timestamp=timestamp)
+        if threading.current_thread().name == "MainThread":
+            super().append_text(text, timestamp=timestamp)
         else:
             self.get_app().get_reportqueue().put(
-                (super(LogText, self).append_text,
-                 (text,),
-                 dict(timestamp=timestamp)))
+                (
+                    super().append_text,
+                    (text,),
+                    dict(timestamp=timestamp),
+                )
+            )

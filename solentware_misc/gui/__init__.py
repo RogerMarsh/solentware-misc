@@ -2,7 +2,9 @@
 # Copyright 2007 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""The frame, logpanel, panel, and threadqueue, modules in this package
+"""Define widgets to provide a notebook style User Interface.
+
+The frame, logpanel, panel, and threadqueue, modules in this package
 assume that an user interface is presented in notebook style following the
 example of wxWidgets.
 

@@ -2,7 +2,9 @@
 # Copyright 2011 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""The ExceptionHandler class provides methods to intercept exceptions in
+"""Exception handling for methods called from threading or tkinter.
+
+The ExceptionHandler class provides methods to intercept exceptions in
 methods called from tkinter or threading and write the exception details to
 the errorlog file before offering the option to display the exception
 details.
@@ -16,21 +18,23 @@ Such as 'class DG(ExceptionHandler, DataGrid)'.
 import tkinter
 
 BAD_WINDOW = 'bad window path name ".!'
-DESTROYED_ERROR = (''.join(("can't invoke ", '"')),
-                   '" command:  application has been destroyed')
-GRAB_ERROR = 'grab'.join(DESTROYED_ERROR)
-FOCUS_ERROR = 'focus'.join(DESTROYED_ERROR)
-DESTROY_ERROR = 'destroy'.join(DESTROYED_ERROR)
+DESTROYED_ERROR = (
+    "".join(("can't invoke ", '"')),
+    '" command:  application has been destroyed',
+)
+GRAB_ERROR = "grab".join(DESTROYED_ERROR)
+FOCUS_ERROR = "focus".join(DESTROYED_ERROR)
+DESTROY_ERROR = "destroy".join(DESTROYED_ERROR)
 
 
 class ExceptionHandler:
-    """Wrap tkinter callback methods for events and commands, and methods run
-    in a separate thread to report exceptions in the report_exception method.
+    """Wrap methods run in separate threads or as tkinter callbacks.
 
     Exception details are written to the application's error log before
     offering the option to display the exception details in a dialogue.
-    
+
     """
+
     _application_name = None
     _error_file_name = None
 
@@ -53,7 +57,6 @@ class ExceptionHandler:
         message - usually the dialogue message if errorlog not available
 
         """
-
         # If root is left as None it is possible to generate the following on
         # stderr, maybe it's stdout, presumably from _tkinter:
         #
@@ -76,36 +79,45 @@ class ExceptionHandler:
 
         if self.get_error_file_name() is not None:
             try:
-                f = open(self.get_error_file_name(), 'ab')
+                file = open(self.get_error_file_name(), "ab")
                 try:
-                    f.write(
-                        ''.join(
-                            ('\n\n\n',
-                             ' '.join(
-                                 (self.get_application_name(),
-                                  'exception report at',
-                                  datetime.datetime.isoformat(
-                                      datetime.datetime.today())
-                                  )),
-                             '\n\n',
-                             traceback.format_exc(),
-                             '\n\n',
-                             )).encode('iso-8859-1')
-                        )
+                    file.write(
+                        "".join(
+                            (
+                                "\n\n\n",
+                                " ".join(
+                                    (
+                                        self.get_application_name(),
+                                        "exception report at",
+                                        datetime.datetime.isoformat(
+                                            datetime.datetime.today()
+                                        ),
+                                    )
+                                ),
+                                "\n\n",
+                                traceback.format_exc(),
+                                "\n\n",
+                            )
+                        ).encode("iso-8859-1")
+                    )
                 finally:
-                    f.close()
-                    message = ''.join(
-                    ('An exception has occured.\n\nThe exception report ',
-                     'has been appended to the error file.\n\nClick "Yes" ',
-                     'to see the detail\nor "No" to quit the application.',
-                     ))
+                    file.close()
+                    message = "".join(
+                        (
+                            "An exception has occured.\n\nThe exception report ",
+                            'has been appended to the error file.\n\nClick "Yes" ',
+                            'to see the detail\nor "No" to quit the application.',
+                        )
+                    )
             except:
-                message = ''.join(
-                    ('An exception has occured.\n\nThe attempt to append ',
-                     'the exception report to the error file was not ',
-                     'completed.\n\nClick "Yes" to see the detail\nor ',
-                     '"No" to quit the application.',
-                 ))
+                message = "".join(
+                    (
+                        "An exception has occured.\n\nThe attempt to append ",
+                        "the exception report to the error file was not ",
+                        'completed.\n\nClick "Yes" to see the detail\nor ',
+                        '"No" to quit the application.',
+                    )
+                )
 
         # At 2009-08-01 calling tkMessageBox.askyesno and so on does not work
         # on Python2.6: s == YES compares booleanString with str
@@ -118,7 +130,7 @@ class ExceptionHandler:
 
         # Code commented 2020-10-03 while removing workarounds.dialogues.
 
-        #def askyesno(title=None, message=None, **options):
+        # def askyesno(title=None, message=None, **options):
         #    try:
         #        s = tkinter.messagebox._show(
         #            title,
@@ -134,24 +146,26 @@ class ExceptionHandler:
         #            raise
 
         if title is None:
-            title = 'Exception Report'
+            title = "Exception Report"
         if message is None:
-            message = ''.join(
-                ('An exception has occured.\n\nClick "Yes" to see ',
-                 'the detail\nor "No" to quit the application',
-                 ))
+            message = "".join(
+                (
+                    'An exception has occured.\n\nClick "Yes" to see ',
+                    'the detail\nor "No" to quit the application',
+                )
+            )
 
         if root:
             try:
-                pending = root.tk.call('after', 'info')
-                for p in pending.split():
+                pending = root.tk.call("after", "info")
+                for callback in pending.split():
                     try:
-                        root.after_cancel(p)
+                        root.after_cancel(callback)
                     except:
                         pass
             except:
                 pass
-            
+
         if root is None:
             dialtop = tkinter.Tk()
         else:
@@ -159,9 +173,8 @@ class ExceptionHandler:
         try:
             try:
                 show_exception = tkinter.messagebox.askyesno(
-                    parent=dialtop,
-                    title=title,
-                    message=message)
+                    parent=dialtop, title=title, message=message
+                )
             except tkinter.TclError as error:
                 # GRAB_ERROR is anticipated if the window manager or desktop
                 # destroys the application while the askyesno dialog is on
@@ -174,23 +187,29 @@ class ExceptionHandler:
                     # A consequence is a tkinter.TclError exception in the
                     # askyesno() call which is reported here minimally.
                     tkinter.messagebox.showinfo(
-                        title=''.join(('Exception in ', title)),
-                        message=''.join(
-                            ('Unable to show exception report.\n\n',
-                             'The reported reason from tkinter is:\n\n',
-                             str(error),
-                             )))
+                        title="".join(("Exception in ", title)),
+                        message="".join(
+                            (
+                                "Unable to show exception report.\n\n",
+                                "The reported reason from tkinter is:\n\n",
+                                str(error),
+                            )
+                        ),
+                    )
                     raise
             except Exception as error:
                 # Added in the hope any other exception from askyesno is dealt
                 # with in a reasonable advertised way.
                 tkinter.messagebox.showinfo(
-                    title=''.join(('Exception in ', title)),
-                    message=''.join(
-                        ('Unable to show exception report.\n\n',
-                         'The reported reason is:\n\n',
-                         str(error),
-                         )))
+                    title="".join(("Exception in ", title)),
+                    message="".join(
+                        (
+                            "Unable to show exception report.\n\n",
+                            "The reported reason is:\n\n",
+                            str(error),
+                        )
+                    ),
+                )
                 raise
         except:
             # A non-error example, in context, is two failing after_idle calls.
@@ -202,13 +221,17 @@ class ExceptionHandler:
                 dialtop.destroy()
             except:
                 raise SystemExit(
-                    ''.join(
-                        ('Exception destroying application after exception ',
-                         'in exception report dialogue')))
-            raise SystemExit('Exception in exception report dialogue')
+                    "".join(
+                        (
+                            "Exception destroying application after exception ",
+                            "in exception report dialogue",
+                        )
+                    )
+                )
+            raise SystemExit("Exception in exception report dialogue")
 
         if not show_exception:
-            raise SystemExit('Do not show exception report')
+            raise SystemExit("Do not show exception report")
         if root is None:
             top = dialtop
         else:
@@ -221,12 +244,13 @@ class ExceptionHandler:
         # So grab_set.
         top.grab_set()
         top.wm_title(string=title)
-        quit_ = tkinter.Button(master=top, text='Quit')
+        quit_ = tkinter.Button(master=top, text="Quit")
         quit_.pack(side=tkinter.BOTTOM)
         report = tkinter.Text(master=top, wrap=tkinter.WORD)
         quit_.configure(command=top.destroy)
         scrollbar = tkinter.Scrollbar(
-            master=top, orient=tkinter.VERTICAL, command=report.yview)
+            master=top, orient=tkinter.VERTICAL, command=report.yview
+        )
         scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
         report.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=tkinter.TRUE)
         report.configure(yscrollcommand=scrollbar.set)
@@ -234,7 +258,7 @@ class ExceptionHandler:
         top.wait_window()
         # Without the delete pending 'after' commands at start of method this
         # raise does not seem to be needed to quit the application.
-        raise SystemExit('Dismiss exception report')
+        raise SystemExit("Dismiss exception report")
 
     @staticmethod
     def set_application_name(application_name):
@@ -252,8 +276,7 @@ class ExceptionHandler:
         ExceptionHandler._error_file_name = error_file_name
 
     def try_command(self, method, widget):
-        """Return the method wrapped to call report_exception if an
-        exception occurs.
+        """Return wrapped method to report tkinter command exceptions.
 
         method - the command callback to be wrapped
         widget - usually the application toplevel widget
@@ -261,6 +284,7 @@ class ExceptionHandler:
         Copied and adapted from Tkinter.
 
         """
+
         def wrapped_command_method(*a, **k):
             try:
                 return method(*a, **k)
@@ -277,21 +301,24 @@ class ExceptionHandler:
                 # py2exe generated executables).
                 self.report_exception(
                     root=widget.winfo_toplevel(),
-                    title=self.get_application_name())
+                    title=self.get_application_name(),
+                )
+            return None
+
         return wrapped_command_method
 
     def try_event(self, method):
-        """Return the method wrapped to call report_exception if an
-        exception occurs.
+        """Return wrapped method to report tkinter event exceptions.
 
         method - the event callback to be wrapped
 
         Copied and adapted from Tkinter.
 
         """
-        def wrapped_event_method(e):
+
+        def wrapped_event_method(event):
             try:
-                return method(e)
+                return method(event)
             except SystemExit as message:
                 raise SystemExit(message)
             except tkinter.TclError as error:
@@ -304,13 +331,15 @@ class ExceptionHandler:
                 # when Microsoft Windows User Access Control gets involved in
                 # py2exe generated executables).
                 self.report_exception(
-                    root=e.widget.winfo_toplevel(),
-                    title=self.get_application_name())
+                    root=event.widget.winfo_toplevel(),
+                    title=self.get_application_name(),
+                )
+            return None
+
         return wrapped_event_method
 
     def try_thread(self, method, widget):
-        """Return the method wrapped to call report_exception if an
-        exception occurs.
+        """Return wrapped method to report threaded activity exceptions.
 
         method - the threaded activity to be wrapped
         widget - usually the application toplevel widget
@@ -318,6 +347,7 @@ class ExceptionHandler:
         Copied and adapted from Tkinter.
 
         """
+
         def wrapped_thread_method(*a, **k):
             try:
                 return method(*a, **k)
@@ -334,5 +364,8 @@ class ExceptionHandler:
                 # py2exe generated executables).
                 self.report_exception(
                     root=widget.winfo_toplevel(),
-                    title=self.get_application_name())
+                    title=self.get_application_name(),
+                )
+            return None
+
         return wrapped_thread_method

@@ -2,7 +2,9 @@
 # Copyright 2009 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""This module is redundant because the problem seen for a while with Python
+"""Wrap some tkinter functions for Python2.6 problem workaround.
+
+This module is redundant because the problem seen for a while with Python
 2.6 no longer matters.  It exposes the functions it wrapped for compatibility.
 The module will be removed without notice at a future release.
 
@@ -20,7 +22,7 @@ tkinter.YES, a str, to be False in all circumstances.
 
 # At 2009-08-01 calling tkMessageBox.askyesno and so on does not work
 # on Python2.6: s == YES compares booleanString with str
-# but calling _show works (as it does in tkMessageBox.py test stuff)
+# but calling _show works (as it does in tkMessageBox.py test stuff).
 # tkFileDialog functions seem ok
 
 from tkinter.messagebox import (
@@ -32,7 +34,7 @@ from tkinter.messagebox import (
     askyesno,
     askyesnocancel,
     askretrycancel,
-    )
+)
 from tkinter.filedialog import (
     askopenfilename,
     asksaveasfilename,
@@ -41,14 +43,12 @@ from tkinter.filedialog import (
     askopenfiles,
     asksaveasfile,
     askdirectory,
-    )
+)
 
 BAD_WINDOW = 'bad window path name ".!'
-DESTROYED_ERROR = (''.join(("can't invoke ", '"')),
-                   '" command:  application has been destroyed')
-GRAB_ERROR = 'grab'.join(DESTROYED_ERROR)
-FOCUS_ERROR = 'focus'.join(DESTROYED_ERROR)
-
-
-
-
+DESTROYED_ERROR = (
+    "".join(("can't invoke ", '"')),
+    '" command:  application has been destroyed',
+)
+GRAB_ERROR = "grab".join(DESTROYED_ERROR)
+FOCUS_ERROR = "focus".join(DESTROYED_ERROR)

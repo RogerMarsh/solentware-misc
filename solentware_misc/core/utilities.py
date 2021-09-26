@@ -2,75 +2,81 @@
 # Copyright 2009 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""This module provides classes for handling dates and
-    names.
-
-"""
+"""This module provides classes for handling dates and names."""
 
 import re
 import datetime
 import calendar
 
 # AppSysPersonName constants
-NSPACE = ' '
-NCOMMA = ','
-NDOT = '.'
-NHYPHEN = '-'
-NAMEDELIMITER = ''.join((NSPACE, NCOMMA, NDOT))
-NAMEHYPHENED = ''.join((NHYPHEN,))
+NSPACE = " "
+NCOMMA = ","
+NDOT = "."
+NHYPHEN = "-"
+NAMEDELIMITER = "".join((NSPACE, NCOMMA, NDOT))
+NAMEHYPHENED = "".join((NHYPHEN,))
 
 
-class AppSysDate(object):
-    
+class AppSysDate:
     """Date parser that accepts various common formats.
 
     wx.DateTime was used to do these things prior to switch to Tkinter.
 
     The method names in use then, and their signatures, are retained.
-    
+
     """
 
-    ymd_re = re.compile(''.join((
-        '(\s*)',
-        '([0-9]+|[a-zA-Z]+)',
-        '(\s+|\.|/|-)',
-        '([0-9]+|[a-zA-Z]+)',
-        '(\s+|\.|/|-)',
-        '([0-9]+)',
-        '(\s+.*|\Z)')))
-    md_re = re.compile(''.join((
-        '(\s*)',
-        '([0-9]+|[a-zA-Z]+)',
-        '(\s+|\.|/|-)',
-        '([0-9]+|[a-zA-Z]+)',
-        '(\s+.*|\Z)')))
-    
-    date_formats = (
-        '%d %b %Y', # 30 Nov 2006
-        '%b %d %Y', # Nov 30 2006
-        '%d %B %Y', # 30 November 2006
-        '%B %d %Y', # November 30 2006
-        '%d %b %y', # 30 Nov 06
-        '%b %d %y', # Nov 30 06
-        '%d %B %y', # 30 November 06
-        '%B %d %y', # November 30 06
-        '%d.%m.%Y', # 30.11.2006
-        '%d.%m.%y', # 30.11.06
-        '%m.%d.%Y', # 11.30.2006
-        '%m.%d.%y', # 11.30.06
-        '%Y-%m-%d', # 2006-11-30
-        '%Y/%m/%d', # 2006/11/30
-        '%y-%m-%d', # 06-11-30
-        '%d/%m/%Y', # 30/11/2006
-        '%d/%m/%y', # 30/11/06
-        '%m/%d/%Y', # 11/30/2006
-        '%m/%d/%y', # 11/30/06
+    ymd_re = re.compile(
+        "".join(
+            (
+                r"(\s*)",
+                r"([0-9]+|[a-zA-Z]+)",
+                r"(\s+|\.|/|-)",
+                r"([0-9]+|[a-zA-Z]+)",
+                r"(\s+|\.|/|-)",
+                r"([0-9]+)",
+                r"(\s+.*|\Z)",
+            )
         )
+    )
+    md_re = re.compile(
+        "".join(
+            (
+                r"(\s*)",
+                r"([0-9]+|[a-zA-Z]+)",
+                r"(\s+|\.|/|-)",
+                r"([0-9]+|[a-zA-Z]+)",
+                r"(\s+.*|\Z)",
+            )
+        )
+    )
+
+    date_formats = (
+        "%d %b %Y",  # 30 Nov 2006
+        "%b %d %Y",  # Nov 30 2006
+        "%d %B %Y",  # 30 November 2006
+        "%B %d %Y",  # November 30 2006
+        "%d %b %y",  # 30 Nov 06
+        "%b %d %y",  # Nov 30 06
+        "%d %B %y",  # 30 November 06
+        "%B %d %y",  # November 30 06
+        "%d.%m.%Y",  # 30.11.2006
+        "%d.%m.%y",  # 30.11.06
+        "%m.%d.%Y",  # 11.30.2006
+        "%m.%d.%y",  # 11.30.06
+        "%Y-%m-%d",  # 2006-11-30
+        "%Y/%m/%d",  # 2006/11/30
+        "%y-%m-%d",  # 06-11-30
+        "%d/%m/%Y",  # 30/11/2006
+        "%d/%m/%y",  # 30/11/06
+        "%m/%d/%Y",  # 11/30/2006
+        "%m/%d/%y",  # 11/30/06
+    )
 
     calendar = calendar
 
     def __init__(self):
-
+        """Initialize data attributes."""
         self.date = None
         self.re_match = None
         self._bytes_input = None
@@ -79,9 +85,8 @@ class AppSysDate(object):
         """Return ISO format date like 2007-08-26."""
         try:
             if self._bytes_input:
-                return self.date.isoformat(' ').split()[0].encode('utf8')
-            else:
-                return self.date.isoformat(' ').split()[0]
+                return self.date.isoformat(" ").split()[0].encode("utf8")
+            return self.date.isoformat(" ").split()[0]
         except AttributeError:
             return None
 
@@ -107,13 +112,11 @@ class AppSysDate(object):
             groups = self.re_match.groups()
             if self._bytes_input:
                 if len(groups) > 5:
-                    return len(''.join(groups[:6]).encode('utf8'))
-                else:
-                    return len(''.join(groups[:4]).encode('utf8'))
+                    return len("".join(groups[:6]).encode("utf8"))
+                return len("".join(groups[:4]).encode("utf8"))
             if len(groups) > 5:
-                return len(''.join(groups[:6]))
-            else:
-                return len(''.join(groups[:4]))
+                return len("".join(groups[:6]))
+            return len("".join(groups[:4]))
 
         return -1
 
@@ -131,7 +134,7 @@ class AppSysDate(object):
         """
         if isinstance(date, bytes):
             self._bytes_input = True
-            date = date.decode('utf8')
+            date = date.decode("utf8")
         self.re_match = self.ymd_re.match(date)
         if self.re_match is None:
             if not assume_current_year:
@@ -143,16 +146,19 @@ class AppSysDate(object):
 
         groups = self.re_match.groups()
         if len(groups) > 5:
-            datestring = ''.join(groups[1:6])
+            datestring = "".join(groups[1:6])
         else:
-            datestring = ''.join((
-                ''.join((groups[1:4])),
-                groups[2],
-                str(datetime.datetime.now().year)))
+            datestring = "".join(
+                (
+                    "".join((groups[1:4])),
+                    groups[2],
+                    str(datetime.datetime.now().year),
+                )
+            )
 
-        for f in self.date_formats:
+        for format_ in self.date_formats:
             try:
-                self.date = datetime.datetime.strptime(datestring, f)
+                self.date = datetime.datetime.strptime(datestring, format_)
                 return self.length_date_string()
             except ValueError:
                 pass
@@ -160,8 +166,7 @@ class AppSysDate(object):
         return -1
 
 
-class AppSysPersonName(object):
-    
+class AppSysPersonName:
     """Name parser that picks out surname and forenames.
 
     Instances provide three attributes: name, surname, and forenames.  Name
@@ -188,24 +193,24 @@ class AppSysPersonName(object):
         """
         self._name = name
         if isinstance(name, bytes):
-            name = name.decode('utf8')
+            name = name.decode("utf8")
         self.name = None
-        self.surname = ''
+        self.surname = ""
         self.forenames = None
         partialnames = []
         commasplit = name.split(NCOMMA, 1)
         if len(commasplit) > 1:
-            s, name = commasplit
-            self.surname = NSPACE.join(s.split())
+            surname, name = commasplit
+            self.surname = NSPACE.join(surname.split())
         partial = []
-        for n in name:
-            if n in NAMEDELIMITER:
-                partialnames.append(''.join(partial))
+        for char in name:
+            if char in NAMEDELIMITER:
+                partialnames.append("".join(partial))
                 partial = []
             else:
-                partial.append(n)
+                partial.append(char)
         if partial:
-            partialnames.append(''.join(partial))
+            partialnames.append("".join(partial))
         partialnames = NSPACE.join(partialnames).split()
         if partialnames and not self.surname:
             surname = partialnames.pop()
@@ -214,60 +219,57 @@ class AppSysPersonName(object):
                 surname = partialnames.pop(0)
                 if len(surname) < 2:
                     partialnames.insert(0, surname)
-                    x = -1
-                    for e, p in enumerate(partialnames):
-                        if len(p) > 1:
-                            x = e
-                    surname = partialnames.pop(x)
+                    index = -1
+                    for i, word in enumerate(partialnames):
+                        if len(word) > 1:
+                            index = i
+                    surname = partialnames.pop(index)
             self.surname = surname
         self.forenames = NSPACE.join(partialnames)
         self.name = NSPACE.join((self.surname, self.forenames))
         if isinstance(self._name, bytes):
-            self.surname = self.surname.encode('utf8')
-            self.forenames = self.forenames.encode('utf8')
-            self.name = self.name.encode('utf8')
+            self.surname = self.surname.encode("utf8")
+            self.forenames = self.forenames.encode("utf8")
+            self.name = self.name.encode("utf8")
 
 
 class AppSysPersonNameParts(AppSysPersonName):
-    
     """Name parser that picks out surname forenames and all partial names.
 
     Instances add the attribute partialnames to those provided by the
     superclass.  Partialnames is the set of all partial names.
-    
+
     """
 
     def __init__(self, name):
-        """Name parser that picks out surname forenames and all partial
-        names.
+        """Parser to pick out surname, forenames, and all partial names.
 
         The superclass picks out surname and forenames.
 
         The surname becomes a partial name.  The words formed by splitting
         surname and forenames at whitespace become partial names and these
         words split by hyphens become partial names.
-        
+
         """
-        super(AppSysPersonNameParts, self).__init__(name)
+        super().__init__(name)
         name = self.name
         if isinstance(name, bytes):
-            name = name.decode('utf8')
+            name = name.decode("utf8")
         partialnames = name.split()
         self.partialnames = set(partialnames)
-        for nh in NAMEHYPHENED:
-            if name.find(nh) > -1:
-                for pn in partialnames:
+        for joiner in NAMEHYPHENED:
+            if name.find(joiner) > -1:
+                for word in partialnames:
                     partial = []
-                    for n in pn:
-                        if n in NAMEHYPHENED:
-                            self.partialnames.add(''.join(partial))
+                    for char in word:
+                        if char in NAMEHYPHENED:
+                            self.partialnames.add("".join(partial))
                             partial = []
                         else:
-                            partial.append(n)
+                            partial.append(char)
                     if partial:
-                        self.partialnames.add(''.join(partial))
+                        self.partialnames.add("".join(partial))
                 break
         if isinstance(self._name, bytes):
-            self.partialnames = {pn.encode('utf8') for pn in self.partialnames}
+            self.partialnames = {pn.encode("utf8") for pn in self.partialnames}
         self.partialnames.add(self.surname)
-

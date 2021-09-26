@@ -8,8 +8,7 @@
 # (Later: what if monitor is on same PC that runs Python?)
 #
 ######
-"""This module provides a subclass of tkinter.Text with <Escape><Tab>
-replacing Tab.
+"""Provide a subclass of tkinter.Text with <Escape><Tab> replacing Tab.
 
 The intention is to avoid accidents where a Text widget is in the tab order
 cycle along with Buttons and other widgets where the significance of Tab may
@@ -25,11 +24,7 @@ import tkinter
 
 # Is ExceptionHandler appropriate to this class - Tkinter.Text not wrapped
 class TextTab(tkinter.Text):
-    
-    """Subclass of tkinter.Text with methods to replace and restore Tab
-    bindings.
-    
-    """
+    """Extend tkinter.Text with methods to replace and restore Tab bindings."""
 
     def set_tab_bindings(self):
         """Set bindings replacing Tab with <Escape><Tab>."""
@@ -40,65 +35,62 @@ class TextTab(tkinter.Text):
         unset_tab_bindings(self)
 
 
-def make_text_tab(master=None, cnf={}, **kargs):
+def make_text_tab(master=None, cnf=None, **kargs):
     """Return Text widget with <Escape><Tab> binding replacing Tab binding."""
-    t = tkinter.Text(master=master, cnf=cnf, **kargs)
-    set_tab_bindings(t)
-    return t
+    text = tkinter.Text(master=master, cnf={} if cnf is None else cnf, **kargs)
+    set_tab_bindings(text)
+    return text
 
 
-def set_tab_bindings(tw):
+def set_tab_bindings(widget):
     """Set bindings to replace Tab with <Escape><Tab> on tw.
 
-    tw - a tkinter.Text instance.
+    widget - a tkinter.Text instance.
 
     """
 
-    def InsertTab(event=None):
+    def insert_tab(event=None):
         # Hacked to use <Escape><Tab> instead of <Alt-Shift-Tab>
-        if event.keysym == 'Escape':
-            tw.__time_escape = event.time
-            return
-        if event.time - tw.__time_escape > 500:
-            del tw.__time_escape
-            return 'break'
+        if event.keysym == "Escape":
+            widget.__time_escape = event.time
+            return None
+        if event.time - widget.__time_escape > 500:
+            del widget.__time_escape
+            return "break"
         # Let the Text (class) binding insert the Tab
-        return 'continue'
+        return "continue"
 
-    for b in _suppress_bindings:
-        tw.bind(sequence=b, func=lambda event=None : 'break')
-    for b in _use_class_bindings:
-        tw.bind(sequence=b, func=lambda event=None : 'continue')
-    for b in _tab_bindings:
-        tw.bind(sequence=b, func=InsertTab)
+    for sequence in _suppress_bindings:
+        widget.bind(sequence=sequence, func=lambda event=None: "break")
+    for sequence in _use_class_bindings:
+        widget.bind(sequence=sequence, func=lambda event=None: "continue")
+    for sequence in _tab_bindings:
+        widget.bind(sequence=sequence, func=insert_tab)
 
 
-def unset_tab_bindings(tw):
+def unset_tab_bindings(widget):
     """Unset bindings that replace Tab with <Escape><Tab> on tw.
 
-    tw - a tkinter.Text instance.
+    widget - a tkinter.Text instance.
 
     """
-    for s in (_suppress_bindings, _use_class_bindings, _tab_bindings):
-        for b in s:
-            tw.bind(sequence=b)
+    for sequences in (_suppress_bindings, _use_class_bindings, _tab_bindings):
+        for sequence in sequences:
+            widget.bind(sequence=sequence)
 
 
 # The text (class) bindings to be suppressed
 _suppress_bindings = (
-    '<Tab>',
-    '<Shift-Tab>',
-    )
+    "<Tab>",
+    "<Shift-Tab>",
+)
 
 # The text (class) bindings to be kept active
-_use_class_bindings = (
-    '<Control-Tab>',
-    )
+_use_class_bindings = ("<Control-Tab>",)
 
 # The tab bindings specific to this widget
 # Not seen how to make <Alt-Shift-Tab> work so hack <Escape><Tab>
 _tab_bindings = (
-    '<Escape>',
-    '<Escape><Tab>',
-    )
-
+    "<Escape>",
+    "<Escape><Tab>",
+)

@@ -2,8 +2,7 @@
 # Copyright 2007 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""This module provides base classes for pages in notebook style user
-interfaces.
+"""Provide base classes for pages in notebook style user interfaces.
 
 The classes are written to work with the classes provided in the frame
 module.
@@ -19,22 +18,19 @@ from .exceptionhandler import ExceptionHandler
 
 
 class AppSysPanelError(Exception):
-    pass
+    """Exception for AppSysPanel class."""
 
 
 class AppSysPanelButton(ExceptionHandler):
-    """This class creates a tkinter.Button and places it on the parent's
-    frame reserved for buttons.
-    
-    """
-    
-    def __init__(self, parent, identity, switchpanel, cnf=dict(), **kargs):
+    """Put a tkinter.Button in the frame of a parent reserved for buttons."""
+
+    def __init__(self, parent, identity, switchpanel, cnf=None, **kargs):
         """Create page action button.
 
         parent - parent AppSysPanel.
         identity - arbitrary identity number for button.
         switchpanel - if True button is allowed to change page in notebook.
-        cnf - passed to tkinter.Button() as cnf argument.
+        cnf - passed to tkinter.Button() as cnf argument, default {}.
         **kargs - passed to tkinter.Button() as **kargs.
 
         The identity must be unique within the application for buttons.  It
@@ -44,17 +40,18 @@ class AppSysPanelButton(ExceptionHandler):
         self.parent = parent
         self.switchpanel = switchpanel
         self.identity = identity
-        self.command = kargs.get('command')
+        self.command = kargs.get("command")
         try:
-            del kargs['command']
+            del kargs["command"]
         except:
             pass
 
         self.button = tkinter.Button(
             master=parent.get_buttons_frame(),
-            cnf=cnf,
-            **kargs)
-        
+            cnf={} if cnf is None else cnf,
+            **kargs
+        )
+
         self.obeycontextswitch = True
 
         tags = list(self.button.bindtags())
@@ -69,51 +66,56 @@ class AppSysPanelButton(ExceptionHandler):
                 # invoke the AppSysPanel or the AppSysFrame (via appsys
                 # attribute of AppSysPanel) switch_context method
                 self.parent.switch_context(button=self.identity)
-        
+
         self.button.bind(
-            sequence=''.join((
-                '<ButtonPress-1>')),
-            func=self.try_event(self.command))
+            sequence="".join(("<ButtonPress-1>")),
+            func=self.try_event(self.command),
+        )
         self.button.bind(
-            sequence='<KeyPress-Return>',
-            func=self.try_event(self.command))
+            sequence="<KeyPress-Return>", func=self.try_event(self.command)
+        )
         if self.switchpanel:
-            for f in (self.switch_context_check, switch_context):
+            for method in (self.switch_context_check, switch_context):
                 self.button.bind(
-                    sequence=''.join((
-                        '<ButtonPress-1>')),
-                    func=self.try_event(f),
-                    add=True)
+                    sequence="".join(("<ButtonPress-1>")),
+                    func=self.try_event(method),
+                    add=True,
+                )
                 self.button.bind(
-                    sequence='<KeyPress-Return>',
-                    func=self.try_event(f),
-                    add=True)
+                    sequence="<KeyPress-Return>",
+                    func=self.try_event(method),
+                    add=True,
+                )
 
         conf = self.button.configure()
-        underline = conf['underline'][-1]
-        text = conf['text'][-1]
+        underline = conf["underline"][-1]
+        text = conf["text"][-1]
         if isinstance(text, tuple):
-            text = ' '.join(text)
+            text = " ".join(text)
         try:
             if not underline < 0:
                 self.parent.get_widget().bind(
-                    sequence=''.join((
-                        '<Alt-KeyPress-',
-                        text[underline].lower(),
-                        '>')),
-                    func=self.try_event(self.command))
+                    sequence="".join(
+                        ("<Alt-KeyPress-", text[underline].lower(), ">")
+                    ),
+                    func=self.try_event(self.command),
+                )
                 if self.switchpanel:
-                    for f in (self.switch_context_check, switch_context):
+                    for method in (self.switch_context_check, switch_context):
                         self.parent.get_widget().bind(
-                            sequence=''.join((
-                                '<Alt-KeyPress-',
-                                text[underline].lower(),
-                                '>')),
-                            func=self.try_event(f),
-                            add=True)
+                            sequence="".join(
+                                (
+                                    "<Alt-KeyPress-",
+                                    text[underline].lower(),
+                                    ">",
+                                )
+                            ),
+                            func=self.try_event(method),
+                            add=True,
+                        )
         except:
-            print('AppSysPanelButton bind exception', self.identity)
-            pass
+            print("AppSysPanelButton bind exception", self.identity)
+            # pass
 
     def inhibit_context_switch(self):
         """Inhibit change of panel displayed.
@@ -134,8 +136,8 @@ class AppSysPanelButton(ExceptionHandler):
         the next action invoked.
 
         """
-        v, self.obeycontextswitch = self.obeycontextswitch, True
-        return v
+        switch, self.obeycontextswitch = self.obeycontextswitch, True
+        return switch
 
     def raise_action_button(self):
         """Raise button in stacking order.
@@ -153,59 +155,55 @@ class AppSysPanelButton(ExceptionHandler):
 
         """
         if not self.obey_context_switch():
-            return 'break'
+            return "break"
+        return None
 
     def unbind_panel_button(self):
         """Unbind key and button events from button actions."""
-        self.button.bind(
-            sequence=''.join((
-                '<ButtonPress-1>')),
-            func='')
-        self.button.bind(
-            sequence='<KeyPress-Return>',
-            func='')
+        self.button.bind(sequence="".join(("<ButtonPress-1>")), func="")
+        self.button.bind(sequence="<KeyPress-Return>", func="")
 
         conf = self.button.configure()
-        underline = conf['underline'][-1]
-        text = conf['text'][-1]
+        underline = conf["underline"][-1]
+        text = conf["text"][-1]
         if isinstance(text, tuple):
-            text = ' '.join(text)
-        
+            text = " ".join(text)
+
         try:
             if not underline < 0:
                 self.parent.get_widget().bind(
-                    sequence=''.join((
-                        '<Alt-KeyPress-',
-                        text[underline].lower(),
-                        '>')),
-                    func='')
+                    sequence="".join(
+                        ("<Alt-KeyPress-", text[underline].lower(), ">")
+                    ),
+                    func="",
+                )
         except:
-            print('AppSysPanelButton unbind exception')
-            pass
+            print("AppSysPanelButton unbind exception")
+            # pass
 
 
 class AppSysPanel(ExceptionHandler):
-    
     """This is the base class for pages in a notebook style user interface.
 
     It provides the main frame of a page.  A frame for buttons that invoke
     actions is packed at bottom of page.  The rest of the page is filled by
     widgets providing application features.
-    
+
     """
 
-    def __init__(self, parent, cnf=dict(), **kargs):
+    def __init__(self, parent, cnf=None, **kargs):
         """Define basic structure of a page of a notebook style application.
 
         parent - AppSysFrame instance that owns this AppSysPanel instance
-        cnf - passed to main tkinter.Frame() call as cnf argument
+        cnf - passed to main tkinter.Frame() call as cnf argument, default {}
         **kargs - passed to main tkinter.Frame() call as **kargs argument
 
         Subclasses define the content of the page and the action buttons.
 
         """
         self.panel = tkinter.Frame(
-            master=parent.get_widget(), cnf=cnf, **kargs)
+            master=parent.get_widget(), cnf={} if cnf is None else cnf, **kargs
+        )
         self.buttons_frame = tkinter.Frame(master=self.panel)
         self._give_focus_widget = None
         self.buttons_frame.pack(side=tkinter.BOTTOM, fill=tkinter.X)
@@ -216,7 +214,7 @@ class AppSysPanel(ExceptionHandler):
         self.button_order = []
         self.buttons = {}
         self.describe_buttons()
-        super(AppSysPanel, self).__init__()
+        super().__init__()
 
     def close(self):
         """Raise AppSysPanelError('close not implemented') error.
@@ -224,48 +222,57 @@ class AppSysPanel(ExceptionHandler):
         Subclasses must override this method.
 
         """
-        raise AppSysPanelError('close not implemented')
+        raise AppSysPanelError("close not implemented")
 
     def create_buttons(self):
         """Create the action buttons defined for the page."""
-        buttonrow = self.buttons_frame.pack_info()['side'] in ('top', 'bottom')
+        buttonrow = self.buttons_frame.pack_info()["side"] in ("top", "bottom")
         definitions = self.button_definitions
-        for w in self.buttons_frame.grid_slaves():
-            w.grid_forget()
-        for i, b in enumerate(self.button_order):
-            if b not in self.buttons:
-                self.buttons[b] = AppSysPanelButton(
+        for widget in self.buttons_frame.grid_slaves():
+            widget.grid_forget()
+        for i, button in enumerate(self.button_order):
+            if button not in self.buttons:
+                self.buttons[button] = AppSysPanelButton(
                     self,
-                    b,
-                    definitions[b][2],
-                    text=definitions[b][0],
-                    underline=definitions[b][3],
+                    button,
+                    definitions[button][2],
+                    text=definitions[button][0],
+                    underline=definitions[button][3],
                     command=self.try_command(
-                        definitions[b][4], self.buttons_frame))
-            self.buttons[b].raise_action_button()
-            self.buttons[b].bind_panel_button()
+                        definitions[button][4], self.buttons_frame
+                    ),
+                )
+            self.buttons[button].raise_action_button()
+            self.buttons[button].bind_panel_button()
             if buttonrow:
-                self.buttons_frame.grid_columnconfigure(i*2, weight=1)
-                self.buttons[b].button.grid_configure(column=i*2 + 1, row=0)
+                self.buttons_frame.grid_columnconfigure(i * 2, weight=1)
+                self.buttons[button].button.grid_configure(
+                    column=i * 2 + 1, row=0
+                )
             else:
-                self.buttons_frame.grid_rowconfigure(i*2, weight=1)
-                self.buttons[b].button.grid_configure(row=i*2 + 1, column=0)
+                self.buttons_frame.grid_rowconfigure(i * 2, weight=1)
+                self.buttons[button].button.grid_configure(
+                    row=i * 2 + 1, column=0
+                )
         if buttonrow:
             self.buttons_frame.grid_columnconfigure(
-                len(self.button_order*2), weight=1)
+                len(self.button_order * 2), weight=1
+            )
         else:
             self.buttons_frame.grid_rowconfigure(
-                len(self.button_order*2), weight=1)
+                len(self.button_order * 2), weight=1
+            )
 
     def define_button(
         self,
         identity,
-        text='',
-        tooltip='',
+        text="",
+        tooltip="",
         switchpanel=False,
         underline=-1,
         command=None,
-        position=-1):
+        position=-1,
+    ):
         """Define an action button for the page.
 
         identity - unique identification number for button
@@ -280,7 +287,12 @@ class AppSysPanel(ExceptionHandler):
 
         """
         self.button_definitions[identity] = (
-            text, tooltip, switchpanel, underline, command)
+            text,
+            tooltip,
+            switchpanel,
+            underline,
+            command,
+        )
         if identity in self.button_order:
             del self.button_order[self.button_order.index(identity)]
         if position < 0:
@@ -332,8 +344,8 @@ class AppSysPanel(ExceptionHandler):
 
     def hide_panel_buttons(self):
         """Remove event bindings for action buttons."""
-        for b in self.buttons:
-            self.buttons[b].unbind_panel_button()
+        for button in self.buttons:
+            self.buttons[button].unbind_panel_button()
         del self.button_order[:]
 
     def inhibit_context_switch(self, button):
@@ -349,13 +361,14 @@ class AppSysPanel(ExceptionHandler):
                     self.get_appsys().explicit_focus_tag,
                     sequence=sequence,
                     func=function,
-                    add=None)
-                
+                    add=None,
+                )
+
         self.explicit_focus_bindings = focus_bindings
 
     def refresh_controls(self, widgets=None):
         """Notify all widgets registered for update notification.
-        
+
         widgets = [DataClient instance | (db, file, index), ...]
 
         When widget is a DataClient the current DataSource is used if there
@@ -372,24 +385,27 @@ class AppSysPanel(ExceptionHandler):
         if widgets is None:
             return
 
-        dr = self.get_appsys().get_data_register()
-        ds = set()
-        db = set()
-        for w in widgets:
-            if not isinstance(w, tuple):
-                if not len(dr.datasources):
-                    ds.add(w.datasource)
+        dataregister = self.get_appsys().get_data_register()
+        datasources = set()
+        databases = set()
+        for widget in widgets:
+            if not isinstance(widget, tuple):
+                if not dataregister.datasources:
+                    datasources.add(widget.datasource)
                 else:
-                    db.add((
-                        w.datasource.dbhome,
-                        w.datasource.dbset,
-                        w.datasource.dbname))
-            elif len(dr.datasources):
-                db.add(w)
-        for d in ds:
-            d.refresh_widgets(None)
-        for d in db:
-            dr.refresh_after_update(d, None)
+                    databases.add(
+                        (
+                            widget.datasource.dbhome,
+                            widget.datasource.dbset,
+                            widget.datasource.dbname,
+                        )
+                    )
+            elif len(dataregister.datasources):
+                databases.add(widget)
+        for k in datasources:
+            k.refresh_widgets(None)
+        for k in databases:
+            dataregister.refresh_after_update(k, None)
 
     def show_panel(self):
         """Pack page and button frames and define event bindings."""
@@ -402,10 +418,10 @@ class AppSysPanel(ExceptionHandler):
 
     def show_panel_buttons(self, buttons):
         """Ensure all action buttons for page are visible."""
-        for b in buttons:
-            if b in self.button_definitions:
-                if b not in self.button_order:
-                    self.button_order.append(b)
+        for button in buttons:
+            if button in self.button_definitions:
+                if button not in self.button_order:
+                    self.button_order.append(button)
 
     def switch_context(self, button):
         """Call the application switch_context method."""
@@ -422,27 +438,20 @@ class AppSysPanel(ExceptionHandler):
 
 
 class PlainPanel(AppSysPanel):
-    
-    """This is the base class for pages in a notebook style user interface
-    which do not support *grid* classes in the solentware_grid package.
-    
-    """
+    """Base class for pages without grids in notebook style user interface."""
 
     def make_grids(self, gridarguments):
-        """Raise exception because solentware_grid *grid* classes are not
-        supported.
+        """Raise exception because *grid* classes are not supported.
 
         Subclasses can use classes from solentware_grid, but must be responsible
         for managing them.
         """
-        raise AppSysPanelError('solentware_grid *grid* classes not supported')
+        raise AppSysPanelError("solentware_grid *grid* classes not supported")
 
 
 class PanelWithGrids(AppSysPanel):
-    
-    """This is the base class for pages in a notebook style user interface
-    which support the *grid* classes in the solentware_grid package.
-    
+    """Base class for pages with grids in a notebook style user interface.
+
     One or more grids may be put on the panel, with a record selector for
     each grid if the useselector argument is True.
 
@@ -454,27 +463,24 @@ class PanelWithGrids(AppSysPanel):
     """
 
     def __init__(
-        self,
-        parent,
-        useselector=True,
-        gridhorizontal=True,
-        cnf=dict(),
-        **kargs):
+        self, parent, useselector=True, gridhorizontal=True, cnf=None, **kargs
+    ):
         """Create panel to which grids and selectors may be added.
 
         parent - passed to superclass as parent argument.
         useselector - if True a selector is provided for each grid.
         gridhorizontal - if True grids are arranged horizontally.
-        cnf - passed to superclass as cnf argument.
+        cnf - passed to superclass as cnf argument, default {}.
         **kargs - passed to superclass as **kargs argument.
 
         Selectors are either present for all grids or absent for all grids.
 
         Grids are arranged horizontally or vertically.
-        
+
         """
-        super(PanelWithGrids, self).__init__(
-            parent=parent, cnf=cnf, **kargs)
+        super().__init__(
+            parent=parent, cnf={} if cnf is None else cnf, **kargs
+        )
         self.useselector = useselector is True
         self.gridhorizontal = gridhorizontal is True
         self.gridselector = dict()
@@ -490,7 +496,7 @@ class PanelWithGrids(AppSysPanel):
         selectfocuskey=None,
         keypress_grid_to_select=True,
         **kargs
-        ):
+    ):
         """Add selector and grid to panel.
 
         gridmaster - to be passed as master argument in grid() call.
@@ -516,11 +522,13 @@ class PanelWithGrids(AppSysPanel):
             appsyspanel=self,
             receivefocuskey=gridfocuskey,
             focus_selector=selectfocuskey,
-            keypress_grid_to_select=keypress_grid_to_select)
+            keypress_grid_to_select=keypress_grid_to_select,
+        )
         if selector:
-            (self.activegridhint[gridframe],
-             self.gridselector[gridframe],
-             ) = selector
+            (
+                self.activegridhint[gridframe],
+                self.gridselector[gridframe],
+            ) = selector
             gridframe.set_select_hint_label()
         return gridframe
 
@@ -530,12 +538,12 @@ class PanelWithGrids(AppSysPanel):
         grid - a solentware_grid.DataGrid instance.
         """
         if grid is True:
-            for w in set(self.gridselector.values()):
-                w.delete(0, tkinter.END)
+            for widget in set(self.gridselector.values()):
+                widget.delete(0, tkinter.END)
         else:
-            w = self.gridselector.get(grid)
-            if w is not None:
-                w.delete(0, tkinter.END)
+            widget = self.gridselector.get(grid)
+            if widget is not None:
+                widget.delete(0, tkinter.END)
 
     def get_active_grid_hint(self, grid):
         """Return Tkinter.Label for grid.
@@ -555,27 +563,23 @@ class PanelWithGrids(AppSysPanel):
         """Set grid navigation bindings for grids on page."""
         # Each grid sets bindings to switch focus to all the other grids
         gridargs = list(gridarguments)
-        for g in range(len(grids)):
-            w = grids.pop(0)
-            ga = gridargs.pop(0)
-            w.grid_bindings(grids, gridargs, **ga)
-            grids.append(w)
-            gridargs.append(ga)
-        ba = {}
-        for ga, g in zip(gridarguments, grids):
-            ba[ga['gridfocuskey']] = g.focus_to_grid
-        self.make_explicit_focus_bindings(ba)
+        for i in range(len(grids)):
+            widget = grids.pop(0)
+            gargs = gridargs.pop(0)
+            widget.grid_bindings(grids, gridargs, **gargs)
+            grids.append(widget)
+            gridargs.append(gargs)
+        bindmap = {}
+        for gargs, widget in zip(gridarguments, grids):
+            bindmap[gargs["gridfocuskey"]] = widget.focus_to_grid
+        self.make_explicit_focus_bindings(bindmap)
 
 
 class PanelGridSelector(PanelWithGrids):
-    
-    """Display data grids in equal share of space next to their selectors.
-    
-    """
+    """Display data grids in equal share of space next to their selectors."""
 
     def __init__(self, parent, **kargs):
-        """Delegate to superclass then create Tkinter.Frame to which grids
-        and selectors may be added.
+        """Delegate to superclass then create Tkinter.Frame widget.
 
         parent - passed to superclass as parent argument.
         **kargs - passed to superclass as **kargs argument.
@@ -583,11 +587,12 @@ class PanelGridSelector(PanelWithGrids):
         The extra widget in the hierarchy adjusts the behaviour of the
         widgets when the application is resized.
         """
-        super(PanelGridSelector, self).__init__(parent, **kargs)
+        super().__init__(parent, **kargs)
 
         self.gridpane = tkinter.Frame(master=self.get_widget())
         self.gridpane.pack(
-            side=tkinter.TOP, expand=tkinter.TRUE, fill=tkinter.BOTH)
+            side=tkinter.TOP, expand=tkinter.TRUE, fill=tkinter.BOTH
+        )
 
     def make_grids(self, gridarguments):
         """Create data grids and selectors controlled by grid geometry manager.
@@ -606,75 +611,76 @@ class PanelGridSelector(PanelWithGrids):
         window.
 
         """
-        def make_selector(a):
-            if a.get('selectfocuskey') is None:
+
+        def make_selector(arg):
+            if arg.get("selectfocuskey") is None:
                 return (None, None)
-            s = tkinter.Frame(master=self.gridpane)
-            sl = tkinter.Label(master=s)
-            se = tkinter.Entry(master=s)
-            return (s, (sl, se))
+            frame = tkinter.Frame(master=self.gridpane)
+            label = tkinter.Label(master=frame)
+            entry = tkinter.Entry(master=frame)
+            return (frame, (label, entry))
 
         grids = []
-        for e, ga in enumerate(gridarguments):
-            selector, selector_widgets = make_selector(ga)
+        for i, gargs in enumerate(gridarguments):
+            selector, selector_widgets = make_selector(gargs)
             grids.append(
                 self.add_grid_to_panel(
-                    self.gridpane,
-                    selector_widgets,
-                    **ga))
-            gf = grids[-1]
+                    self.gridpane, selector_widgets, **gargs
+                )
+            )
+            gframe = grids[-1]
             if selector:
                 selector.grid_columnconfigure(0, weight=1)
-                self.activegridhint[gf].grid(column=0, row=0, sticky='nes')
+                self.activegridhint[gframe].grid(column=0, row=0, sticky="nes")
                 selector.grid_columnconfigure(1, weight=1)
-                self.gridselector[gf].grid(column=1, row=0, sticky='nsw')
+                self.gridselector[gframe].grid(column=1, row=0, sticky="nsw")
                 if self.gridhorizontal:
                     if self.useselector:
-                        selector.grid(column=e, row=0, sticky='nesw')
+                        selector.grid(column=i, row=0, sticky="nesw")
                     else:
-                        selector.grid(column=e, row=1, sticky='nesw')
+                        selector.grid(column=i, row=1, sticky="nesw")
                 elif self.useselector:
                     self.gridpane.grid_rowconfigure(
-                        e * 2, weight=0, uniform='select')
-                    selector.grid(column=0, row=e * 2, sticky='nesw')
+                        i * 2, weight=0, uniform="select"
+                    )
+                    selector.grid(column=0, row=i * 2, sticky="nesw")
                 else:
                     self.gridpane.grid_rowconfigure(
-                        e * 2 + 1, weight=0, uniform='select')
-                    selector.grid(column=0, row=e * 2 + 1, sticky='nesw')
+                        i * 2 + 1, weight=0, uniform="select"
+                    )
+                    selector.grid(column=0, row=i * 2 + 1, sticky="nesw")
             if self.gridhorizontal:
-                self.gridpane.grid_columnconfigure(e, weight=1, uniform='data')
+                self.gridpane.grid_columnconfigure(i, weight=1, uniform="data")
                 if self.useselector:
-                    gf.get_frame().grid(column=e, row=1, sticky='nesw')
+                    gframe.get_frame().grid(column=i, row=1, sticky="nesw")
                 else:
-                    gf.get_frame().grid(column=e, row=0, sticky='nesw')
+                    gframe.get_frame().grid(column=i, row=0, sticky="nesw")
             elif self.useselector:
                 self.gridpane.grid_rowconfigure(
-                    e * 2 + 1, weight=1, uniform='data')
-                gf.get_frame().grid(column=0, row=e * 2 + 1, sticky='nesw')
+                    i * 2 + 1, weight=1, uniform="data"
+                )
+                gframe.get_frame().grid(column=0, row=i * 2 + 1, sticky="nesw")
             else:
                 self.gridpane.grid_rowconfigure(
-                    e * 2, weight=1, uniform='data')
-                gf.get_frame().grid(column=0, row=e * 2, sticky='nesw')
+                    i * 2, weight=1, uniform="data"
+                )
+                gframe.get_frame().grid(column=0, row=i * 2, sticky="nesw")
         if self.gridhorizontal:
             self.gridpane.grid_rowconfigure(1, weight=1)
         else:
             self.gridpane.grid_columnconfigure(0, weight=1)
-                
+
         self.set_panels_grid_bindings(grids, gridarguments)
-        if len(grids):
+        if grids:
             self.give_focus(grids[0].get_frame())
         return grids
 
 
 class PanelGridSelectorBar(PanelWithGrids):
-    
-    """Display data grids in equal share of space with selectors in own row.
-    
-    """
+    """Display data grids in equal share of space with selectors in own row."""
 
     def __init__(self, parent, **kargs):
-        """Delegate to superclass then create Tkinter.Frame to which grids
-        and selectors may be added.
+        """Delegate to superclass then create Tkinter.Frame widget.
 
         parent - passed to superclass as parent argument.
         **kargs - passed to superclass as **kargs argument.
@@ -682,11 +688,12 @@ class PanelGridSelectorBar(PanelWithGrids):
         The extra widget in the hierarchy adjusts the behaviour of the
         widgets when the application is resized.
         """
-        super(PanelGridSelectorBar, self).__init__(parent, **kargs)
+        super().__init__(parent, **kargs)
 
         self.gridpane = tkinter.Frame(master=self.get_widget())
         self.gridpane.pack(
-            side=tkinter.TOP, expand=tkinter.TRUE, fill=tkinter.BOTH)
+            side=tkinter.TOP, expand=tkinter.TRUE, fill=tkinter.BOTH
+        )
 
     def make_grids(self, gridarguments):
         """Create data grids and selectors controlled by grid geometry manager.
@@ -707,71 +714,70 @@ class PanelGridSelectorBar(PanelWithGrids):
         window.
 
         """
-        def make_selector(a):
-            if a.get('selectfocuskey') is None:
+
+        def make_selector(arg):
+            if arg.get("selectfocuskey") is None:
                 return (None, None)
-            s = tkinter.Frame(master=self.gridpane)
-            sl = tkinter.Label(master=s)
-            se = tkinter.Entry(master=s)
-            return (s, (sl, se))
+            frame = tkinter.Frame(master=self.gridpane)
+            label = tkinter.Label(master=frame)
+            entry = tkinter.Entry(master=frame)
+            return (frame, (label, entry))
 
         gsize = len(gridarguments)
         grids = []
-        for e, ga in enumerate(gridarguments):
-            selector, selector_widgets = make_selector(ga)
+        for i, gargs in enumerate(gridarguments):
+            selector, selector_widgets = make_selector(gargs)
             grids.append(
                 self.add_grid_to_panel(
-                    self.gridpane,
-                    selector_widgets,
-                    **ga))
-            gf = grids[-1]
+                    self.gridpane, selector_widgets, **gargs
+                )
+            )
+            gframe = grids[-1]
             if selector:
                 selector.grid_columnconfigure(0, weight=1)
-                self.activegridhint[gf].grid(column=0, row=0, sticky='nes')
+                self.activegridhint[gframe].grid(column=0, row=0, sticky="nes")
                 selector.grid_columnconfigure(1, weight=1)
-                self.gridselector[gf].grid(column=1, row=0, sticky='nsw')
+                self.gridselector[gframe].grid(column=1, row=0, sticky="nsw")
                 if self.useselector:
-                    selector.grid(column=e, row=0, sticky='nesw')
+                    selector.grid(column=i, row=0, sticky="nesw")
                 else:
-                    selector.grid(column=e, row=gsize, sticky='nesw')
+                    selector.grid(column=i, row=gsize, sticky="nesw")
                 if not self.gridhorizontal:
                     self.gridpane.grid_columnconfigure(
-                        e, weight=1, uniform='select')
+                        i, weight=1, uniform="select"
+                    )
             if self.gridhorizontal:
-                self.gridpane.grid_columnconfigure(e, weight=1, uniform='data')
+                self.gridpane.grid_columnconfigure(i, weight=1, uniform="data")
                 if self.useselector:
-                    gf.get_frame().grid(column=e, row=1, sticky='nesw')
+                    gframe.get_frame().grid(column=i, row=1, sticky="nesw")
                 else:
-                    gf.get_frame().grid(column=e, row=0, sticky='nesw')
+                    gframe.get_frame().grid(column=i, row=0, sticky="nesw")
             else:
                 if self.useselector:
-                    r = e + 1
+                    row = i + 1
                 else:
-                    r = e
-                gf.get_frame().grid(
-                    column=0, row=r, sticky='nesw', columnspan=gsize)
-                self.gridpane.grid_rowconfigure(r, weight=1, uniform='data')
+                    row = i
+                gframe.get_frame().grid(
+                    column=0, row=row, sticky="nesw", columnspan=gsize
+                )
+                self.gridpane.grid_rowconfigure(row, weight=1, uniform="data")
         if self.gridhorizontal:
             if self.useselector:
                 self.gridpane.grid_rowconfigure(1, weight=1)
             else:
                 self.gridpane.grid_rowconfigure(0, weight=1)
-                
+
         self.set_panels_grid_bindings(grids, gridarguments)
-        if len(grids):
+        if grids:
             self.give_focus(grids[0].get_frame())
         return grids
 
 
 class PanelGridSelectorShared(PanelWithGrids):
-    
-    """Display data grids in equal share of space with a shared selector.
-    
-    """
+    """Display data grids in equal share of space with a shared selector."""
 
     def __init__(self, parent, **kargs):
-        """Delegate to superclass then create Tkinter.Frame to which grids
-        and selectors may be added.
+        """Delegate to superclass then create Tkinter.Frame widget.
 
         parent - passed to superclass as parent argument.
         **kargs - passed to superclass as **kargs argument.
@@ -779,11 +785,12 @@ class PanelGridSelectorShared(PanelWithGrids):
         The extra widget in the hierarchy adjusts the behaviour of the
         widgets when the application is resized.
         """
-        super(PanelGridSelectorShared, self).__init__(parent, **kargs)
+        super().__init__(parent, **kargs)
 
         self.gridpane = tkinter.Frame(master=self.get_widget())
         self.gridpane.pack(
-            side=tkinter.TOP, expand=tkinter.TRUE, fill=tkinter.BOTH)
+            side=tkinter.TOP, expand=tkinter.TRUE, fill=tkinter.BOTH
+        )
 
     def make_grids(self, gridarguments):
         """Create data grids and selectors controlled by grid geometry manager.
@@ -805,60 +812,69 @@ class PanelGridSelectorShared(PanelWithGrids):
         window.
 
         """
-        for ga in gridarguments:
-            if ga.get('selectfocuskey'):
+        for gargs in gridarguments:
+            if gargs.get("selectfocuskey"):
+
                 def csf():
-                    s = tkinter.Frame(master=self.gridpane)
-                    sl = tkinter.Label(master=s)
-                    se = tkinter.Entry(master=s)
+                    frame = tkinter.Frame(master=self.gridpane)
+                    label = tkinter.Label(master=frame)
+                    entry = tkinter.Entry(master=frame)
+
                     def rcsf():
-                        return (s, (sl, se))
+                        return (frame, (label, entry))
+
                     return rcsf
+
                 make_selector = csf()
                 break
         else:
+
             def make_selector():
                 return (None, None)
+
         selector, selector_widgets = make_selector()
         gsize = len(gridarguments)
         grids = []
-        for e, ga in enumerate(gridarguments):
+        for i, gargs in enumerate(gridarguments):
             grids.append(
                 self.add_grid_to_panel(
-                    self.gridpane,
-                    selector_widgets,
-                    **ga))
-            gf = grids[-1]
+                    self.gridpane, selector_widgets, **gargs
+                )
+            )
+            gframe = grids[-1]
             if self.gridhorizontal:
-                self.gridpane.grid_columnconfigure(e, weight=1, uniform='data')
+                self.gridpane.grid_columnconfigure(i, weight=1, uniform="data")
                 if self.useselector:
-                    gf.get_frame().grid(column=e, row=1, sticky='nesw')
+                    gframe.get_frame().grid(column=i, row=1, sticky="nesw")
                 else:
-                    gf.get_frame().grid(column=e, row=0, sticky='nesw')
+                    gframe.get_frame().grid(column=i, row=0, sticky="nesw")
             else:
                 if self.useselector:
-                    r = e + 1
+                    row = i + 1
                 else:
-                    r = e
-                gf.get_frame().grid(
-                    column=0, row=r, sticky='nesw', columnspan=gsize)
-                self.gridpane.grid_rowconfigure(r, weight=1, uniform='data')
+                    row = i
+                gframe.get_frame().grid(
+                    column=0, row=row, sticky="nesw", columnspan=gsize
+                )
+                self.gridpane.grid_rowconfigure(row, weight=1, uniform="data")
         if selector:
             selector.grid_columnconfigure(0, weight=1)
-            selector_widgets[0].grid(column=0, row=0, sticky='nes')
+            selector_widgets[0].grid(column=0, row=0, sticky="nes")
             selector.grid_columnconfigure(1, weight=1)
-            selector_widgets[1].grid(column=1, row=0, sticky='nsw')
+            selector_widgets[1].grid(column=1, row=0, sticky="nsw")
             if self.useselector:
                 if self.gridhorizontal:
                     selector.grid(
-                        column=0, row=0, sticky='nesw', columnspan=gsize)
+                        column=0, row=0, sticky="nesw", columnspan=gsize
+                    )
                 else:
-                    selector.grid(column=0, row=0, sticky='nesw')
+                    selector.grid(column=0, row=0, sticky="nesw")
             elif self.gridhorizontal:
                 selector.grid(
-                    column=0, row=gsize, sticky='nesw', columnspan=gsize)
+                    column=0, row=gsize, sticky="nesw", columnspan=gsize
+                )
             else:
-                selector.grid(column=0, row=gsize, sticky='nesw')
+                selector.grid(column=0, row=gsize, sticky="nesw")
         if self.gridhorizontal:
             if self.useselector:
                 self.gridpane.grid_rowconfigure(1, weight=1)
@@ -866,9 +882,9 @@ class PanelGridSelectorShared(PanelWithGrids):
                 self.gridpane.grid_rowconfigure(0, weight=1)
         else:
             self.gridpane.grid_columnconfigure(0, weight=1)
-                
+
         self.set_panels_grid_bindings(grids, gridarguments)
-        if len(grids):
+        if grids:
             self.give_focus(grids[0].get_frame())
             if selector:
                 grids[0].bind_return(setbinding=True)
@@ -876,14 +892,10 @@ class PanelGridSelectorShared(PanelWithGrids):
 
 
 class PanedPanelGridSelector(PanelWithGrids):
-    
-    """Display data grids in adjustable space next to their selectors.
-    
-    """
+    """Display data grids in adjustable space next to their selectors."""
 
     def __init__(self, parent, **kargs):
-        """Delegate to superclass then create Tkinter.PanedWindow to which
-        grids and selectors may be added.
+        """Delegate to superclass then create Tkinter.PanedWindow widget.
 
         parent - passed to superclass as parent argument.
         **kargs - passed to superclass as **kargs argument.
@@ -891,18 +903,16 @@ class PanedPanelGridSelector(PanelWithGrids):
         The extra widget in the hierarchy adjusts the behaviour of the
         widgets when the application is resized.
         """
-        super(PanedPanelGridSelector, self).__init__(parent, **kargs)
+        super().__init__(parent, **kargs)
 
         if self.gridhorizontal:
             orient = tkinter.HORIZONTAL
         else:
             orient = tkinter.VERTICAL
         self.gridpane = tkinter.PanedWindow(
-            master=self.get_widget(),
-            opaqueresize=tkinter.FALSE,
-            orient=orient)
-        self.gridpane.pack(
-            side=tkinter.TOP, expand=True, fill=tkinter.BOTH)
+            master=self.get_widget(), opaqueresize=tkinter.FALSE, orient=orient
+        )
+        self.gridpane.pack(side=tkinter.TOP, expand=True, fill=tkinter.BOTH)
 
     def make_grids(self, gridarguments):
         """Create data grids and selectors controlled by paned window.
@@ -923,57 +933,54 @@ class PanedPanelGridSelector(PanelWithGrids):
         sash between two panes.
 
         """
-        def make_selector(a, sm):
-            if a.get('selectfocuskey') is None:
+
+        def make_selector(arg, master):
+            if arg.get("selectfocuskey") is None:
                 return (None, None)
-            s = tkinter.Frame(master=sm)
-            sl = tkinter.Label(master=s)
-            se = tkinter.Entry(master=s)
-            s.grid_columnconfigure(0, weight=1)
-            sl.grid(column=0, row=0, sticky='nes')
-            s.grid_columnconfigure(1, weight=1)
-            se.grid(column=1, row=0, sticky='nsw')
-            return (s, (sl, se))
+            frame = tkinter.Frame(master=master)
+            label = tkinter.Label(master=frame)
+            entry = tkinter.Entry(master=frame)
+            frame.grid_columnconfigure(0, weight=1)
+            label.grid(column=0, row=0, sticky="nes")
+            frame.grid_columnconfigure(1, weight=1)
+            entry.grid(column=1, row=0, sticky="nsw")
+            return (frame, (label, entry))
 
         grids = []
-        for e, ga in enumerate(gridarguments):
+        for gargs in gridarguments:
             gridmaster = tkinter.Frame(master=self.gridpane)
-            selector, selector_widgets = make_selector(ga, gridmaster)
+            selector, selector_widgets = make_selector(gargs, gridmaster)
             grids.append(
-                self.add_grid_to_panel(
-                    gridmaster,
-                    selector_widgets,
-                    **ga))
-            gf = grids[-1]
+                self.add_grid_to_panel(gridmaster, selector_widgets, **gargs)
+            )
+            gframe = grids[-1]
             if self.useselector:
                 if selector:
                     selector.pack(side=tkinter.TOP, fill=tkinter.X)
-                    gf.bind_return(setbinding=True)
-                gf.get_frame().pack(
-                    side=tkinter.TOP, fill=tkinter.BOTH, expand=tkinter.TRUE)
+                    gframe.bind_return(setbinding=True)
+                gframe.get_frame().pack(
+                    side=tkinter.TOP, fill=tkinter.BOTH, expand=tkinter.TRUE
+                )
             else:
-                gf.get_frame().pack(
-                    side=tkinter.TOP, fill=tkinter.BOTH, expand=tkinter.TRUE)
+                gframe.get_frame().pack(
+                    side=tkinter.TOP, fill=tkinter.BOTH, expand=tkinter.TRUE
+                )
                 if selector:
                     selector.pack(side=tkinter.TOP, fill=tkinter.X)
-                    gf.bind_return(setbinding=True)
+                    gframe.bind_return(setbinding=True)
             self.gridpane.add(gridmaster)
-                
+
         self.set_panels_grid_bindings(grids, gridarguments)
-        if len(grids):
+        if grids:
             self.give_focus(grids[0].get_frame())
         return grids
 
 
 class PanedPanelGridSelectorBar(PanelWithGrids):
-    
-    """Display data grids in adjustable space with selectors in own row.
-    
-    """
+    """Display data grids in adjustable space with selectors in own row."""
 
     def __init__(self, parent, **kargs):
-        """Delegate to superclass then create Tkinter.PanedWindow to which
-        grids and selectors may be added.
+        """Delegate to superclass then create Tkinter.PanedWindow widget.
 
         parent - passed to superclass as parent argument.
         **kargs - passed to superclass as **kargs argument.
@@ -981,27 +988,26 @@ class PanedPanelGridSelectorBar(PanelWithGrids):
         The extra widget in the hierarchy adjusts the behaviour of the
         widgets when the application is resized.
         """
-        super(PanedPanelGridSelectorBar, self).__init__(parent, **kargs)
+        super().__init__(parent, **kargs)
 
         if self.gridhorizontal:
             orient = tkinter.HORIZONTAL
         else:
             orient = tkinter.VERTICAL
         self.gridpane = tkinter.PanedWindow(
-            master=self.get_widget(),
-            opaqueresize=tkinter.FALSE,
-            orient=orient)
+            master=self.get_widget(), opaqueresize=tkinter.FALSE, orient=orient
+        )
         self.selectormaster = tkinter.Frame(master=self.get_widget())
         if self.useselector:
-            self.selectormaster.pack(
-                side=tkinter.TOP, fill=tkinter.X)
+            self.selectormaster.pack(side=tkinter.TOP, fill=tkinter.X)
             self.gridpane.pack(
-                side=tkinter.BOTTOM, expand=tkinter.TRUE, fill=tkinter.BOTH)
+                side=tkinter.BOTTOM, expand=tkinter.TRUE, fill=tkinter.BOTH
+            )
         else:
-            self.selectormaster.pack(
-                side=tkinter.BOTTOM, fill=tkinter.X)
+            self.selectormaster.pack(side=tkinter.BOTTOM, fill=tkinter.X)
             self.gridpane.pack(
-                side=tkinter.TOP, expand=tkinter.TRUE, fill=tkinter.BOTH)
+                side=tkinter.TOP, expand=tkinter.TRUE, fill=tkinter.BOTH
+            )
 
     def make_grids(self, gridarguments):
         """Create data grids and selectors controlled by paned window.
@@ -1024,34 +1030,34 @@ class PanedPanelGridSelectorBar(PanelWithGrids):
         panes.
 
         """
-        def make_selector(a, col):
-            if a.get('selectfocuskey') is None:
+
+        def make_selector(arg, col):
+            if arg.get("selectfocuskey") is None:
                 return (None, None)
-            sl = tkinter.Label(master=self.selectormaster)
-            se = tkinter.Entry(master=self.selectormaster)
+            label = tkinter.Label(master=self.selectormaster)
+            entry = tkinter.Entry(master=self.selectormaster)
             self.selectormaster.grid_columnconfigure(col * 2, weight=1)
-            sl.grid(column=col * 2, row=0, sticky='nes')
-            self.selectormaster.grid_columnconfigure(
-                col * 2 + 1, weight=1)
-            se.grid(column=col * 2 + 1, row=0, sticky='nsw')
-            return (self.selectormaster, (sl, se))
+            label.grid(column=col * 2, row=0, sticky="nes")
+            self.selectormaster.grid_columnconfigure(col * 2 + 1, weight=1)
+            entry.grid(column=col * 2 + 1, row=0, sticky="nsw")
+            return (self.selectormaster, (label, entry))
 
         selector = False
         grids = []
-        for e, ga in enumerate(gridarguments):
-            selector, selector_widgets = make_selector(ga, e)
+        for i, gargs in enumerate(gridarguments):
+            selector, selector_widgets = make_selector(gargs, i)
             grids.append(
                 self.add_grid_to_panel(
-                    self.gridpane,
-                    selector_widgets,
-                    **ga))
-            gf = grids[-1]
-            self.gridpane.add(gf.get_frame())
+                    self.gridpane, selector_widgets, **gargs
+                )
+            )
+            gframe = grids[-1]
+            self.gridpane.add(gframe.get_frame())
         if not selector:
             self.selectormaster.pack_forget()
-                
+
         self.set_panels_grid_bindings(grids, gridarguments)
-        if len(grids):
+        if grids:
             self.give_focus(grids[0].get_frame())
             if selector:
                 grids[0].bind_return(setbinding=True)
@@ -1059,14 +1065,10 @@ class PanedPanelGridSelectorBar(PanelWithGrids):
 
 
 class PanedPanelGridSelectorShared(PanelWithGrids):
-    
-    """Display data grids in adjustable space with a shared selector.
-    
-    """
+    """Display data grids in adjustable space with a shared selector."""
 
     def __init__(self, parent, **kargs):
-        """Delegate to superclass then create Tkinter.PanedWindow to which
-        grids and selectors may be added.
+        """Delegate to superclass then create Tkinter.PanedWindow widget.
 
         parent - passed to superclass as parent argument.
         **kargs - passed to superclass as **kargs argument.
@@ -1074,27 +1076,26 @@ class PanedPanelGridSelectorShared(PanelWithGrids):
         The extra widget in the hierarchy adjusts the behaviour of the
         widgets when the application is resized.
         """
-        super(PanedPanelGridSelectorShared, self).__init__(parent, **kargs)
+        super().__init__(parent, **kargs)
 
         if self.gridhorizontal:
             orient = tkinter.HORIZONTAL
         else:
             orient = tkinter.VERTICAL
         self.gridpane = tkinter.PanedWindow(
-            master=self.get_widget(),
-            opaqueresize=tkinter.FALSE,
-            orient=orient)
+            master=self.get_widget(), opaqueresize=tkinter.FALSE, orient=orient
+        )
         self.selectormaster = tkinter.Frame(master=self.get_widget())
         if self.useselector:
-            self.selectormaster.pack(
-                side=tkinter.TOP, fill=tkinter.X)
+            self.selectormaster.pack(side=tkinter.TOP, fill=tkinter.X)
             self.gridpane.pack(
-                side=tkinter.BOTTOM, expand=tkinter.TRUE, fill=tkinter.BOTH)
+                side=tkinter.BOTTOM, expand=tkinter.TRUE, fill=tkinter.BOTH
+            )
         else:
-            self.selectormaster.pack(
-                side=tkinter.BOTTOM, fill=tkinter.X)
+            self.selectormaster.pack(side=tkinter.BOTTOM, fill=tkinter.X)
             self.gridpane.pack(
-                side=tkinter.TOP, expand=tkinter.TRUE, fill=tkinter.BOTH)
+                side=tkinter.TOP, expand=tkinter.TRUE, fill=tkinter.BOTH
+            )
 
     def make_grids(self, gridarguments):
         """Create data grids and selectors controlled by paned window.
@@ -1117,38 +1118,44 @@ class PanedPanelGridSelectorShared(PanelWithGrids):
         between two panes.
 
         """
-        for ga in gridarguments:
-            if ga.get('selectfocuskey'):
+        for gargs in gridarguments:
+            if gargs.get("selectfocuskey"):
+
                 def csf():
-                    sl = tkinter.Label(master=self.selectormaster)
-                    se = tkinter.Entry(master=self.selectormaster)
+                    label = tkinter.Label(master=self.selectormaster)
+                    entry = tkinter.Entry(master=self.selectormaster)
                     self.selectormaster.grid_columnconfigure(0, weight=1)
-                    sl.grid(column=0, row=0, sticky='nes')
+                    label.grid(column=0, row=0, sticky="nes")
                     self.selectormaster.grid_columnconfigure(1, weight=1)
-                    se.grid(column=1, row=0, sticky='nsw')
+                    entry.grid(column=1, row=0, sticky="nsw")
+
                     def rcsf():
-                        return (self.selectormaster, (sl, se))
+                        return (self.selectormaster, (label, entry))
+
                     return rcsf
+
                 make_selector = csf()
                 break
         else:
+
             def make_selector():
                 return (None, None)
+
         selector, selector_widgets = make_selector()
         grids = []
-        for ga in gridarguments:
+        for gargs in gridarguments:
             grids.append(
                 self.add_grid_to_panel(
-                    self.gridpane,
-                    selector_widgets,
-                    **ga))
-            gf = grids[-1]
-            self.gridpane.add(gf.get_frame())
+                    self.gridpane, selector_widgets, **gargs
+                )
+            )
+            gframe = grids[-1]
+            self.gridpane.add(gframe.get_frame())
         if not selector:
             self.selectormaster.pack_forget()
-                
+
         self.set_panels_grid_bindings(grids, gridarguments)
-        if len(grids):
+        if grids:
             self.give_focus(grids[0].get_frame())
             if selector:
                 grids[0].bind_return(setbinding=True)
