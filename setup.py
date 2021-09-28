@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     setup(
         name="solentware-misc",
-        version="1.3.1.dev0",
+        version="1.3.1",
         description="Classes perhaps useful beyond original application",
         author="Roger Marsh",
         author_email="roger.marsh@solentware.co.uk",
