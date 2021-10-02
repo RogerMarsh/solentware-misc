@@ -17,10 +17,9 @@ This package contains a number of modules which do not have an obvious home in a
       * dialogues.py - wrappers for messagebox and filedialog functions.
       * workarounds.py - workarounds for problems met in Tkinter functions.
 
-   api subpackage.
+   core subpackage.
 
       * callthreadqueue.py - run methods from a queue in a thread.
-      * indexmap.py - DPT style bitmap manager.
       * modulequery.py - functions to pick an installed database interface.
       * null.py - Null object from Python Cookbook.
       * utilities.py - Some name and date methods.
@@ -28,6 +27,7 @@ This package contains a number of modules which do not have an obvious home in a
    gui subpackage.
 
       * colourslider.py - widget for choosing colours.
+      * dialogue.py - widgets for dialogues and reports.
       * exceptionhandler.py - write exception details to error log.
       * fontchooser.py - widget for selecting fonts.
       * frame.py - customised Tkinter.Frame widget for notebook style GUI.
@@ -36,6 +36,7 @@ This package contains a number of modules which do not have an obvious home in a
       * logpanel.py - widgets for displaying task logs.
       * panel.py - customised Tkinter.Frame widget for notebook style GUI.
       * reports.py - customised Tkinter.Toplevel for reports and dialogues.
+      * startstop.py - functions for application start, stop, and exceptions.
       * tasklog.py - run task in thread and report progress.
       * textentry.py - customised Tkinter.Text widget.
       * textreadonly.py - customised Tkinter.Text widget.
@@ -46,27 +47,13 @@ This package contains a number of modules which do not have an obvious home in a
 Installation Instructions
 =========================
 
-Install the package by typing
+This package is available on PyPI so can be installed by typing
 
-   python setup.py install
+   python -m pip install --user solentware-misc
 
-at the command prompt with setup.py in the current directory.
+at the command prompt.
 
-You may need to give the path and version of Python depending on your system's configuration:
-
-   <path to python>/python<version> setup.py install
-
-   For example
-
-      C:\\Python33\\python setup.py install
-
-         on Microsoft Windows or
-
-      python3.3 setup.py install
-
-         on Unix-like systems.
-
-Use `Python`_ 3.3 or later.
+See `Python`_ and `pip`_ documentation for alternatives and platform-specific points.
 
 
 Notes
@@ -75,4 +62,5 @@ Notes
 The frame, panel, logpanel,and threadqueue, modules are obsolete given the addition of ttk:notebook to tk after Tk8.4 and access via tkinter.
 
 
-.. _`Python`: https://python.org
+.. _Python: https://python.org
+.. _pip: https://packaging.python.org/installing
