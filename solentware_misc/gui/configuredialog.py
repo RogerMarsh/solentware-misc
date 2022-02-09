@@ -99,12 +99,7 @@ class ConfigureDialog(ExceptionHandler):
         """Extract text from dialog and destroy dialog."""
         if tkinter.messagebox.askyesno(
             parent=self.dialog,
-            message="".join(
-                (
-                    "Confirm apply changes to configuration file and update "
-                    "main widget."
-                )
-            ),
+            message="Confirm apply changes to configuration file.",
             title=self.dialog.wm_title(),
         ):
             self._config_text = self.configuration.get(
