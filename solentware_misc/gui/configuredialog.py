@@ -113,10 +113,27 @@ class ConfigureDialog(ExceptionHandler):
     def __del__(self):
         """Restore focus to widget with focus before modal interaction."""
         try:
+
             # restore focus on dismissing dialogue.
             self.restore_focus.focus_set()
+
         except tkinter._tkinter.TclError as error:
+
             # application destroyed while confirm dialogue exists.
             if str(error) != FOCUS_ERROR:
                 if not str(error).startswith(BAD_WINDOW):
                     raise
+
+        # It is possible to get here without self.restore_focus bound to
+        # an object.  The object is assumed to have a focus_set() method.
+        # The known case, in chessresults.gui.leagues, appears to be a bug
+        # not yet tracked down.
+        # The Toplevel for the dialog is not destroyed and has to be removed
+        # manually.  Not defining this __del__ method does not clear the
+        # problem because the Toplevel is still not destroyed.
+        # However not attempting to bind self.restore_focus (in self.__init__)
+        # does clear the problem.  But what about the other uses of
+        # ConfigureDialog where the binding does not cause a problem?
+        except AttributeError as error:
+            if hasattr(self, "restore_focus"):
+                raise
