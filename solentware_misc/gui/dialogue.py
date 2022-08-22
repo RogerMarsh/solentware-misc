@@ -574,9 +574,7 @@ class Report(Dialogue):
             return
         outfile = open(dlg, mode="wb")
         try:
-            outfile.write(
-                self.body.get("1.0", tkinter.END).encode("utf8")
-            )
+            outfile.write(self.body.get("1.0", tkinter.END).encode("utf8"))
         finally:
             outfile.close()
 
