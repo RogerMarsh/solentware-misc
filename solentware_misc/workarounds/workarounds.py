@@ -82,3 +82,42 @@ def text_count(widget, index1, index2, *options):
 
     """
     return widget.tk.call((widget._w, "count") + options + (index1, index2))
+
+
+def text_get_displaychars(widget, index1, index2=None):
+    """Hack Text get_displaychars to return non-elided characters in range.
+
+    Tkinter does not support the 'displaychars' option at Python 3.9 but the
+    underlying tk.Text.get() does support it (as stated in the Tcl/Tk text
+    manual page).
+
+    widget is a Tkinter Text widget.
+    index1 and index2 are Indicies as specified in TkCmd documentation.
+    Multiple text ranges are not supported.
+
+    See text manual page in TkCmd documentation for details.
+
+    Example:
+    text_get_displaychars(widget, start, end)
+
+    """
+    return widget.tk.call(widget._w, "get", "-displaychars", index1, index2)
+
+
+def text_delete_ranges(widget, *ranges):
+    """Hack Text delete to delete multiple ranges of characters.
+
+    Tkinter does not support deletion of multiple ranges at Python 3.9 but
+    the underlying tk.Text.delete() does support it (as stated in the Tcl/Tk
+    text manual page).
+
+    widget is a Tkinter Text widget.
+    ranges is a tuple of Indicies as specified in TkCmd documentation.
+
+    See text manual page in TkCmd documentation for details.
+
+    Example:
+    text_delete_ranges(widget, start, end)
+
+    """
+    return widget.tk.call(widget._w, "delete", *ranges)
