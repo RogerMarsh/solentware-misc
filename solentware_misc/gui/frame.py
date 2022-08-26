@@ -278,11 +278,11 @@ class AppSysFrame(ExceptionHandler):
         return self._state
 
     def get_current_tab(self):
-        """Return tab currently displayed."""
+        """Return name of tab currently displayed."""
         return self._current_tab
 
     def get_tab_data(self, tab):
-        """Return definition data for tab."""
+        """Return object which implements widget named tab."""
         try:
             return self._tabs[tab].tab
         except:
