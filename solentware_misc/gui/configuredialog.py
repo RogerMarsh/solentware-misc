@@ -2,9 +2,7 @@
 # Copyright 2013 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""A simple configuration file text editor.
-
-"""
+"""A simple configuration file text editor."""
 
 import tkinter
 import tkinter.messagebox
@@ -17,7 +15,6 @@ from .exceptionhandler import (
 
 
 class ConfigureDialog(ExceptionHandler):
-
     """Configuration file text editor in a dialogue.
 
     Update methods are defined but do not change database.  Subclasses must
@@ -36,7 +33,6 @@ class ConfigureDialog(ExceptionHandler):
         **kargs
     ):
         """Create a configuration file text editor dialogue."""
-
         super().__init__()
         self._config_text = None
         self.dialog = tkinter.Toplevel(parent)

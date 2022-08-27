@@ -2,9 +2,7 @@
 # Copyright 2022 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
-"""Read an item from a configuration file.
-
-"""
+"""Read an item from a configuration file."""
 
 import tkinter
 import tkinter.messagebox
