@@ -443,8 +443,8 @@ class PlainPanel(AppSysPanel):
     def make_grids(self, gridarguments):
         """Raise exception because *grid* classes are not supported.
 
-        Subclasses can use classes from solentware_grid, but must be responsible
-        for managing them.
+        Subclasses can use classes from solentware_grid, but must be
+        responsible for managing them.
         """
         raise AppSysPanelError("solentware_grid *grid* classes not supported")
 

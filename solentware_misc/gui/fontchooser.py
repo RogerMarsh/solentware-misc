@@ -204,7 +204,7 @@ class AppSysFontChooser(ExceptionHandler):
                     "ABCDEFGHIJKLMNOPQRSTWXYZ",
                     "abcdefghijklmnopqrstuvwxyz",
                     "0123456789",
-                    '!@#$%^&*()-_=+[{]};:"\|,<.>/?`~',
+                    r'!@#$%^&*()-_=+[{]};:"\|,<.>/?`~',
                 )
             ),
         )

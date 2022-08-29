@@ -104,9 +104,10 @@ class ExceptionHandler:
                     file.close()
                     message = "".join(
                         (
-                            "An exception has occured.\n\nThe exception report ",
-                            'has been appended to the error file.\n\nClick "Yes" ',
-                            'to see the detail\nor "No" to quit the application.',
+                            "An exception has occured.\n\nThe exception ",
+                            "report has been appended to the error file.\n\n",
+                            'Click "Yes" to see the detail\nor "No" ',
+                            "to quit the application.",
                         )
                     )
             except:
@@ -223,8 +224,8 @@ class ExceptionHandler:
                 raise SystemExit(
                     "".join(
                         (
-                            "Exception destroying application after exception ",
-                            "in exception report dialogue",
+                            "Exception destroying application after ",
+                            "exception in exception report dialogue",
                         )
                     )
                 )

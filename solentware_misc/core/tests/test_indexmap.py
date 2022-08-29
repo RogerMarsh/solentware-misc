@@ -21,7 +21,7 @@ class Segment(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "__init__\(\) missing 1 required positional argument: ",
+                    r"__init__\(\) missing 1 required positional argument: ",
                     "'segment'",
                 )
             ),
@@ -33,7 +33,7 @@ class Segment(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "__init__\(\) got an unexpected keyword argument ",
+                    r"__init__\(\) got an unexpected keyword argument ",
                     "'badkey'",
                 )
             ),

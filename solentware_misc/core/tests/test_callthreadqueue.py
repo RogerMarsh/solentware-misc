@@ -21,7 +21,7 @@ class CallThreadQueue(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "__init__\(\) takes 1 positional argument ",
+                    r"__init__\(\) takes 1 positional argument ",
                     "but 2 were given",
                 )
             ),
@@ -35,7 +35,7 @@ class CallThreadQueue(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "__call_method\(\) takes 1 positional argument ",
+                    r"__call_method\(\) takes 1 positional argument ",
                     "but 2 were given",
                 )
             ),
@@ -60,7 +60,7 @@ class CallThreadQueue(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "put_method\(\) missing 1 required positional argument: ",
+                    r"put_method\(\) missing 1 required positional argument: ",
                     "'method'",
                 )
             ),
@@ -73,7 +73,7 @@ class CallThreadQueue(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "put_method\(\) got an unexpected keyword argument ",
+                    r"put_method\(\) got an unexpected keyword argument ",
                     "'badkey'",
                 )
             ),

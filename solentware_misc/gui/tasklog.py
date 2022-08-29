@@ -128,8 +128,8 @@ class TaskLog(ExceptionHandler):
             self.report.append_text(
                 "".join(
                     (
-                        "No action.  Must be either an error in Application or a ",
-                        "feature that has not been implemented.",
+                        "No action.  Must be either an error in Application ",
+                        "or a feature that has not been implemented.",
                     )
                 )
             )
@@ -151,8 +151,8 @@ class TaskLog(ExceptionHandler):
             self.report.append_text(
                 "".join(
                     (
-                        "Action in progress but application will be unresponsive ",
-                        "until it is finished",
+                        "Action in progress but application will be ",
+                        "unresponsive until it is finished",
                     )
                 )
             )

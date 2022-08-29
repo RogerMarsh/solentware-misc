@@ -24,7 +24,7 @@ class _Slider(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "__init__\(\) takes from 1 to 5 positional arguments ",
+                    r"__init__\(\) takes from 1 to 5 positional arguments ",
                     "but 6 were given",
                 )
             ),
@@ -41,7 +41,7 @@ class _Slider(unittest.TestCase):
     def test_001___init___002(self):
         self.assertRaisesRegex(
             TypeError,
-            "__init__\(\) got an unexpected keyword argument 'badkey'",
+            r"__init__\(\) got an unexpected keyword argument 'badkey'",
             colourslider._Slider,
             **dict(
                 master=None, column=None, row=None, resolution=2, badkey=None
@@ -51,7 +51,7 @@ class _Slider(unittest.TestCase):
     def test_002_on_enter_001(self):
         self.assertRaisesRegex(
             TypeError,
-            "on_enter\(\) got an unexpected keyword argument 'badkey'",
+            r"on_enter\(\) got an unexpected keyword argument 'badkey'",
             self.slider.on_enter,
             **dict(event=None, badkey=None),
         )
@@ -62,7 +62,7 @@ class _Slider(unittest.TestCase):
     def test_003_on_leave_001(self):
         self.assertRaisesRegex(
             TypeError,
-            "on_leave\(\) got an unexpected keyword argument 'badkey'",
+            r"on_leave\(\) got an unexpected keyword argument 'badkey'",
             self.slider.on_leave,
             **dict(event=None, badkey=None),
         )
@@ -75,7 +75,7 @@ class _Slider(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "move_slider\(\) missing 1 required positional ",
+                    r"move_slider\(\) missing 1 required positional ",
                     "argument: 'colour'",
                 )
             ),
@@ -90,7 +90,7 @@ class _Slider(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "fill_scale\(\) missing 4 required positional ",
+                    r"fill_scale\(\) missing 4 required positional ",
                     "arguments: ",
                     "'newcolour', 'redhex', 'greenhex', and 'bluehex'",
                 )
@@ -147,7 +147,7 @@ class RedSlider(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "__init__\(\) missing 1 required positional ",
+                    r"__init__\(\) missing 1 required positional ",
                     "argument: 'colourslider'",
                 )
             ),
@@ -175,7 +175,7 @@ class GreenSlider(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "__init__\(\) missing 1 required positional ",
+                    r"__init__\(\) missing 1 required positional ",
                     "argument: 'colourslider'",
                 )
             ),
@@ -203,7 +203,7 @@ class BlueSlider(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "__init__\(\) missing 1 required positional ",
+                    r"__init__\(\) missing 1 required positional ",
                     "argument: 'colourslider'",
                 )
             ),
@@ -236,7 +236,7 @@ class ColourSlider(unittest.TestCase):
     def test_001___init___001(self):
         self.assertRaisesRegex(
             TypeError,
-            "__init__\(\) got an unexpected keyword argument 'badkey'",
+            r"__init__\(\) got an unexpected keyword argument 'badkey'",
             colourslider.ColourSlider,
             **dict(
                 master=None,
@@ -253,7 +253,7 @@ class ColourSlider(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "get_colour\(\) takes 1 positional argument ",
+                    r"get_colour\(\) takes 1 positional argument ",
                     "but 2 were given",
                 )
             ),
@@ -269,7 +269,7 @@ class ColourSlider(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "convert_RGB_colour_to_hex\(\) missing 1 required ",
+                    r"convert_RGB_colour_to_hex\(\) missing 1 required ",
                     "positional argument: 'colour'",
                 )
             ),
@@ -284,7 +284,12 @@ class ColourSlider(unittest.TestCase):
     def test_004_delta_red_colour_001(self):
         self.assertRaisesRegex(
             TypeError,
-            "delta_red_colour\(\) got an unexpected keyword argument 'badkey'",
+            "".join(
+                (
+                    r"delta_red_colour\(\) got an unexpected keyword ",
+                    "argument 'badkey'",
+                )
+            ),
             self.colourslider.delta_red_colour,
             **dict(event=None, badkey=None),
         )
@@ -299,7 +304,7 @@ class ColourSlider(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "delta_green_colour\(\) got an unexpected ",
+                    r"delta_green_colour\(\) got an unexpected ",
                     "keyword argument 'badkey'",
                 )
             ),
@@ -317,7 +322,7 @@ class ColourSlider(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "delta_blue_colour\(\) got an unexpected ",
+                    r"delta_blue_colour\(\) got an unexpected ",
                     "keyword argument 'badkey'",
                 )
             ),
@@ -335,7 +340,7 @@ class ColourSlider(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "_encode\(\) missing 1 required ",
+                    r"_encode\(\) missing 1 required ",
                     "positional argument: 'colourcode'",
                 )
             ),
@@ -350,7 +355,7 @@ class ColourSlider(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "_fill_scales\(\) takes 1 positional argument ",
+                    r"_fill_scales\(\) takes 1 positional argument ",
                     "but 2 were given",
                 )
             ),
@@ -366,7 +371,7 @@ class ColourSlider(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "_increment\(\) missing 2 required ",
+                    r"_increment\(\) missing 2 required ",
                     "positional arguments: 'event' and 'colour'",
                 )
             ),
@@ -387,7 +392,7 @@ class ColourSlider(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "_set\(\) missing 1 required ",
+                    r"_set\(\) missing 1 required ",
                     "positional argument: 'event'",
                 )
             ),

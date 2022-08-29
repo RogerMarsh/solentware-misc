@@ -15,7 +15,7 @@ import tkinter
 
 # Is ExceptionHandler appropriate to this class - Tkinter.Text not wrapped
 class TextReadonly(tkinter.Text):
-    """Subclass of tkinter.Text with methods to suppress and restore editing."""
+    """Extend tkinter.Text with methods to suppress and restore editing."""
 
     def set_readonly_bindings(self):
         """Set bindings to suppress editing actions."""

@@ -90,7 +90,7 @@ class ExceptionHandler(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "get_application_name\(\) takes 0 positional arguments ",
+                    r"get_application_name\(\) takes 0 positional arguments ",
                     "but 1 was given",
                 )
             ),
@@ -106,7 +106,7 @@ class ExceptionHandler(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "get_error_file_name\(\) takes 0 positional arguments ",
+                    r"get_error_file_name\(\) takes 0 positional arguments ",
                     "but 1 was given",
                 )
             ),
@@ -122,7 +122,7 @@ class ExceptionHandler(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "report_exception\(\) takes from 1 to 4 positional ",
+                    r"report_exception\(\) takes from 1 to 4 positional ",
                     "arguments but 5 were given",
                 )
             ),
@@ -135,7 +135,7 @@ class ExceptionHandler(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "report_exception\(\) got an unexpected keyword ",
+                    r"report_exception\(\) got an unexpected keyword ",
                     "argument 'badkey'",
                 )
             ),
@@ -148,7 +148,7 @@ class ExceptionHandler(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "set_application_name\(\) missing 1 required positional ",
+                    r"set_application_name\(\) missing 1 required positional ",
                     "argument: 'application_name'",
                 )
             ),
@@ -174,7 +174,7 @@ class ExceptionHandler(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "set_error_file_name\(\) missing 1 required positional ",
+                    r"set_error_file_name\(\) missing 1 required positional ",
                     "argument: 'error_file_name'",
                 )
             ),
@@ -200,7 +200,7 @@ class ExceptionHandler(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "try_command\(\) missing 2 required positional ",
+                    r"try_command\(\) missing 2 required positional ",
                     "arguments: 'method' and 'widget'",
                 )
             ),
@@ -219,7 +219,7 @@ class ExceptionHandler(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "try_event\(\) missing 1 required positional ",
+                    r"try_event\(\) missing 1 required positional ",
                     "argument: 'method'",
                 )
             ),
@@ -238,7 +238,7 @@ class ExceptionHandler(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "try_thread\(\) missing 2 required positional ",
+                    r"try_thread\(\) missing 2 required positional ",
                     "arguments: 'method' and 'widget'",
                 )
             ),

@@ -45,7 +45,7 @@ class DialogueInit(_Dialogue):
             TypeError,
             "".join(
                 (
-                    "__init__\(\) missing 2 required positional arguments: ",
+                    r"__init__\(\) missing 2 required positional arguments: ",
                     "'parent' and 'title'",
                 )
             ),
@@ -113,7 +113,7 @@ class Dialogue(_Dialogue):
             TypeError,
             "".join(
                 (
-                    "append\(\) missing 1 required positional argument: ",
+                    r"append\(\) missing 1 required positional argument: ",
                     "'text'",
                 )
             ),
@@ -128,7 +128,7 @@ class Dialogue(_Dialogue):
             TypeError,
             "".join(
                 (
-                    "_create_widget\(\) missing 10 required positional ",
+                    r"_create_widget\(\) missing 10 required positional ",
                     "arguments: 'parent', 'title', 'text', 'action_titles', ",
                     "'buttons', 'side', 'scroll', 'body', 'cnf', and 'kargs'",
                 )
@@ -281,7 +281,7 @@ class Dialogue(_Dialogue):
             TypeError,
             "".join(
                 (
-                    "button_on_attr\(\) missing 1 required positional ",
+                    r"button_on_attr\(\) missing 1 required positional ",
                     "argument: 'action'",
                 )
             ),
@@ -298,7 +298,7 @@ class Dialogue(_Dialogue):
             TypeError,
             "".join(
                 (
-                    "_set_geometry\(\) missing 1 required positional ",
+                    r"_set_geometry\(\) missing 1 required positional ",
                     "argument: 'master'",
                 )
             ),
@@ -310,7 +310,7 @@ class Dialogue(_Dialogue):
             TypeError,
             "".join(
                 (
-                    "_set_geometry\(\) got an unexpected keyword ",
+                    r"_set_geometry\(\) got an unexpected keyword ",
                     "argument 'badkey'",
                 )
             ),
@@ -338,7 +338,7 @@ class Dialogue(_Dialogue):
             TypeError,
             "".join(
                 (
-                    "wm_delete_window\(\) takes 1 positional argument ",
+                    r"wm_delete_window\(\) takes 1 positional argument ",
                     "but 2 were given",
                 )
             ),
@@ -373,7 +373,7 @@ class ModalDialogueGo(_Dialogue):
             TypeError,
             "".join(
                 (
-                    "go\(\) takes 1 positional argument ",
+                    r"go\(\) takes 1 positional argument ",
                     "but 2 were given",
                 )
             ),
@@ -391,7 +391,7 @@ class ModalDialogueGo(_Dialogue):
             TypeError,
             "".join(
                 (
-                    "button_on_attr\(\) missing 1 required positional ",
+                    r"button_on_attr\(\) missing 1 required positional ",
                     "argument: 'action'",
                 )
             ),
@@ -406,7 +406,7 @@ class ModalDialogueGo(_Dialogue):
             TypeError,
             "".join(
                 (
-                    "widget_transient\(\) missing 2 required positional ",
+                    r"widget_transient\(\) missing 2 required positional ",
                     "arguments: 'widget' and 'master'",
                 )
             ),
@@ -442,7 +442,7 @@ class ModalDialogue(_Dialogue):
             TypeError,
             "".join(
                 (
-                    "widget_transient\(\) missing 2 required positional ",
+                    r"widget_transient\(\) missing 2 required positional ",
                     "arguments: 'widget' and 'master'",
                 )
             ),
@@ -500,7 +500,7 @@ class ShowModalConfirm(_Dialogue):
             TypeError,
             "".join(
                 (
-                    "show_modal_confirm\(\) missing 2 required positional ",
+                    r"show_modal_confirm\(\) missing 2 required positional ",
                     "arguments: 'parent' and 'title'",
                 )
             ),
@@ -566,7 +566,7 @@ class ShowModalInformation(_Dialogue):
             TypeError,
             "".join(
                 (
-                    "show_modal_information\(\) missing 2 required ",
+                    r"show_modal_information\(\) missing 2 required ",
                     "positional arguments: 'parent' and 'title'",
                 )
             ),

@@ -301,7 +301,7 @@ class Dialogue(ExceptionHandler):
                 width = self.body.cget("width")
                 lines = text.splitlines()
                 linecount = len(lines)
-                maxlinelength = max(len(l) for l in lines)
+                maxlinelength = max(len(line) for line in lines)
                 if linecount > height or maxlinelength > width:
                     forcescroll = True
                     if maxlinelength > width:

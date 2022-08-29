@@ -27,13 +27,13 @@ class AppSysDate(unittest.TestCase):
             ymdre.pattern,
             "".join(
                 (
-                    "(\s*)",
+                    r"(\s*)",
                     "([0-9]+|[a-zA-Z]+)",
-                    "(\s+|\.|/|-)",
+                    r"(\s+|\.|/|-)",
                     "([0-9]+|[a-zA-Z]+)",
-                    "(\s+|\.|/|-)",
+                    r"(\s+|\.|/|-)",
                     "([0-9]+)",
-                    "(\s+.*|\Z)",
+                    r"(\s+.*|\Z)",
                 )
             ),
             msg=MSG,
@@ -62,11 +62,11 @@ class AppSysDate(unittest.TestCase):
             mdre.pattern,
             "".join(
                 (
-                    "(\s*)",
+                    r"(\s*)",
                     "([0-9]+|[a-zA-Z]+)",
-                    "(\s+|\.|/|-)",
+                    r"(\s+|\.|/|-)",
                     "([0-9]+|[a-zA-Z]+)",
-                    "(\s+.*|\Z)",
+                    r"(\s+.*|\Z)",
                 )
             ),
             msg=MSG,
@@ -142,7 +142,12 @@ class AppSysDate(unittest.TestCase):
         ae(
             asd.get_current_year(),
             datetime.datetime.now().year,
-            msg="\nWas this test run between 23:59 and 00:01 on New Year's Eve?",
+            msg="".join(
+                (
+                    "\nWas this test run between 23:59 and 00:01 ",
+                    "on New Year's Eve?",
+                )
+            ),
         )
 
     def test_get_month_name(self):
@@ -253,7 +258,7 @@ class AppSysPersonName(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "__init__\(\) missing 1 required positional argument: ",
+                    r"__init__\(\) missing 1 required positional argument: ",
                     "'name'",
                 )
             ),
@@ -345,7 +350,7 @@ class AppSysPersonNameParts(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    "__init__\(\) missing 1 required positional argument: ",
+                    r"__init__\(\) missing 1 required positional argument: ",
                     "'name'",
                 )
             ),
