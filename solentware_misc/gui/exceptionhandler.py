@@ -370,3 +370,31 @@ class ExceptionHandler:
             return None
 
         return wrapped_thread_method
+
+    # Take a snapshot of a tkinter.Text widget.  It is intended for problem
+    # tracing.  It is saved as a sibling of ErrorLog.
+    def dump_text_widget(self, textwidget, filename=None):
+        """Save dump of a tkinter.Text widget in filename.
+
+        Default filename is dumptextwidget in directory of error file.
+
+        """
+        if filename is None:
+            filename = "dumptextwidget"
+        import os
+        import datetime
+
+        filename = "_".join(
+            (
+                filename,
+                datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            )
+        )
+        with open(
+            os.path.join(
+                os.path.dirname(self.get_error_file_name()), filename
+            ),
+            "w",
+        ) as f:
+            for t in textwidget.dump("1.0", tkinter.END):
+                f.write(repr(t) + "\n")
