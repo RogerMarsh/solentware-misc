@@ -12,10 +12,11 @@ import tkinter
 import tkinter.font
 import tkinter.messagebox
 
-from .exceptionhandler import ExceptionHandler, FOCUS_ERROR
+from .bindings import Bindings
+from .exceptionhandler import FOCUS_ERROR
 
 
-class AppSysFontChooser(ExceptionHandler):
+class AppSysFontChooser(Bindings):
     """Display a dialogue for choosing a font and it's properties.
 
     Call the get_chosen_font() method to get the chosen font.

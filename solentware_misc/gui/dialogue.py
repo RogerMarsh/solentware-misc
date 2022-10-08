@@ -62,11 +62,12 @@ method, and return the instance.
 import tkinter
 import tkinter.filedialog
 
-from .exceptionhandler import ExceptionHandler, FOCUS_ERROR, DESTROY_ERROR
+from .bindings import Bindings
+from .exceptionhandler import FOCUS_ERROR, DESTROY_ERROR
 from . import textreadonly
 
 
-class Dialogue(ExceptionHandler):
+class Dialogue(Bindings):
     """Base class for non-modal dialogues which use the event loop for parent.
 
     parent - report's parent object (note this is not a tkinter widget).

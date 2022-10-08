@@ -34,8 +34,9 @@ class Bindings(ExceptionHandler):
 
     """
 
-    def __init__(self):
+    def __init__(self, **k):
         """Initialize the bindings register."""
+        super().__init__(**k)
         self._bindings = {}
         self._current_binding = None
         self._frozen_bindings = set()
@@ -48,6 +49,7 @@ class Bindings(ExceptionHandler):
         If function is not None a new binding is created and noted.
 
         """
+        print(self.__class__.__name__, widget.__class__.__name__, repr(sequence))
         key = (widget, sequence)
         if key in self._bindings and add is None:
             widget.unbind(sequence, funcid=self._bindings[key])

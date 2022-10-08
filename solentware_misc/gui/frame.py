@@ -48,10 +48,10 @@ except ImportError:
             """Do nothing."""
 
 
-from .exceptionhandler import ExceptionHandler
+from .bindings import Bindings
 
 
-class AppSysFrameButton(ExceptionHandler):
+class AppSysFrameButton(Bindings):
     """This class provides the tab selection buttons for an AppSysFrame."""
 
     def __init__(self, parent, cnf=None, **kargs):
@@ -128,7 +128,7 @@ class AppSysFrameButton(ExceptionHandler):
             pass
 
 
-class AppSysFrame(ExceptionHandler):
+class AppSysFrame(Bindings):
     """Provide container for tabs of a notebook style user interface.
 
     The main frame of an application. Contains a frame for buttons that
@@ -445,7 +445,7 @@ class AppSysFrame(ExceptionHandler):
 
 
 # maybe combine AppSysTab and AppSysTabDefinition classes
-class AppSysTab(ExceptionHandler):
+class AppSysTab(Bindings):
     """This class creates a tab using a tab definition."""
 
     def __init__(self, parent, description):
@@ -470,9 +470,11 @@ class AppSysTab(ExceptionHandler):
         self.button.make_command(command, self.description.identity)
 
 
-# maybe combine AppSysTab and AppSysTabDefinition classes
-# does this need to be subclass of ExceptionHandler or not?
-class AppSysTabDefinition:
+# Maybe combine AppSysTab and AppSysTabDefinition classes.
+# Does this need to be subclass of ExceptionHandler or not?
+# Still don't know, but it should be a subclass of Bindings implying the
+# answer should be 'yes'.
+class AppSysTabDefinition(Bindings):
     """This class describes a tab which can be included on an AppSysFrame."""
 
     def __init__(

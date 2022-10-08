@@ -15,10 +15,10 @@ when this is not so is undefined.
 
 import tkinter
 
-from .exceptionhandler import ExceptionHandler
+from .bindings import Bindings
 
 
-class GridBindings(ExceptionHandler):
+class GridBindings(Bindings):
     """This class applies some standard bindings to data grids."""
 
     def __init__(self, receivefocuskey=None, appsyspanel=None, **kwargs):

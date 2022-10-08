@@ -7,14 +7,14 @@
 import tkinter
 import tkinter.messagebox
 
+from .bindings import Bindings
 from .exceptionhandler import (
-    ExceptionHandler,
     BAD_WINDOW,
     FOCUS_ERROR,
 )
 
 
-class ConfigureDialog(ExceptionHandler):
+class ConfigureDialog(Bindings):
     """Configuration file text editor in a dialogue.
 
     Update methods are defined but do not change database.  Subclasses must

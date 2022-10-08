@@ -14,14 +14,14 @@ and behaviour is undefined if the solentware_grid package is not available.
 
 import tkinter
 
-from .exceptionhandler import ExceptionHandler
+from .bindings import Bindings
 
 
 class AppSysPanelError(Exception):
     """Exception for AppSysPanel class."""
 
 
-class AppSysPanelButton(ExceptionHandler):
+class AppSysPanelButton(Bindings):
     """Put a tkinter.Button in the frame of a parent reserved for buttons."""
 
     def __init__(self, parent, identity, switchpanel, cnf=None, **kargs):
@@ -182,7 +182,7 @@ class AppSysPanelButton(ExceptionHandler):
             # pass
 
 
-class AppSysPanel(ExceptionHandler):
+class AppSysPanel(Bindings):
     """This is the base class for pages in a notebook style user interface.
 
     It provides the main frame of a page.  A frame for buttons that invoke

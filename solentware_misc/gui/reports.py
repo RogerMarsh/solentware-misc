@@ -19,11 +19,12 @@ tkinter's equivalents.
 import tkinter
 import tkinter.filedialog
 
-from .exceptionhandler import ExceptionHandler, FOCUS_ERROR
+from .bindings import Bindings
+from .exceptionhandler import FOCUS_ERROR
 from . import textreadonly
 
 
-class AppSysReportBase(ExceptionHandler):
+class AppSysReportBase(Bindings):
     """Base class for reports and dialogues."""
 
     def __init__(

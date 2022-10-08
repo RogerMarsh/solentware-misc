@@ -6,13 +6,13 @@
 
 import tkinter
 
-from .exceptionhandler import ExceptionHandler
+from .bindings import Bindings
 
 _TITLE = "title"
 _TEXT = "text"
 
 
-class TextEntry(ExceptionHandler):
+class TextEntry(Bindings):
     """Text entry dialogue widget."""
 
     def __init__(self, master=None, **options):

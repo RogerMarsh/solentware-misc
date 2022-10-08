@@ -7,10 +7,10 @@
 import tkinter
 import base64
 
-from .exceptionhandler import ExceptionHandler
+from .bindings import Bindings
 
 
-class _Slider(ExceptionHandler):
+class _Slider(Bindings):
     """A colour scale widget with a pointer and colour demonstration bar."""
 
     def __init__(self, master=None, column=None, row=None, resolution=2):
@@ -164,7 +164,7 @@ class BlueSlider(_Slider):
         )
 
 
-class ColourSlider(ExceptionHandler):
+class ColourSlider(Bindings):
     """Provide a colour chooser widget.
 
     It has sliders for red, green, and blue, colour proportion selection

@@ -15,11 +15,11 @@ import tkinter.font
 import queue
 import threading
 
-from .exceptionhandler import ExceptionHandler
+from .bindings import Bindings
 from .textreadonly import TextReadonly
 
 
-class TaskLog(ExceptionHandler):
+class TaskLog(Bindings):
     """Run function in separate thread and provide progress report log."""
 
     def __init__(
