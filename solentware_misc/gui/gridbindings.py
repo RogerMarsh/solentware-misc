@@ -21,14 +21,25 @@ from .bindings import Bindings
 class GridBindings(Bindings):
     """This class applies some standard bindings to data grids."""
 
-    def __init__(self, receivefocuskey=None, appsyspanel=None, **kwargs):
+    def __init__(
+        self,
+        receivefocuskey=None,
+        appsyspanel=None,
+        selecthintlabel=None,
+        setbinding=None,
+        focus_selector=None,
+        keypress_grid_to_select=True,
+        **kargs
+    ):
         """Extend and bind grid row selection commands to popup menus.
 
-        receivefocuskey -
-        appsyspanel -
-        **kwargs - ignored
+        receivefocuskey - the keypress sequence to give focus to grid.
+        appsyspanel - the panel containing the grid.
+        **kwargs - argument to super().__init__ call.
+        The other arguments are extracted from kargs but ignored otherwise.
 
         """
+        super().__init__(**kargs)
         self.receivefocuskey = receivefocuskey
         self.appsyspanel = appsyspanel
         self.make_focus_to_grid()

@@ -411,6 +411,7 @@ class ModalDialogueGo(Dialogue):
             # application destroyed while confirm dialogue exists.
             if str(error) != FOCUS_ERROR:
                 raise
+        super().__del__()
 
     def button_on_attr(self, a):
         """Return default event handler for button name 'a'."""
@@ -461,6 +462,7 @@ class ModalDialogue(Dialogue):
             # application destroyed while confirm dialogue exists
             if str(error) != FOCUS_ERROR:
                 raise
+        super().__del__()
 
     def widget_transient(self, widget, master):
         """Mark the widget transient.

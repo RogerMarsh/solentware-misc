@@ -54,7 +54,7 @@ from .bindings import Bindings
 class AppSysFrameButton(Bindings):
     """This class provides the tab selection buttons for an AppSysFrame."""
 
-    def __init__(self, parent, cnf=None, **kargs):
+    def __init__(self, parent=None, cnf=None, **kargs):
         """Create tab selection button, a tkinter.Button instance.
 
         parent - the parent widget
@@ -70,6 +70,7 @@ class AppSysFrameButton(Bindings):
             cnf={} if cnf is None else cnf,
             **kargs
         )
+        super().__init__()
 
         self.command = kargs.get("command")
 
@@ -163,6 +164,8 @@ class AppSysFrame(Bindings):
         self._frame = tkinter.Frame(
             master=master, cnf={} if cnf is None else cnf, **kargs
         )
+        self._datasources = DataRegister()
+        super().__init__()
 
         self._tab_description = dict()
         self._tab_order = []
@@ -171,7 +174,6 @@ class AppSysFrame(Bindings):
         self._tabs = dict()
         self._state = None
         self._current_tab = None
-        self._datasources = DataRegister(**kargs)
 
         # create frames for tab switching buttons and tab but leave mapping
         # to screen until a tab is actually created
@@ -445,7 +447,7 @@ class AppSysFrame(Bindings):
 
 
 # maybe combine AppSysTab and AppSysTabDefinition classes
-class AppSysTab(Bindings):
+class AppSysTab:
     """This class creates a tab using a tab definition."""
 
     def __init__(self, parent, description):
@@ -472,9 +474,8 @@ class AppSysTab(Bindings):
 
 # Maybe combine AppSysTab and AppSysTabDefinition classes.
 # Does this need to be subclass of ExceptionHandler or not?
-# Still don't know, but it should be a subclass of Bindings implying the
-# answer should be 'yes'.
-class AppSysTabDefinition(Bindings):
+# Maybe question now is about Bindings?
+class AppSysTabDefinition:
     """This class describes a tab which can be included on an AppSysFrame."""
 
     def __init__(

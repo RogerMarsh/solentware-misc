@@ -120,8 +120,8 @@ class Dialogue(Bindings):
 
     def __init__(
         self,
-        parent,
-        title,
+        parent=None,
+        title=None,
         text=None,
         action_titles=None,
         buttons=None,
@@ -397,9 +397,9 @@ class ModalDialogueGo(Dialogue):
     **kargs - passed to superclass as **kargs argument.
     """
 
-    def __init__(self, *args, geometry=True, **kargs):
+    def __init__(self, geometry=True, **kargs):
         """Extend and note widget with focus on opening dialogue."""
-        super().__init__(*args, geometry=geometry, **kargs)
+        super().__init__(geometry=geometry, **kargs)
         self.restore_focus = self.root.focus_get()
 
     # Follow example in tkinter.simpledialog.SimpleDialog class.
@@ -429,6 +429,7 @@ class ModalDialogueGo(Dialogue):
             # application destroyed while confirm dialogue exists.
             if str(error) != FOCUS_ERROR:
                 raise
+        super().__del__()
 
     def button_on_attr(self, action):
         """Return default event handler for button name 'a'."""
@@ -460,9 +461,9 @@ class ModalDialogue(Dialogue):
     **kargs - passed to superclass as **kargs argument.
     """
 
-    def __init__(self, *args, **kargs):
+    def __init__(self, **kargs):
         """Extend and note widget with focus on opening dialogue."""
-        super().__init__(*args, **kargs)
+        super().__init__(**kargs)
         self.restore_focus = self.root.focus_get()
 
         # Emulate reports.AppSysDialogueBase
@@ -480,6 +481,7 @@ class ModalDialogue(Dialogue):
             # application destroyed while confirm dialogue exists
             if str(error) != FOCUS_ERROR:
                 raise
+        super().__del__()
 
     def widget_transient(self, widget, master):
         """Mark the widget transient.
@@ -512,9 +514,9 @@ class Report(Dialogue):
 
     buttons = "Save", "Close"
 
-    def __init__(self, *args, interval=5000, buttons=None, **kargs):
+    def __init__(self, interval=5000, buttons=None, **kargs):
         """Extend superclass to ignore redundant arguments."""
-        super().__init__(*args, buttons=self.buttons, **kargs)
+        super().__init__(buttons=self.buttons, **kargs)
 
     def append(self, text):
         """Override to append task to queue of tasks to be done in main thread.
@@ -587,7 +589,7 @@ def show_report(parent, title, **kargs):
     title - passed to Report as title argument.
     **kargs - passed to Report as **kargs argument.
     """
-    return Report(parent, title, **kargs)
+    return Report(parent=parent, title=title, **kargs)
 
 
 # ModalConfirm is the replacement for the reports.AppSysConfirm class because
@@ -602,9 +604,9 @@ class ModalConfirm(ModalDialogue):
 
     buttons = "Ok", "Cancel"
 
-    def __init__(self, *args, buttons=None, **kargs):
+    def __init__(self, buttons=None, **kargs):
         """Extend superclass to provide Ok and Cancel buttons."""
-        super().__init__(*args, buttons=self.buttons, **kargs)
+        super().__init__(buttons=self.buttons, **kargs)
 
 
 class ModalConfirmGo(ModalDialogueGo):
@@ -617,9 +619,9 @@ class ModalConfirmGo(ModalDialogueGo):
 
     buttons = "Ok", "Cancel"
 
-    def __init__(self, *args, buttons=None, **kargs):
+    def __init__(self, buttons=None, **kargs):
         """Extend superclass to provide Ok and Cancel buttons."""
-        super().__init__(*args, buttons=self.buttons, **kargs)
+        super().__init__(buttons=self.buttons, **kargs)
 
 
 def show_modal_confirm(parent, title, **kargs):
@@ -629,7 +631,7 @@ def show_modal_confirm(parent, title, **kargs):
     title - passed to ModalConfirmGo as title argument.
     **kargs - passed to ModalConfirmGo as **kargs argument.
     """
-    widget = ModalConfirmGo(parent, title, **kargs)
+    widget = ModalConfirmGo(parent=parent, title=title, **kargs)
     widget.go()
     return widget
 
@@ -646,9 +648,9 @@ class ModalInformation(ModalDialogue):
 
     buttons = ("Ok",)
 
-    def __init__(self, *args, buttons=None, **kargs):
+    def __init__(self, buttons=None, **kargs):
         """Extend superclass to provide Ok button."""
-        super().__init__(*args, buttons=self.buttons, **kargs)
+        super().__init__(buttons=self.buttons, **kargs)
 
 
 class ModalInformationGo(ModalDialogueGo):
@@ -661,9 +663,9 @@ class ModalInformationGo(ModalDialogueGo):
 
     buttons = ("Ok",)
 
-    def __init__(self, *args, buttons=None, **kargs):
+    def __init__(self, buttons=None, **kargs):
         """Extend superclass to provide Ok button."""
-        super().__init__(*args, buttons=self.buttons, **kargs)
+        super().__init__(buttons=self.buttons, **kargs)
 
 
 def show_modal_information(parent, title, **kargs):
@@ -673,7 +675,7 @@ def show_modal_information(parent, title, **kargs):
     title - passed to ModalInformationGo as title argument.
     **kargs - passed to ModalInformationGo as **kargs argument.
     """
-    widget = ModalInformationGo(parent, title, **kargs)
+    widget = ModalInformationGo(parent=parent, title=title, **kargs)
     widget.go()
     return widget
 
@@ -711,7 +713,7 @@ class _Entry:
 
     buttons = "Ok", "Cancel"
 
-    def __init__(self, *args, buttons=None, scroll=False, body=None, **kargs):
+    def __init__(self, buttons=None, scroll=False, body=None, **kargs):
         """Extend to provide Ok and Cancel buttons and dialogue body."""
         if body is None:
             body = (("", "", None, False),)
@@ -720,14 +722,15 @@ class _Entry:
         self.entries = {}
         self.result = None
         super().__init__(
-            *args, buttons=self.buttons, scroll=False, body=body, **kargs
+            buttons=self.buttons, scroll=False, body=body, **kargs
         )
 
     def __del__(self):
         """Restore focus to widget with focus before dialogue started."""
         self.entries = None
         self.result = None
-        super().__del__()
+        if hasattr(super(), "__del__"):
+            super().__del__()
 
     def append(self, text):
         """Override, do nothing."""
@@ -1062,8 +1065,8 @@ if __name__ == "__main__":
             """Handle Dialogue button events."""
             del event
             Dialogue(
-                mainframe,
-                "Dialogue",
+                parent=mainframe,
+                title="Dialogue",
                 text="Message longer than width",
                 buttons=("Ok",),
                 side=tkinter.TOP,
@@ -1077,8 +1080,8 @@ if __name__ == "__main__":
             """Handle ModalDialogueGo button events."""
             del event
             ModalDialogueGo(
-                mainframe,
-                "ModalDialogueGo",
+                parent=mainframe,
+                title="ModalDialogueGo",
                 text="Message longer than width",
                 buttons=("Ok",),
                 side=tkinter.TOP,
@@ -1092,8 +1095,8 @@ if __name__ == "__main__":
             """Handle ModalDialogue button events."""
             del event
             ModalDialogue(
-                mainframe,
-                "ModalDialogue",
+                parent=mainframe,
+                title="ModalDialogue",
                 text="Message longer than width",
                 buttons=("Ok",),
                 side=tkinter.TOP,
@@ -1107,8 +1110,8 @@ if __name__ == "__main__":
             """Handle ModalConfirmGo button events."""
             del event
             ModalConfirmGo(
-                mainframe,
-                "ModalConfirmGo",
+                parent=mainframe,
+                title="ModalConfirmGo",
                 text="Message longer than width",
                 side=tkinter.TOP,
                 scroll=False,
@@ -1120,8 +1123,8 @@ if __name__ == "__main__":
             """Handle ModalConfirm button events."""
             del event
             ModalConfirm(
-                mainframe,
-                "ModalConfirm",
+                parent=mainframe,
+                title="ModalConfirm",
                 text="Message longer than width",
                 side=tkinter.TOP,
                 scroll=False,
@@ -1133,8 +1136,8 @@ if __name__ == "__main__":
             """Handle ModalInformationGo button events."""
             del event
             ModalInformationGo(
-                mainframe,
-                "ModalInformationGo",
+                parent=mainframe,
+                title="ModalInformationGo",
                 text="Message longer than width",
                 side=tkinter.TOP,
                 scroll=False,
@@ -1147,8 +1150,8 @@ if __name__ == "__main__":
             """Handle ModalInformation button events."""
             del event
             ModalInformation(
-                mainframe,
-                "ModalInformation",
+                parent=mainframe,
+                title="ModalInformation",
                 text="Message longer than width",
                 side=tkinter.TOP,
                 scroll=False,
@@ -1160,19 +1163,19 @@ if __name__ == "__main__":
         def on_modalentrygo_1(self, event=None):
             """Handle ModalEntryGo button events."""
             del event
-            ModalEntryGo(mainframe, "ModalEntryGo").go()
+            ModalEntryGo(parent=mainframe, title="ModalEntryGo").go()
 
         def on_modalentry_1(self, event=None):
             """Handle ModalEntry button events."""
             del event
-            ModalEntry(mainframe, "ModalEntry").root.mainloop()
+            ModalEntry(parent=mainframe, title="ModalEntry").root.mainloop()
 
         def on_modalentrygo(self, event=None):
             """Handle ModalEntryGo button events."""
             del event
             ModalEntryGo(
-                mainframe,
-                "ModalEntryGo",
+                parent=mainframe,
+                title="ModalEntryGo",
                 body=(
                     ("URL", "", None, False),
                     ("Password", "mypw", "*", True),
@@ -1183,8 +1186,8 @@ if __name__ == "__main__":
             """Handle ModalEntry button events."""
             del event
             ModalEntry(
-                mainframe,
-                "ModalEntry",
+                parent=mainframe,
+                title="ModalEntry",
                 body=(
                     ("URL", "", None, False),
                     ("Password", "mypw", "*", True),
@@ -1195,8 +1198,8 @@ if __name__ == "__main__":
             """Handle ModalEntryApplyGo button events."""
             del event
             ModalEntryApplyGo(
-                mainframe,
-                "ModalEntryApplyGo",
+                parent=mainframe,
+                title="ModalEntryApplyGo",
                 body=(
                     ("URL", "", None, False),
                     ("Password", "mypw", "*", True),
@@ -1207,8 +1210,8 @@ if __name__ == "__main__":
             """Handle ModalEntryApply button events."""
             del event
             ModalEntryApply(
-                mainframe,
-                "ModalEntryApply",
+                parent=mainframe,
+                title="ModalEntryApply",
                 body=(
                     ("URL", "", None, False),
                     ("Password", "mypw", "*", True),
@@ -1219,7 +1222,7 @@ if __name__ == "__main__":
             """Handle Report button events."""
             del event
             Report(
-                mainframe, "Report", text="Some report text"
+                parent=mainframe, title="Report", text="Some report text"
             ).root.mainloop()
 
         # self.parent to quit application.
@@ -1237,8 +1240,8 @@ if __name__ == "__main__":
     mainframe.wait_visibility()
 
     MainDialogue(
-        mainframe,
-        "Dialogues",
+        parent=mainframe,
+        title="Dialogues",
         text="".join(
             (
                 "Try the dialogues associated with each button.\n\nThe *Go ",

@@ -28,7 +28,14 @@ class AppSysReportBase(Bindings):
     """Base class for reports and dialogues."""
 
     def __init__(
-        self, parent, title, save=None, ok=None, close=None, cnf=None, **kargs
+        self,
+        parent=None,
+        title=None,
+        save=None,
+        ok=None,
+        close=None,
+        cnf=None,
+        **kargs,
     ):
         """Create the report or dialogue widget.
 
@@ -127,7 +134,7 @@ class AppSysReportBase(Bindings):
 class AppSysDialogueBase(AppSysReportBase):
     """Base class for dialogues."""
 
-    def __init__(self, parent, title, report, *args, **kargs):
+    def __init__(self, report=None, **kargs):
         """Extend superclass and append report to widget.
 
         parent - passed to superclass as parent argument.
@@ -136,7 +143,7 @@ class AppSysDialogueBase(AppSysReportBase):
         *args - passed to superclass as *args argument.
         **kargs - passed to superclass as **kargs argument.
         """
-        super().__init__(parent, title, *args, **kargs)
+        super().__init__(**kargs)
         self.append(report)
         self.restore_focus = self._toplevel.focus_get()
         self._toplevel.wait_visibility()
@@ -152,6 +159,7 @@ class AppSysDialogueBase(AppSysReportBase):
             # application destroyed while confirm dialogue exists
             if str(error) != FOCUS_ERROR:
                 raise
+        super().__del__()
 
 
 class AppSysReport(AppSysReportBase):
@@ -164,7 +172,7 @@ class AppSysReport(AppSysReportBase):
 
     """
 
-    def __init__(self, parent, title, interval=5000, *args, **kargs):
+    def __init__(self, interval=5000, **kargs):
         """Extend superclass to ignore redundant argument.
 
         parent - passed to superclass as parent argument.
@@ -174,7 +182,7 @@ class AppSysReport(AppSysReportBase):
         **kargs - passed to superclass as **kargs argument.
 
         """
-        super().__init__(parent, title, *args, **kargs)
+        super().__init__(**kargs)
 
     def append(self, text):
         """Override to append task to queue of tasks to be done in main thread.
@@ -264,20 +272,20 @@ def show_report(parent, title, **kargs):
     title - passed to AppSysReport as title argument.
     **kargs - passed to AppSysReport as **kargs argument.
     """
-    return AppSysReport(parent, title, **kargs)
+    return AppSysReport(parent=parent, title=title, **kargs)
 
 
 class AppSysConfirm(AppSysDialogueBase):
     """A confirmation dialogue with Text widgets for action details."""
 
-    def __init__(self, *args, **kargs):
+    def __init__(self, **kargs):
         """Extend superclass to remember dialogue response.
 
         *args - passed to superclass as *args argument.
         **kargs - passed to superclass as **kargs argument.
         """
         self.ok = False
-        super().__init__(*args, **kargs)
+        super().__init__(**kargs)
 
     def get_button_definitions(self, ok=None, close=None, **k):
         """Return confirmation dialogue button definitions.
@@ -338,7 +346,7 @@ def show_confirm(parent, title, report, **kargs):
     report - passed to AppSysConfirm as report argument.
     **kargs - passed to AppSysConfirm as **kargs argument.
     """
-    return AppSysConfirm(parent, title, report, **kargs)
+    return AppSysConfirm(parent=parent, title=title, report=report, **kargs)
 
 
 class AppSysInformation(AppSysDialogueBase):
@@ -381,4 +389,6 @@ def show_information(parent, title, report, **kargs):
     report - passed to AppSysInformation as report argument.
     **kargs - passed to AppSysInformation as **kargs argument.
     """
-    return AppSysInformation(parent, title, report, **kargs)
+    return AppSysInformation(
+        parent=parent, title=title, report=report, **kargs
+    )

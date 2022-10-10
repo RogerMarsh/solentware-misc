@@ -22,7 +22,11 @@ class TextEntry(Bindings):
         **options - tkinter.Entry **kw argument when dialogue created except
                     title which goes to tkinter.Toplevel and text which goes
                     to the tkinter.Label for the dialogue.
+
+        **options is not put in super().__init__() call.
+
         """
+        super().__init__()
         self.entered_text = None
         self.master = master
         self.options = options
@@ -99,6 +103,7 @@ class TextEntry(Bindings):
         """Destroy the dialogue if it exists."""
         if self.toplevel:
             self.toplevel.destroy()
+        super().__del__()
 
 
 def get_text_modal(master=None, **options):

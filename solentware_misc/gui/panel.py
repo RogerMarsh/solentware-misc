@@ -24,7 +24,9 @@ class AppSysPanelError(Exception):
 class AppSysPanelButton(Bindings):
     """Put a tkinter.Button in the frame of a parent reserved for buttons."""
 
-    def __init__(self, parent, identity, switchpanel, cnf=None, **kargs):
+    def __init__(
+        self, parent=None, identity=None, switchpanel=None, cnf=None, **kargs
+    ):
         """Create page action button.
 
         parent - parent AppSysPanel.
@@ -51,6 +53,7 @@ class AppSysPanelButton(Bindings):
             cnf={} if cnf is None else cnf,
             **kargs
         )
+        super().__init__()
 
         self.obeycontextswitch = True
 
@@ -191,7 +194,7 @@ class AppSysPanel(Bindings):
 
     """
 
-    def __init__(self, parent, cnf=None, **kargs):
+    def __init__(self, parent=None, cnf=None, **kargs):
         """Define basic structure of a page of a notebook style application.
 
         parent - AppSysFrame instance that owns this AppSysPanel instance
@@ -435,6 +438,7 @@ class AppSysPanel(Bindings):
     def __del__(self):
         """Call the close() method."""
         self.close()
+        super().__del__()
 
 
 class PlainPanel(AppSysPanel):
@@ -463,7 +467,7 @@ class PanelWithGrids(AppSysPanel):
     """
 
     def __init__(
-        self, parent, useselector=True, gridhorizontal=True, cnf=None, **kargs
+        self, useselector=True, gridhorizontal=True, cnf=None, **kargs
     ):
         """Create panel to which grids and selectors may be added.
 
@@ -478,9 +482,7 @@ class PanelWithGrids(AppSysPanel):
         Grids are arranged horizontally or vertically.
 
         """
-        super().__init__(
-            parent=parent, cnf={} if cnf is None else cnf, **kargs
-        )
+        super().__init__(cnf={} if cnf is None else cnf, **kargs)
         self.useselector = useselector is True
         self.gridhorizontal = gridhorizontal is True
         self.gridselector = dict()
@@ -578,7 +580,7 @@ class PanelWithGrids(AppSysPanel):
 class PanelGridSelector(PanelWithGrids):
     """Display data grids in equal share of space next to their selectors."""
 
-    def __init__(self, parent, **kargs):
+    def __init__(self, **kargs):
         """Delegate to superclass then create Tkinter.Frame widget.
 
         parent - passed to superclass as parent argument.
@@ -587,7 +589,7 @@ class PanelGridSelector(PanelWithGrids):
         The extra widget in the hierarchy adjusts the behaviour of the
         widgets when the application is resized.
         """
-        super().__init__(parent, **kargs)
+        super().__init__(**kargs)
 
         self.gridpane = tkinter.Frame(master=self.get_widget())
         self.gridpane.pack(
@@ -679,7 +681,7 @@ class PanelGridSelector(PanelWithGrids):
 class PanelGridSelectorBar(PanelWithGrids):
     """Display data grids in equal share of space with selectors in own row."""
 
-    def __init__(self, parent, **kargs):
+    def __init__(self, **kargs):
         """Delegate to superclass then create Tkinter.Frame widget.
 
         parent - passed to superclass as parent argument.
@@ -688,7 +690,7 @@ class PanelGridSelectorBar(PanelWithGrids):
         The extra widget in the hierarchy adjusts the behaviour of the
         widgets when the application is resized.
         """
-        super().__init__(parent, **kargs)
+        super().__init__(**kargs)
 
         self.gridpane = tkinter.Frame(master=self.get_widget())
         self.gridpane.pack(
@@ -776,7 +778,7 @@ class PanelGridSelectorBar(PanelWithGrids):
 class PanelGridSelectorShared(PanelWithGrids):
     """Display data grids in equal share of space with a shared selector."""
 
-    def __init__(self, parent, **kargs):
+    def __init__(self, **kargs):
         """Delegate to superclass then create Tkinter.Frame widget.
 
         parent - passed to superclass as parent argument.
@@ -785,7 +787,7 @@ class PanelGridSelectorShared(PanelWithGrids):
         The extra widget in the hierarchy adjusts the behaviour of the
         widgets when the application is resized.
         """
-        super().__init__(parent, **kargs)
+        super().__init__(**kargs)
 
         self.gridpane = tkinter.Frame(master=self.get_widget())
         self.gridpane.pack(
@@ -894,7 +896,7 @@ class PanelGridSelectorShared(PanelWithGrids):
 class PanedPanelGridSelector(PanelWithGrids):
     """Display data grids in adjustable space next to their selectors."""
 
-    def __init__(self, parent, **kargs):
+    def __init__(self, **kargs):
         """Delegate to superclass then create Tkinter.PanedWindow widget.
 
         parent - passed to superclass as parent argument.
@@ -903,7 +905,7 @@ class PanedPanelGridSelector(PanelWithGrids):
         The extra widget in the hierarchy adjusts the behaviour of the
         widgets when the application is resized.
         """
-        super().__init__(parent, **kargs)
+        super().__init__(**kargs)
 
         if self.gridhorizontal:
             orient = tkinter.HORIZONTAL
@@ -979,7 +981,7 @@ class PanedPanelGridSelector(PanelWithGrids):
 class PanedPanelGridSelectorBar(PanelWithGrids):
     """Display data grids in adjustable space with selectors in own row."""
 
-    def __init__(self, parent, **kargs):
+    def __init__(self, **kargs):
         """Delegate to superclass then create Tkinter.PanedWindow widget.
 
         parent - passed to superclass as parent argument.
@@ -988,7 +990,7 @@ class PanedPanelGridSelectorBar(PanelWithGrids):
         The extra widget in the hierarchy adjusts the behaviour of the
         widgets when the application is resized.
         """
-        super().__init__(parent, **kargs)
+        super().__init__(**kargs)
 
         if self.gridhorizontal:
             orient = tkinter.HORIZONTAL
@@ -1067,7 +1069,7 @@ class PanedPanelGridSelectorBar(PanelWithGrids):
 class PanedPanelGridSelectorShared(PanelWithGrids):
     """Display data grids in adjustable space with a shared selector."""
 
-    def __init__(self, parent, **kargs):
+    def __init__(self, **kargs):
         """Delegate to superclass then create Tkinter.PanedWindow widget.
 
         parent - passed to superclass as parent argument.
@@ -1076,7 +1078,7 @@ class PanedPanelGridSelectorShared(PanelWithGrids):
         The extra widget in the hierarchy adjusts the behaviour of the
         widgets when the application is resized.
         """
-        super().__init__(parent, **kargs)
+        super().__init__(**kargs)
 
         if self.gridhorizontal:
             orient = tkinter.HORIZONTAL

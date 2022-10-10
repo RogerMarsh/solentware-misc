@@ -25,6 +25,7 @@ class _Slider(Bindings):
         The default resolution, 2, gives 128 distinct positions on each
         slider because the colour values are 0 to 255.
         """
+        super().__init__()
         self.canvas = tkinter.Canvas(master=master)
         self.canvas.grid_configure(column=column, row=row, sticky="nsew")
 
@@ -122,7 +123,7 @@ class _Slider(Bindings):
 class RedSlider(_Slider):
     """Colour slider widget for selecting the value of the red component."""
 
-    def __init__(self, colourslider, **kw):
+    def __init__(self, colourslider=None, **kw):
         """Delegate to superclass setting column argument to 1.
 
         colourslider - a ColourSlider instance.
@@ -137,7 +138,7 @@ class RedSlider(_Slider):
 class GreenSlider(_Slider):
     """Colour slider widget for selecting the value of the green component."""
 
-    def __init__(self, colourslider, **kw):
+    def __init__(self, colourslider=None, **kw):
         """Delegate to superclass setting column argument to 2.
 
         colourslider - a ColourSlider instance.
@@ -152,7 +153,7 @@ class GreenSlider(_Slider):
 class BlueSlider(_Slider):
     """Colour slider widget for selecting the value of the blue component."""
 
-    def __init__(self, colourslider, **kw):
+    def __init__(self, colourslider=None, **kw):
         """Delegate to superclass setting column argument to 3.
 
         colourslider - a ColourSlider instance.
@@ -186,6 +187,7 @@ class ColourSlider(Bindings):
         The default resolution, 2, gives 128 distinct positions on each
         slider because the colour values are 0 to 255.
         """
+        super().__init__()
         self.resolution = resolution
         self.convert_RGB_colour_to_hex(master.winfo_rgb(colour))
 

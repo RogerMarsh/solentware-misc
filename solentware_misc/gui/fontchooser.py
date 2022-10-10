@@ -25,7 +25,7 @@ class AppSysFontChooser(Bindings):
 
     restore_focus = None
 
-    def __init__(self, master, title, cnf=None, **kargs):
+    def __init__(self, master=None, title=None, cnf=None, **kargs):
         """Create the font chooser dialogue.
 
         master - the parent widget of the dialogue
@@ -34,6 +34,7 @@ class AppSysFontChooser(Bindings):
         kargs - not used (intended as argments in tkinter.Toplevel call)
 
         """
+        super().__init__(**kargs)
         self.chosenfont = None
 
         self.confirm = tkinter.Toplevel(master)
@@ -221,3 +222,4 @@ class AppSysFontChooser(Bindings):
                 # application destroyed while confirm dialogue exists
                 if str(error) != FOCUS_ERROR:
                     raise
+        super().__del__()

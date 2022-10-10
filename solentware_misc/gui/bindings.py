@@ -41,6 +41,20 @@ class Bindings(ExceptionHandler):
         self._current_binding = None
         self._frozen_bindings = set()
 
+    def __del__(self):
+        """Destroy any bindings in _bindings."""
+        self.unbind_all()
+        self._frozen_bindings.clear()
+
+        # Class hierarchy for Bindings is Bindings(ExceptionHandler(object))
+        # ExceptionHandler does not have a __del__ method so only possible
+        # source of __del__ method is something else between Bindings and
+        # object in method resolution order.
+        # Subclasses of Bindings should do super().__del__() unconditionally
+        # in their __del__ methods if they have such.
+        if hasattr(super(), "__del__"):
+            super().__del__()
+
     def bind(self, widget, sequence, function=None, add=None):
         """Bind sequence to function for widget and note binding identity.
 
@@ -49,7 +63,6 @@ class Bindings(ExceptionHandler):
         If function is not None a new binding is created and noted.
 
         """
-        print(self.__class__.__name__, widget.__class__.__name__, repr(sequence))
         key = (widget, sequence)
         if key in self._bindings and add is None:
             widget.unbind(sequence, funcid=self._bindings[key])
