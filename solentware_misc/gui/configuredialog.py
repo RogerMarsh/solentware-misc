@@ -24,7 +24,7 @@ class ConfigureDialog(Bindings):
 
     def __init__(
         self,
-        parent=None,
+        master=None,
         configuration="",
         dialog_title="Text editor dialogue",
         dialog_cancel_hint="Quit without applying changes",
@@ -35,7 +35,7 @@ class ConfigureDialog(Bindings):
         """Create a configuration file text editor dialogue."""
         super().__init__(**kargs)
         self._config_text = None
-        self.dialog = tkinter.Toplevel(parent)
+        self.dialog = tkinter.Toplevel(master=master)
         self.restore_focus = self.dialog.focus_get()
         self.dialog.wm_title(dialog_title)
         self.configuration = tkinter.Text(master=self.dialog)

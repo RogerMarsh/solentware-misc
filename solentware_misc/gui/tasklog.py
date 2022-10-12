@@ -68,9 +68,8 @@ class TaskLog(Bindings):
         self.cancel.pack(side=tkinter.RIGHT, padx=12)
         self.report = LogText(
             master=self.logwidget,
-            wrap=tkinter.WORD,
-            undo=tkinter.FALSE,
             get_app=self.get_app,
+            cnf=dict(wrap=tkinter.WORD, undo=tkinter.FALSE),
         )
         self.report.pack(
             side=tkinter.LEFT, fill=tkinter.BOTH, expand=tkinter.TRUE
@@ -164,7 +163,7 @@ class TaskLog(Bindings):
 class _LogText(TextReadonly):
     """A progress report log."""
 
-    def __init__(self, get_app=None, master=None, cnf=None, **kargs):
+    def __init__(self, get_app=None, master=None, **kargs):
         """Add a vertical scrollbar to a read-only tkinter.Text widget.
 
         get_app - method which returns the application instance.
@@ -172,7 +171,7 @@ class _LogText(TextReadonly):
         cnf - ignored, default {}.
         **kargs - passed to superclass as **kargs argument.
         """
-        super().__init__(master=master, cnf={}, **kargs)
+        super().__init__(master=master, **kargs)
         self.get_app = get_app
         self.set_readonly_bindings()
         scrollbar = tkinter.Scrollbar(

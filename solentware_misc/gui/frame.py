@@ -68,9 +68,8 @@ class AppSysFrameButton(Bindings):
         self.button = tkinter.Button(
             master=parent.get_tab_buttons_frame(),
             cnf={} if cnf is None else cnf,
-            **kargs
         )
-        super().__init__()
+        super().__init__(**kargs)
 
         self.command = kargs.get("command")
 
@@ -161,11 +160,11 @@ class AppSysFrame(Bindings):
         **kargs = Tkinter.Frame arguments.
 
         """
-        self._frame = tkinter.Frame(
-            master=master, cnf={} if cnf is None else cnf, **kargs
-        )
+        if cnf is None:
+            cnf = {}
+        self._frame = tkinter.Frame(master=master, cnf=cnf)
         self._datasources = DataRegister()
-        super().__init__()
+        super().__init__(**kargs)
 
         self._tab_description = dict()
         self._tab_order = []
@@ -194,7 +193,9 @@ class AppSysFrame(Bindings):
         """
         for i, j, tab in sorted(self._tab_order):
             if tab not in self._tabs:
-                self._tabs[tab] = AppSysTab(self, self._tab_description[tab])
+                self._tabs[tab] = AppSysTab(
+                    parent=self, description=self._tab_description[tab]
+                )
                 self._tabs[tab].bind_tab_button(self.show_current_tab)
 
     def get_data_register(self):
@@ -262,7 +263,7 @@ class AppSysFrame(Bindings):
         else:
             self._tab_order.append((position, len(self._tab_order), identity))
         self._tab_description[identity] = AppSysTabDefinition(
-            identity,
+            identity=identity,
             text=text,
             tooltip=tooltip,
             tabclass=tabclass,
@@ -450,7 +451,7 @@ class AppSysFrame(Bindings):
 class AppSysTab:
     """This class creates a tab using a tab definition."""
 
-    def __init__(self, parent, description):
+    def __init__(self, parent=None, description=None):
         """Create the tab's button in parent frame using the tab description.
 
         parent - an AppSysFrame instance
@@ -459,7 +460,8 @@ class AppSysTab:
         """
         self.tab = None
         self.button = AppSysFrameButton(
-            parent, text=description.text, underline=description.underline
+            parent=parent,
+            cnf=dict(text=description.text, underline=description.underline)
         )
         self.description = description
 
@@ -480,7 +482,7 @@ class AppSysTabDefinition:
 
     def __init__(
         self,
-        identity,
+        identity=None,
         text="",
         tooltip="",
         underline=-1,

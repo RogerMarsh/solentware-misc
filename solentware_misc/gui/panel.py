@@ -33,7 +33,7 @@ class AppSysPanelButton(Bindings):
         identity - arbitrary identity number for button.
         switchpanel - if True button is allowed to change page in notebook.
         cnf - passed to tkinter.Button() as cnf argument, default {}.
-        **kargs - passed to tkinter.Button() as **kargs.
+        **kargs - passed to super().__init__() call as **kargs argument.
 
         The identity must be unique within the application for buttons.  It
         is used to keep track of context while navigating tabs.
@@ -48,12 +48,12 @@ class AppSysPanelButton(Bindings):
         except:
             pass
 
+        # When converted to tkinter.ttk.Button cnf will be passed as **cnf.
         self.button = tkinter.Button(
             master=parent.get_buttons_frame(),
             cnf={} if cnf is None else cnf,
-            **kargs
         )
-        super().__init__()
+        super().__init__(**kargs)
 
         self.obeycontextswitch = True
 
@@ -197,17 +197,20 @@ class AppSysPanel(Bindings):
     def __init__(self, parent=None, cnf=None, **kargs):
         """Define basic structure of a page of a notebook style application.
 
-        parent - AppSysFrame instance that owns this AppSysPanel instance
-        cnf - passed to main tkinter.Frame() call as cnf argument, default {}
-        **kargs - passed to main tkinter.Frame() call as **kargs argument
+        parent - AppSysFrame instance that owns this AppSysPanel instance.
+        cnf - passed to main tkinter.Frame() call as cnf argument, default {}.
+        **kargs - passed to super().__init__() call as **kargs argument.
 
         Subclasses define the content of the page and the action buttons.
 
         """
-        self.panel = tkinter.Frame(
-            master=parent.get_widget(), cnf={} if cnf is None else cnf, **kargs
-        )
-        self.buttons_frame = tkinter.Frame(master=self.panel)
+        if cnf is None:
+            cnf = {}
+
+        # When converted to tkinter.ttk.Frame cnf will be passed as **cnf.
+        self.panel = tkinter.Frame(master=parent.get_widget(), cnf=cnf)
+
+        self.buttons_frame = tkinter.Frame(master=self.panel, cnf={})
         self._give_focus_widget = None
         self.buttons_frame.pack(side=tkinter.BOTTOM, fill=tkinter.X)
 
@@ -217,7 +220,7 @@ class AppSysPanel(Bindings):
         self.button_order = []
         self.buttons = {}
         self.describe_buttons()
-        super().__init__()
+        super().__init__(**kargs)
 
     def close(self):
         """Raise AppSysPanelError('close not implemented') error.
@@ -236,13 +239,15 @@ class AppSysPanel(Bindings):
         for i, button in enumerate(self.button_order):
             if button not in self.buttons:
                 self.buttons[button] = AppSysPanelButton(
-                    self,
-                    button,
-                    definitions[button][2],
-                    text=definitions[button][0],
-                    underline=definitions[button][3],
-                    command=self.try_command(
-                        definitions[button][4], self.buttons_frame
+                    parent=self,
+                    identity=button,
+                    switchpanel=definitions[button][2],
+                    cnf=dict(
+                        text=definitions[button][0],
+                        underline=definitions[button][3],
+                        command=self.try_command(
+                            definitions[button][4], self.buttons_frame
+                        )
                     ),
                 )
             self.buttons[button].raise_action_button()
@@ -466,15 +471,11 @@ class PanelWithGrids(AppSysPanel):
     Subclasses of PanelWithGrids may arrange grids and selectors differently.
     """
 
-    def __init__(
-        self, useselector=True, gridhorizontal=True, cnf=None, **kargs
-    ):
+    def __init__(self, useselector=True, gridhorizontal=True, **kargs):
         """Create panel to which grids and selectors may be added.
 
-        parent - passed to superclass as parent argument.
         useselector - if True a selector is provided for each grid.
         gridhorizontal - if True grids are arranged horizontally.
-        cnf - passed to superclass as cnf argument, default {}.
         **kargs - passed to superclass as **kargs argument.
 
         Selectors are either present for all grids or absent for all grids.
@@ -482,7 +483,7 @@ class PanelWithGrids(AppSysPanel):
         Grids are arranged horizontally or vertically.
 
         """
-        super().__init__(cnf={} if cnf is None else cnf, **kargs)
+        super().__init__(**kargs)
         self.useselector = useselector is True
         self.gridhorizontal = gridhorizontal is True
         self.gridselector = dict()
@@ -519,7 +520,7 @@ class PanelWithGrids(AppSysPanel):
         The gridmaster argument is usually self.frame.
         """
         gridframe = grid(
-            gridmaster,
+            parent=gridmaster,
             selecthintlabel=selectlabel,
             appsyspanel=self,
             receivefocuskey=gridfocuskey,
@@ -583,7 +584,6 @@ class PanelGridSelector(PanelWithGrids):
     def __init__(self, **kargs):
         """Delegate to superclass then create Tkinter.Frame widget.
 
-        parent - passed to superclass as parent argument.
         **kargs - passed to superclass as **kargs argument.
 
         The extra widget in the hierarchy adjusts the behaviour of the
@@ -591,7 +591,7 @@ class PanelGridSelector(PanelWithGrids):
         """
         super().__init__(**kargs)
 
-        self.gridpane = tkinter.Frame(master=self.get_widget())
+        self.gridpane = tkinter.Frame(master=self.get_widget(), cnf={})
         self.gridpane.pack(
             side=tkinter.TOP, expand=tkinter.TRUE, fill=tkinter.BOTH
         )
@@ -617,7 +617,7 @@ class PanelGridSelector(PanelWithGrids):
         def make_selector(arg):
             if arg.get("selectfocuskey") is None:
                 return (None, None)
-            frame = tkinter.Frame(master=self.gridpane)
+            frame = tkinter.Frame(master=self.gridpane, cnf={})
             label = tkinter.Label(master=frame)
             entry = tkinter.Entry(master=frame)
             return (frame, (label, entry))
@@ -684,7 +684,6 @@ class PanelGridSelectorBar(PanelWithGrids):
     def __init__(self, **kargs):
         """Delegate to superclass then create Tkinter.Frame widget.
 
-        parent - passed to superclass as parent argument.
         **kargs - passed to superclass as **kargs argument.
 
         The extra widget in the hierarchy adjusts the behaviour of the
@@ -692,7 +691,7 @@ class PanelGridSelectorBar(PanelWithGrids):
         """
         super().__init__(**kargs)
 
-        self.gridpane = tkinter.Frame(master=self.get_widget())
+        self.gridpane = tkinter.Frame(master=self.get_widget(), cnf={})
         self.gridpane.pack(
             side=tkinter.TOP, expand=tkinter.TRUE, fill=tkinter.BOTH
         )
@@ -720,7 +719,7 @@ class PanelGridSelectorBar(PanelWithGrids):
         def make_selector(arg):
             if arg.get("selectfocuskey") is None:
                 return (None, None)
-            frame = tkinter.Frame(master=self.gridpane)
+            frame = tkinter.Frame(master=self.gridpane, cnf={})
             label = tkinter.Label(master=frame)
             entry = tkinter.Entry(master=frame)
             return (frame, (label, entry))
@@ -781,7 +780,6 @@ class PanelGridSelectorShared(PanelWithGrids):
     def __init__(self, **kargs):
         """Delegate to superclass then create Tkinter.Frame widget.
 
-        parent - passed to superclass as parent argument.
         **kargs - passed to superclass as **kargs argument.
 
         The extra widget in the hierarchy adjusts the behaviour of the
@@ -789,7 +787,7 @@ class PanelGridSelectorShared(PanelWithGrids):
         """
         super().__init__(**kargs)
 
-        self.gridpane = tkinter.Frame(master=self.get_widget())
+        self.gridpane = tkinter.Frame(master=self.get_widget(), cnf={})
         self.gridpane.pack(
             side=tkinter.TOP, expand=tkinter.TRUE, fill=tkinter.BOTH
         )
@@ -818,7 +816,7 @@ class PanelGridSelectorShared(PanelWithGrids):
             if gargs.get("selectfocuskey"):
 
                 def csf():
-                    frame = tkinter.Frame(master=self.gridpane)
+                    frame = tkinter.Frame(master=self.gridpane, cnf={})
                     label = tkinter.Label(master=frame)
                     entry = tkinter.Entry(master=frame)
 
@@ -899,7 +897,6 @@ class PanedPanelGridSelector(PanelWithGrids):
     def __init__(self, **kargs):
         """Delegate to superclass then create Tkinter.PanedWindow widget.
 
-        parent - passed to superclass as parent argument.
         **kargs - passed to superclass as **kargs argument.
 
         The extra widget in the hierarchy adjusts the behaviour of the
@@ -939,7 +936,7 @@ class PanedPanelGridSelector(PanelWithGrids):
         def make_selector(arg, master):
             if arg.get("selectfocuskey") is None:
                 return (None, None)
-            frame = tkinter.Frame(master=master)
+            frame = tkinter.Frame(master=master, cnf={})
             label = tkinter.Label(master=frame)
             entry = tkinter.Entry(master=frame)
             frame.grid_columnconfigure(0, weight=1)
@@ -984,7 +981,6 @@ class PanedPanelGridSelectorBar(PanelWithGrids):
     def __init__(self, **kargs):
         """Delegate to superclass then create Tkinter.PanedWindow widget.
 
-        parent - passed to superclass as parent argument.
         **kargs - passed to superclass as **kargs argument.
 
         The extra widget in the hierarchy adjusts the behaviour of the
@@ -999,7 +995,7 @@ class PanedPanelGridSelectorBar(PanelWithGrids):
         self.gridpane = tkinter.PanedWindow(
             master=self.get_widget(), opaqueresize=tkinter.FALSE, orient=orient
         )
-        self.selectormaster = tkinter.Frame(master=self.get_widget())
+        self.selectormaster = tkinter.Frame(master=self.get_widget(), cnf={})
         if self.useselector:
             self.selectormaster.pack(side=tkinter.TOP, fill=tkinter.X)
             self.gridpane.pack(
@@ -1072,7 +1068,6 @@ class PanedPanelGridSelectorShared(PanelWithGrids):
     def __init__(self, **kargs):
         """Delegate to superclass then create Tkinter.PanedWindow widget.
 
-        parent - passed to superclass as parent argument.
         **kargs - passed to superclass as **kargs argument.
 
         The extra widget in the hierarchy adjusts the behaviour of the
@@ -1087,7 +1082,7 @@ class PanedPanelGridSelectorShared(PanelWithGrids):
         self.gridpane = tkinter.PanedWindow(
             master=self.get_widget(), opaqueresize=tkinter.FALSE, orient=orient
         )
-        self.selectormaster = tkinter.Frame(master=self.get_widget())
+        self.selectormaster = tkinter.Frame(master=self.get_widget(), cnf={})
         if self.useselector:
             self.selectormaster.pack(side=tkinter.TOP, fill=tkinter.X)
             self.gridpane.pack(

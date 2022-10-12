@@ -32,13 +32,13 @@ def help_text(title, help_text_module, name, encoding="utf-8"):
 
 def help_widget(master, title, help_text_module, hfname=None):
     """Build a Toplevel widget to display a help text document."""
-    toplevel = tkinter.Toplevel(master)
+    toplevel = tkinter.Toplevel(master=master)
     toplevel.wm_title(title)
     help_ = textreadonly.TextReadonly(
-        toplevel, wrap=tkinter.WORD, tabstyle="tabular"
+        master=toplevel, cnf=dict(wrap=tkinter.WORD, tabstyle="tabular")
     )
     scrollbar = tkinter.Scrollbar(
-        toplevel, orient=tkinter.VERTICAL, command=help_.yview
+        master=toplevel, orient=tkinter.VERTICAL, command=help_.yview
     )
     help_.configure(yscrollcommand=scrollbar.set)
     scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)

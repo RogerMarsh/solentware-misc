@@ -1232,7 +1232,7 @@ if __name__ == "__main__":
             del event
             self.parent.winfo_toplevel().destroy()
 
-    mainframe = MainFrame(tkinter.Tk(), height=300, width=400)
+    mainframe = MainFrame(master=tkinter.Tk(), height=300, width=400)
     mainframe.pack()
     mainframe.winfo_toplevel().wm_title("Main Window")
 

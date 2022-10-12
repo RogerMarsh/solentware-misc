@@ -12,10 +12,26 @@ version, with bindings to edit text removed.
 
 import tkinter
 
+from . import bindings
 
-# Is ExceptionHandler appropriate to this class - Tkinter.Text not wrapped
+
+# Is ExceptionHandler appropriate to this class - Tkinter.Text not wrapped.
+# However the Bindings instance created in __init__() has ExceptionHandler
+# available.
 class TextReadonly(tkinter.Text):
     """Extend tkinter.Text with methods to suppress and restore editing."""
+
+    def __init__(self, cnf=None, **kargs):
+        """Provide a Bindings instance.
+
+        tkinter.Text does not do super().__init__() so Bindings instance
+        is not provided by TextReadonly(Bindings, ...)
+
+        """
+        if cnf is None:
+            cnf = {}
+        super().__init__(cnf=cnf, **kargs)
+        self._bindings = bindings.Bindings()
 
     def set_readonly_bindings(self):
         """Set bindings to suppress editing actions."""
@@ -26,14 +42,12 @@ class TextReadonly(tkinter.Text):
         unset_readonly_bindings(self)
 
 
-def make_text_readonly(master=None, cnf=None, **kargs):
+def make_text_readonly(cnf=None, **kargs):
     """Return Text widget with read only bindings.
 
-    master - passed to tkinter.Text as master argument.
-    cnf - passed to tkinter.Text as cnf argument, default {}.
-    **kargs - passed to tkinter.Text as **kw argument.
+    See tkinter.Text for arguments.
     """
-    text = tkinter.Text(master=master, cnf={} if cnf is None else cnf, **kargs)
+    text = tkinter.Text(cnf={} if cnf is None else cnf, **kargs)
     set_readonly_bindings(text)
     return text
 

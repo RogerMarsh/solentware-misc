@@ -21,10 +21,24 @@ the job.
 
 import tkinter
 
+from . import bindings
 
-# Is ExceptionHandler appropriate to this class - Tkinter.Text not wrapped
+
+# Is ExceptionHandler appropriate to this class - Tkinter.Text not wrapped.
+# However the Bindings instance created in __init__() has ExceptionHandler
+# available.
 class TextTab(tkinter.Text):
     """Extend tkinter.Text with methods to replace and restore Tab bindings."""
+
+    def __init__(self, cnf=None, **kargs):
+        """Delegate to tkinter.Text and provide a Bindings instance.
+
+        tkinter.Text does not do super().__init__() so Bindings instance
+        is not provided by TextReadonly(Bindings, ...)
+
+        """
+        super().__init__(cnf={} if cnf is None else cnf, **kargs)
+        self._bindings = bindings.Bindings()
 
     def set_tab_bindings(self):
         """Set bindings replacing Tab with <Escape><Tab>."""
@@ -35,9 +49,12 @@ class TextTab(tkinter.Text):
         unset_tab_bindings(self)
 
 
-def make_text_tab(master=None, cnf=None, **kargs):
-    """Return Text widget with <Escape><Tab> binding replacing Tab binding."""
-    text = tkinter.Text(master=master, cnf={} if cnf is None else cnf, **kargs)
+def make_text_tab(cnf=None, **kargs):
+    """Return Text widget with <Escape><Tab> binding replacing Tab binding.
+
+    See tkinter.Text for arguments.
+    """
+    text = tkinter.Text(cnf={} if cnf is None else cnf, **kargs)
     set_tab_bindings(text)
     return text
 

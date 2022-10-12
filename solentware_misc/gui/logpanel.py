@@ -81,9 +81,8 @@ class TextAndLogPanel(panel.PlainPanel):
             get_app=self.get_appsys,
             logwidget=tasklog.LogText(
                 master=report_frame,
-                wrap=tkinter.WORD,
-                undo=tkinter.FALSE,
                 get_app=self.get_appsys,
+                cnf=dict(wrap=tkinter.WORD, undo=tkinter.FALSE),
             ),
         )
         paned_w.add(report_frame)
@@ -183,9 +182,8 @@ class WidgetAndLogPanel(panel.PlainPanel):
             get_app=self.get_appsys,
             logwidget=tasklog.LogText(
                 master=report_frame,
-                wrap=tkinter.WORD,
-                undo=tkinter.FALSE,
                 get_app=self.get_appsys,
+                cnf=dict(wrap=tkinter.WORD, undo=tkinter.FALSE),
             ),
         )
         paned_w.add(report_frame)
