@@ -1,4 +1,4 @@
-# help.py
+# help_.py
 # Copyright 2012 Roger Marsh
 # Licence: See LICENCE (BSD licence)
 
@@ -34,15 +34,15 @@ def help_widget(master, title, help_text_module, hfname=None):
     """Build a Toplevel widget to display a help text document."""
     toplevel = tkinter.Toplevel(master=master)
     toplevel.wm_title(title)
-    help_ = textreadonly.TextReadonly(
+    help_tro = textreadonly.TextReadonly(
         master=toplevel, cnf=dict(wrap=tkinter.WORD, tabstyle="tabular")
     )
     scrollbar = tkinter.Scrollbar(
-        master=toplevel, orient=tkinter.VERTICAL, command=help_.yview
+        master=toplevel, orient=tkinter.VERTICAL, command=help_tro.yview
     )
-    help_.configure(yscrollcommand=scrollbar.set)
+    help_tro.configure(yscrollcommand=scrollbar.set)
     scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
-    help_.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=tkinter.TRUE)
-    help_.set_readonly_bindings()
-    help_.insert(tkinter.END, help_text(title, help_text_module, hfname))
-    help_.focus_set()
+    help_tro.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=tkinter.TRUE)
+    help_tro.set_readonly_bindings()
+    help_tro.insert(tkinter.END, help_text(title, help_text_module, hfname))
+    help_tro.focus_set()
