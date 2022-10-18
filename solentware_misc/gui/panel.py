@@ -42,11 +42,7 @@ class AppSysPanelButton(Bindings):
         self.parent = parent
         self.switchpanel = switchpanel
         self.identity = identity
-        self.command = kargs.get("command")
-        try:
-            del kargs["command"]
-        except:
-            pass
+        self.command = cnf.get("command")
 
         # When converted to tkinter.ttk.Button cnf will be passed as **cnf.
         self.button = tkinter.Button(
