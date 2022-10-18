@@ -210,7 +210,7 @@ class AppSysPanel(Bindings):
         # When converted to tkinter.ttk.Frame cnf will be passed as **cnf.
         self.panel = tkinter.Frame(master=parent.get_widget(), cnf=cnf)
 
-        self.buttons_frame = tkinter.Frame(master=self.panel, cnf={})
+        self.buttons_frame = tkinter.Frame(master=self.panel)
         self._give_focus_widget = None
         self.buttons_frame.pack(side=tkinter.BOTTOM, fill=tkinter.X)
 
@@ -247,7 +247,7 @@ class AppSysPanel(Bindings):
                         underline=definitions[button][3],
                         command=self.try_command(
                             definitions[button][4], self.buttons_frame
-                        )
+                        ),
                     ),
                 )
             self.buttons[button].raise_action_button()
@@ -591,7 +591,7 @@ class PanelGridSelector(PanelWithGrids):
         """
         super().__init__(**kargs)
 
-        self.gridpane = tkinter.Frame(master=self.get_widget(), cnf={})
+        self.gridpane = tkinter.Frame(master=self.get_widget())
         self.gridpane.pack(
             side=tkinter.TOP, expand=tkinter.TRUE, fill=tkinter.BOTH
         )
@@ -617,7 +617,7 @@ class PanelGridSelector(PanelWithGrids):
         def make_selector(arg):
             if arg.get("selectfocuskey") is None:
                 return (None, None)
-            frame = tkinter.Frame(master=self.gridpane, cnf={})
+            frame = tkinter.Frame(master=self.gridpane)
             label = tkinter.Label(master=frame)
             entry = tkinter.Entry(master=frame)
             return (frame, (label, entry))
@@ -719,7 +719,7 @@ class PanelGridSelectorBar(PanelWithGrids):
         def make_selector(arg):
             if arg.get("selectfocuskey") is None:
                 return (None, None)
-            frame = tkinter.Frame(master=self.gridpane, cnf={})
+            frame = tkinter.Frame(master=self.gridpane)
             label = tkinter.Label(master=frame)
             entry = tkinter.Entry(master=frame)
             return (frame, (label, entry))
@@ -787,7 +787,7 @@ class PanelGridSelectorShared(PanelWithGrids):
         """
         super().__init__(**kargs)
 
-        self.gridpane = tkinter.Frame(master=self.get_widget(), cnf={})
+        self.gridpane = tkinter.Frame(master=self.get_widget())
         self.gridpane.pack(
             side=tkinter.TOP, expand=tkinter.TRUE, fill=tkinter.BOTH
         )
@@ -816,7 +816,7 @@ class PanelGridSelectorShared(PanelWithGrids):
             if gargs.get("selectfocuskey"):
 
                 def csf():
-                    frame = tkinter.Frame(master=self.gridpane, cnf={})
+                    frame = tkinter.Frame(master=self.gridpane)
                     label = tkinter.Label(master=frame)
                     entry = tkinter.Entry(master=frame)
 
@@ -936,7 +936,7 @@ class PanedPanelGridSelector(PanelWithGrids):
         def make_selector(arg, master):
             if arg.get("selectfocuskey") is None:
                 return (None, None)
-            frame = tkinter.Frame(master=master, cnf={})
+            frame = tkinter.Frame(master=master)
             label = tkinter.Label(master=frame)
             entry = tkinter.Entry(master=frame)
             frame.grid_columnconfigure(0, weight=1)
@@ -995,7 +995,7 @@ class PanedPanelGridSelectorBar(PanelWithGrids):
         self.gridpane = tkinter.PanedWindow(
             master=self.get_widget(), opaqueresize=tkinter.FALSE, orient=orient
         )
-        self.selectormaster = tkinter.Frame(master=self.get_widget(), cnf={})
+        self.selectormaster = tkinter.Frame(master=self.get_widget())
         if self.useselector:
             self.selectormaster.pack(side=tkinter.TOP, fill=tkinter.X)
             self.gridpane.pack(
@@ -1082,7 +1082,7 @@ class PanedPanelGridSelectorShared(PanelWithGrids):
         self.gridpane = tkinter.PanedWindow(
             master=self.get_widget(), opaqueresize=tkinter.FALSE, orient=orient
         )
-        self.selectormaster = tkinter.Frame(master=self.get_widget(), cnf={})
+        self.selectormaster = tkinter.Frame(master=self.get_widget())
         if self.useselector:
             self.selectormaster.pack(side=tkinter.TOP, fill=tkinter.X)
             self.gridpane.pack(

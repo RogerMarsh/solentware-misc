@@ -461,7 +461,7 @@ class AppSysTab:
         self.tab = None
         self.button = AppSysFrameButton(
             parent=parent,
-            cnf=dict(text=description.text, underline=description.underline)
+            cnf=dict(text=description.text, underline=description.underline),
         )
         self.description = description
 
