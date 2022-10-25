@@ -7,8 +7,8 @@
 import tkinter
 import tkinter.messagebox
 
-from .bindings import Bindings
-from .exceptionhandler import (
+from solentware_bind.gui.bindings import Bindings
+from solentware_bind.gui.exceptionhandler import (
     BAD_WINDOW,
     FOCUS_ERROR,
 )

@@ -6,7 +6,7 @@
 
 import tkinter
 
-from .bindings import Bindings
+from solentware_bind.gui.bindings import Bindings
 
 _TITLE = "title"
 _TEXT = "text"

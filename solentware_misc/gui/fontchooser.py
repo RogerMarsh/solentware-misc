@@ -12,8 +12,8 @@ import tkinter
 import tkinter.font
 import tkinter.messagebox
 
-from .bindings import Bindings
-from .exceptionhandler import FOCUS_ERROR
+from solentware_bind.gui.bindings import Bindings
+from solentware_bind.gui.exceptionhandler import FOCUS_ERROR
 
 
 class AppSysFontChooser(Bindings):

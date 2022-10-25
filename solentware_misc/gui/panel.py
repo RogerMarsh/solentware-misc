@@ -14,7 +14,7 @@ and behaviour is undefined if the solentware_grid package is not available.
 
 import tkinter
 
-from .bindings import Bindings
+from solentware_bind.gui.bindings import Bindings
 
 
 class AppSysPanelError(Exception):

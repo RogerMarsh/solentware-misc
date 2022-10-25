@@ -7,7 +7,7 @@
 import tkinter
 import base64
 
-from .bindings import Bindings
+from solentware_bind.gui.bindings import Bindings
 
 
 class _Slider(Bindings):

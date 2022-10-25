@@ -21,7 +21,7 @@ the job.
 
 import tkinter
 
-from . import bindings
+from solentware_bind.gui import bindings
 
 
 # Is ExceptionHandler appropriate to this class - Tkinter.Text not wrapped.

@@ -15,7 +15,8 @@ import tkinter.font
 import queue
 import threading
 
-from .bindings import Bindings
+from solentware_bind.gui.bindings import Bindings
+
 from .textreadonly import TextReadonly
 
 

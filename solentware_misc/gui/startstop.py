@@ -7,7 +7,7 @@
 import tkinter
 import tkinter.messagebox
 
-from .exceptionhandler import GRAB_ERROR
+from solentware_bind.gui.exceptionhandler import GRAB_ERROR
 
 
 def start_application_exception(error, appname="Application", action="start"):

@@ -19,8 +19,9 @@ tkinter's equivalents.
 import tkinter
 import tkinter.filedialog
 
-from .bindings import Bindings
-from .exceptionhandler import FOCUS_ERROR
+from solentware_bind.gui.bindings import Bindings
+from solentware_bind.gui.exceptionhandler import FOCUS_ERROR
+
 from . import textreadonly
 
 
