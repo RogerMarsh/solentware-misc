@@ -33,14 +33,6 @@ font and colours used in a user interface.
 The help module provides functions for displaying help text files for an
 application.
 
-The gridbindings module provides standard bindings used by applications
-available on www.solentware.co.uk.  The gridbindings.GridBindings class
-expects to be a superclass alongside the solentware_grid.datagrid.DataGrid
-class, but the setup module for solentware_misc does not declare the
-dependency.
-It is assumed the solentware_grid package will be present if gridbindings is
-used.
-
 The exceptionhandler module provides a widget for displaying an exception
 report for an exception which is causing the application to stop.
 """

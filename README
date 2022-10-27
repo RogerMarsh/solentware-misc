@@ -28,10 +28,8 @@ This package contains a number of modules which do not have an obvious home in a
 
       * colourslider.py - widget for choosing colours.
       * dialogue.py - widgets for dialogues and reports.
-      * exceptionhandler.py - write exception details to error log.
       * fontchooser.py - widget for selecting fonts.
       * frame.py - customised Tkinter.Frame widget for notebook style GUI.
-      * gridbindings.py - common bindings for solentware-grid grid widget.
       * help.py - create widgets to display help files.
       * logpanel.py - widgets for displaying task logs.
       * panel.py - customised Tkinter.Frame widget for notebook style GUI.
