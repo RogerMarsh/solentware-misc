@@ -147,11 +147,12 @@ class RedSlider(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    r"__init__\(\) missing 1 required positional ",
-                    "argument: 'colourslider'",
+                    r"__init__\(\) takes from 1 to 2 positional ",
+                    "arguments but 3 were given",
                 )
             ),
             colourslider.RedSlider,
+            *(None, None),
         )
 
     def test_001___init___002(self):
@@ -175,11 +176,12 @@ class GreenSlider(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    r"__init__\(\) missing 1 required positional ",
-                    "argument: 'colourslider'",
+                    r"__init__\(\) takes from 1 to 2 positional ",
+                    "arguments but 3 were given",
                 )
             ),
             colourslider.GreenSlider,
+            *(None, None),
         )
 
     def test_001___init___002(self):
@@ -203,11 +205,12 @@ class BlueSlider(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    r"__init__\(\) missing 1 required positional ",
-                    "argument: 'colourslider'",
+                    r"__init__\(\) takes from 1 to 2 positional ",
+                    "arguments but 3 were given",
                 )
             ),
             colourslider.BlueSlider,
+            *(None, None),
         )
 
     def test_001___init___002(self):
@@ -262,7 +265,7 @@ class ColourSlider(unittest.TestCase):
         )
 
     def test_002_get_colour_002(self):
-        self.assertEqual(self.colourslider.get_colour(), b"#bebebe")
+        self.assertEqual(self.colourslider.get_colour(), b"#808080")
 
     def test_003_convert_RGB_colour_to_hex_001(self):
         self.assertRaisesRegex(

@@ -16,6 +16,7 @@ dialogues to be invoked by user action.
 
 import unittest
 import tkinter
+import sys
 
 from .. import dialogue
 
@@ -41,15 +42,33 @@ class _Dialogue(unittest.TestCase):
 
 class DialogueInit(_Dialogue):
     def test_001___init___001(self):
+        if sys.version_info.major == 3 and sys.version_info.minor < 10:
+            init = "__init__"
+        else:
+            init = "Dialogue.__init__"
         self.assertRaisesRegex(
             TypeError,
             "".join(
                 (
-                    r"__init__\(\) missing 2 required positional arguments: ",
-                    "'parent' and 'title'",
+                    init,
+                    r"\(\) takes from 1 to 11 positional ",
+                    "arguments but 12 were given",
                 )
             ),
             dialogue.Dialogue,
+            *(
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            ),
         )
 
     def test_001___init___002(self):
@@ -70,14 +89,14 @@ class DialogueInit(_Dialogue):
             dialogue.Dialogue,
         )
 
-    def xtest_001___init___003_geometry_True(self):
+    def test_001___init___003_geometry_True(self):
         # Widgets are made visible briefly.  A
         # "can't invoke "event" command:  application has been destroyed"
         # report is made.
         self.assertIsInstance(
             dialogue.Dialogue(
-                self.Parent(),
-                None,
+                parent=self.Parent(),
+                title=None,
                 text=None,
                 action_titles=None,
                 buttons=("button",),
@@ -319,7 +338,7 @@ class Dialogue(_Dialogue):
             **dict(relx=0.5, rely=0.3, badkey=None),
         )
 
-    def xtest_004__set_geometry_003(self):
+    def test_004__set_geometry_003(self):
         # Widgets are made visible briefly.  A sequence of
         # "can't invoke "event" command:  application has been destroyed"
         # reports are made.
@@ -357,8 +376,8 @@ class ModalDialogueGo(_Dialogue):
     def setUp(self):
         super().setUp()
         self.dialogue = dialogue.ModalDialogueGo(
-            self.Parent(),
-            None,
+            parent=self.Parent(),
+            title=None,
             text=None,
             action_titles=None,
             buttons=("button",),
@@ -381,7 +400,7 @@ class ModalDialogueGo(_Dialogue):
             *(None,),
         )
 
-    def xtest_001_go_002(self):
+    def test_001_go_002(self):
         # The test run blocks here until the dialogue is dismissed by
         # clicking a button.
         self.assertEqual(self.dialogue.go(), self.dialogue.action)
@@ -426,8 +445,8 @@ class ModalDialogue(_Dialogue):
     def setUp(self):
         super().setUp()
         self.dialogue = dialogue.ModalDialogue(
-            self.Parent(),
-            None,
+            parent=self.Parent(),
+            title=None,
             text=None,
             action_titles=None,
             buttons=("button",),
@@ -449,12 +468,12 @@ class ModalDialogue(_Dialogue):
             self.dialogue.widget_transient,
         )
 
-    def xtest_001_widget_transient_002(self):
-        self.assertEqual(
-            self.dialogue.widget_transient(
-                self.dialogue.root, self.dialogue.parent.root
-            ),
-            None,
+    def test_001_widget_transient_002(self):
+        self.assertRaisesRegex(
+            tkinter.TclError,
+            'bad window path name ".!toplevel"',
+            self.dialogue.widget_transient,
+            *(self.dialogue.root, self.dialogue.parent.root),
         )
 
 
@@ -462,8 +481,8 @@ class ModalConfirm(_Dialogue):
     def test_001___init___001(self):
         self.assertIsInstance(
             dialogue.ModalConfirm(
-                self.Parent(),
-                None,
+                parent=self.Parent(),
+                title=None,
                 text=None,
                 action_titles=None,
                 buttons=("button",),
@@ -480,8 +499,8 @@ class ModalConfirmGo(_Dialogue):
     def test_001___init___001(self):
         self.assertIsInstance(
             dialogue.ModalConfirmGo(
-                self.Parent(),
-                None,
+                parent=self.Parent(),
+                title=None,
                 text=None,
                 action_titles=None,
                 buttons=("button",),
@@ -507,11 +526,11 @@ class ShowModalConfirm(_Dialogue):
             dialogue.show_modal_confirm,
         )
 
-    def xtest_001_show_modal_confirm_002(self):
+    def test_001_show_modal_confirm_002(self):
         self.assertIsInstance(
             dialogue.show_modal_confirm(
-                self.Parent(),
-                None,
+                parent=self.Parent(),
+                title=None,
                 text=None,
                 action_titles=None,
                 buttons=("button",),
@@ -528,8 +547,8 @@ class ModalInformation(_Dialogue):
     def test_001___init___001(self):
         self.assertIsInstance(
             dialogue.ModalInformation(
-                self.Parent(),
-                None,
+                parent=self.Parent(),
+                title=None,
                 text=None,
                 action_titles=None,
                 buttons=("button",),
@@ -546,8 +565,8 @@ class ModalInformationGo(_Dialogue):
     def test_001___init___001(self):
         self.assertIsInstance(
             dialogue.ModalInformationGo(
-                self.Parent(),
-                None,
+                parent=self.Parent(),
+                title=None,
                 text=None,
                 action_titles=None,
                 buttons=("button",),
@@ -573,7 +592,7 @@ class ShowModalInformation(_Dialogue):
             dialogue.show_modal_information,
         )
 
-    def xtest_001_show_modal_information_002(self):
+    def test_001_show_modal_information_002(self):
         self.assertIsInstance(
             dialogue.show_modal_information(
                 self.Parent(),
@@ -594,8 +613,8 @@ class ModalEntry(_Dialogue):
     def test_001___init___001(self):
         self.assertIsInstance(
             dialogue.ModalEntry(
-                self.Parent(),
-                None,
+                parent=self.Parent(),
+                title=None,
                 text=None,
                 action_titles=None,
                 buttons="ignored, always set to buttons attribute",
@@ -612,8 +631,8 @@ class ModalEntryGo(_Dialogue):
     def test_001___init___001(self):
         self.assertIsInstance(
             dialogue.ModalEntryGo(
-                self.Parent(),
-                None,
+                parent=self.Parent(),
+                title=None,
                 text=None,
                 action_titles=None,
                 buttons="ignored, always set to buttons attribute",
@@ -630,8 +649,8 @@ class ModalEntryApply(_Dialogue):
     def test_001___init___001(self):
         self.assertIsInstance(
             dialogue.ModalEntryApply(
-                self.Parent(),
-                None,
+                parent=self.Parent(),
+                title=None,
                 text=None,
                 action_titles=None,
                 buttons="ignored, always set to buttons attribute",
@@ -648,8 +667,8 @@ class ModalEntryApplyGo(_Dialogue):
     def test_001___init___001(self):
         self.assertIsInstance(
             dialogue.ModalEntryApplyGo(
-                self.Parent(),
-                None,
+                parent=self.Parent(),
+                title=None,
                 text=None,
                 action_titles=None,
                 buttons="ignored, always set to buttons attribute",
@@ -668,14 +687,14 @@ if __name__ == "__main__":
     runner().run(loader(DialogueInit))
     runner().run(loader(Dialogue))
     runner().run(loader(ModalDialogueGo))
-    # runner().run(loader(ModalDialogue))
-    # runner().run(loader(ModalConfirm))
+    runner().run(loader(ModalDialogue))
+    runner().run(loader(ModalConfirm))
     runner().run(loader(ModalConfirmGo))
     runner().run(loader(ShowModalConfirm))
-    # runner().run(loader(ModalInformation))
+    runner().run(loader(ModalInformation))
     runner().run(loader(ModalInformationGo))
     runner().run(loader(ShowModalInformation))
-    # runner().run(loader(ModalEntry))
+    runner().run(loader(ModalEntry))
     runner().run(loader(ModalEntryGo))
-    # runner().run(loader(ModalEntryApply))
+    runner().run(loader(ModalEntryApply))
     runner().run(loader(ModalEntryApplyGo))

@@ -15,11 +15,12 @@ class AppSysFontChooser(unittest.TestCase):
             TypeError,
             "".join(
                 (
-                    r"__init__\(\) missing 2 required positional ",
-                    "arguments: 'master' and 'title'",
+                    r"__init__\(\) takes from 1 to 4 positional ",
+                    "arguments but 5 were given",
                 )
             ),
             fontchooser.AppSysFontChooser,
+            *(None, None, None, None),
         )
 
 
