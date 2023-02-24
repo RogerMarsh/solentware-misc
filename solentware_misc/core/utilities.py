@@ -263,7 +263,9 @@ class AppSysPersonNameParts(AppSysPersonName):
                     partial = []
                     for char in word:
                         if char in NAMEHYPHENED:
-                            self.partialnames.add("".join(partial))
+                            partial = "".join(partial)
+                            if partial:
+                                self.partialnames.add("".join(partial))
                             partial = []
                         else:
                             partial.append(char)

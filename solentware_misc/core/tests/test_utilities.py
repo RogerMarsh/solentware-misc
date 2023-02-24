@@ -382,6 +382,84 @@ class AppSysPersonNameParts(unittest.TestCase):
             },
         )
 
+    def test___init___004(self):
+        name = utilities.AppSysPersonNameParts("Last- Fore Name S".encode())
+        self.assertEqual(name.name, "Last- Fore Name S".encode())
+        self.assertEqual(name.surname, "Last-".encode())
+        self.assertEqual(name.forenames, "Fore Name S".encode())
+        self.assertEqual(
+            name.partialnames,
+            {
+                "Fore".encode(),
+                "Last-".encode(),
+                "Name".encode(),
+                "Last".encode(),
+                "S".encode(),
+            },
+        )
+
+    def test___init___005(self):
+        name = utilities.AppSysPersonNameParts("Last -Fore Name S".encode())
+        self.assertEqual(name.name, "Last -Fore Name S".encode())
+        self.assertEqual(name.surname, "Last".encode())
+        self.assertEqual(name.forenames, "-Fore Name S".encode())
+        self.assertEqual(
+            name.partialnames,
+            {
+                "-Fore".encode(),
+                "Fore".encode(),
+                "Last".encode(),
+                "Name".encode(),
+                "Last".encode(),
+                "S".encode(),
+            },
+        )
+
+    def test___init___006(self):
+        name = utilities.AppSysPersonNameParts("Last - Fore Name S".encode())
+        self.assertEqual(name.name, "Last - Fore Name S".encode())
+        self.assertEqual(name.surname, "Last".encode())
+        self.assertEqual(name.forenames, "- Fore Name S".encode())
+        self.assertEqual(
+            name.partialnames,
+            {
+                "Fore".encode(),
+                "-".encode(),
+                "Name".encode(),
+                "Last".encode(),
+                "S".encode(),
+            },
+        )
+
+    def test___init___007(self):
+        name = utilities.AppSysPersonNameParts("Name S Last-".encode())
+        self.assertEqual(name.name, "Last- Name S".encode())
+        self.assertEqual(name.surname, "Last-".encode())
+        self.assertEqual(name.forenames, "Name S".encode())
+        self.assertEqual(
+            name.partialnames,
+            {
+                "Last-".encode(),
+                "Name".encode(),
+                "Last".encode(),
+                "S".encode(),
+            },
+        )
+
+    def test___init___008(self):
+        name = utilities.AppSysPersonNameParts("Michael Fernandez -".encode())
+        self.assertEqual(name.name, "Michael Fernandez -".encode())
+        self.assertEqual(name.surname, "Michael".encode())
+        self.assertEqual(name.forenames, "Fernandez -".encode())
+        self.assertEqual(
+            name.partialnames,
+            {
+                "-".encode(),
+                "Michael".encode(),
+                "Fernandez".encode(),
+            },
+        )
+
 
 if __name__ == "__main__":
     runner = unittest.TextTestRunner
