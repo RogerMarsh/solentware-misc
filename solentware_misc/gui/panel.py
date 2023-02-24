@@ -42,7 +42,16 @@ class AppSysPanelButton(Bindings):
         self.parent = parent
         self.switchpanel = switchpanel
         self.identity = identity
-        self.command = cnf.get("command")
+        # The method must be invoked via the <ButtonPress-1> binding set in
+        # bind_panel_button(), not via the tkinter.Button command argument,
+        # and certainly not both routes.
+        # Then all the relevant switch context stuff gets done too.
+        # The pop() call replaces a get() call.
+        # The fault was introduced at version 1.5 of solentware_misc when
+        # moving the tkinter.Button arguments from **kargs to cnf, causing
+        # several problems when event handlers were called twice rather
+        # than once.
+        self.command = cnf.pop("command", None)
 
         # When converted to tkinter.ttk.Button cnf will be passed as **cnf.
         self.button = tkinter.Button(
