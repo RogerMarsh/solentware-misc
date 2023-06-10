@@ -9,15 +9,13 @@ transaction log.
 
 """
 
-import datetime
 import tkinter
-import tkinter.font
 import queue
 import threading
 
 from solentware_bind.gui.bindings import Bindings
 
-from .textreadonly import TextReadonly
+from .logtextbase import LogTextBase
 
 
 class TaskLog(Bindings):
@@ -161,102 +159,7 @@ class TaskLog(Bindings):
             self.try_command(method, self.logwidget)(*args, **kwargs)
 
 
-class _LogText(TextReadonly):
-    """A progress report log."""
-
-    def __init__(self, get_app=None, master=None, **kargs):
-        """Add a vertical scrollbar to a read-only tkinter.Text widget.
-
-        get_app - method which returns the application instance.
-        master - parent widget for log widget.
-        cnf - ignored, default {}.
-        **kargs - passed to superclass as **kargs argument.
-        """
-        super().__init__(master=master, **kargs)
-        self.get_app = get_app
-        self.set_readonly_bindings()
-        scrollbar = tkinter.Scrollbar(
-            master, orient=tkinter.VERTICAL, command=self.yview
-        )
-        self.configure(yscrollcommand=scrollbar.set)
-        self.tag_configure(
-            "margin",
-            lmargin2=tkinter.font.nametofont(self.cget("font")).measure(
-                "2010-05-23 10:20:57  "
-            ),
-        )
-        scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
-        self.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=tkinter.TRUE)
-        self.tagstart = "1.0"
-
-    def append_bytestring(self, text, timestamp=True):
-        """Append text to the log widget with timestamp by default.
-
-        text - a bytestring.
-        timestamp - if True the entry is timestamped.
-        """
-        if timestamp:
-            day, time = (
-                datetime.datetime.isoformat(datetime.datetime.today())
-                .encode("utf8")
-                .split(b"T")
-            )
-            time = time.split(b".")[0]
-            self.insert(
-                tkinter.END, b"".join((day, b" ", time, b"  ", text, b"\n"))
-            )
-        else:
-            self.insert(
-                tkinter.END, b"".join((b"                     ", text, b"\n"))
-            )
-        try:
-            self.tag_add("margin", self.tagstart, tkinter.END)
-        except:
-            self.tag_add("margin", "1.0", tkinter.END)
-        self.tagstart = self.index(tkinter.END)
-        self.see(tkinter.END)
-
-    def append_text(self, text, timestamp=True):
-        """Append text to the log widget with timestamp by default.
-
-        text - a str.
-        timestamp - if True the entry is timestamped.
-        """
-        if timestamp:
-            day, time = datetime.datetime.isoformat(
-                datetime.datetime.today()
-            ).split("T")
-            time = time.split(".")[0]
-            self.insert(
-                tkinter.END, "".join((day, " ", time, "  ", text, "\n"))
-            )
-        else:
-            self.insert(
-                tkinter.END, "".join(("                     ", text, "\n"))
-            )
-        try:
-            self.tag_add("margin", self.tagstart, tkinter.END)
-        except:
-            self.tag_add("margin", "1.0", tkinter.END)
-        self.tagstart = self.index(tkinter.END)
-        self.see(tkinter.END)
-
-    def append_bytestring_only(self, text):
-        """Append text to the log widget without timestamp.
-
-        text - a bytestring.
-        """
-        self.append_bytestring(text, timestamp=False)
-
-    def append_text_only(self, text):
-        """Append text to the log widget without timestamp.
-
-        text - a str.
-        """
-        self.append_text(text, timestamp=False)
-
-
-class LogText(_LogText):
+class LogText(LogTextBase):
     """Arrange for items to be added to log in the main thread of application.
 
     This is required on Microsoft Windows, and it is simplest to do so always.
@@ -269,6 +172,16 @@ class LogText(_LogText):
     the main thread.
 
     """
+
+    def __init__(self, get_app=None, **kargs):
+        """Arrange for log entries to be read from application report queue.
+
+        get_app - method which returns the application instance.
+        **kargs - passed to superclass as **kargs argument.
+
+        """
+        super().__init__(**kargs)
+        self.get_app = get_app
 
     def append_bytestring(self, text, timestamp=True):
         """Append bytestring to task log.
