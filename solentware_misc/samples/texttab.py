@@ -6,7 +6,6 @@
 
 
 if __name__ == "__main__":
-
     import tkinter
 
     from solentware_misc.gui.texttab import TextTab, make_text_tab

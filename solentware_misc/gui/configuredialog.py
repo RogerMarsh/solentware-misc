@@ -29,11 +29,12 @@ class ConfigureDialog(Bindings):
         dialog_title="Text editor dialogue",
         dialog_cancel_hint="Quit without applying changes",
         dialog_update_hint="Apply changes",
-        cnf=dict(),
+        cnf={},
         **kargs
     ):
         """Create a configuration file text editor dialogue."""
         super().__init__(**kargs)
+        del cnf
         self._config_text = None
         self.dialog = tkinter.Toplevel(master=master)
         self.restore_focus = self.dialog.focus_get()
@@ -44,7 +45,7 @@ class ConfigureDialog(Bindings):
         buttons_frame.pack(side=tkinter.BOTTOM, fill=tkinter.X)
 
         buttonrow = buttons_frame.pack_info()["side"] in ("top", "bottom")
-        for i, b in enumerate(
+        for i, btn in enumerate(
             (
                 ("Cancel", dialog_cancel_hint, True, 0, self.on_cancel),
                 ("Update", dialog_update_hint, True, 0, self.on_update),
@@ -52,9 +53,9 @@ class ConfigureDialog(Bindings):
         ):
             button = tkinter.Button(
                 master=buttons_frame,
-                text=b[0],
-                underline=b[3],
-                command=self.try_command(b[4], buttons_frame),
+                text=btn[0],
+                underline=btn[3],
+                command=self.try_command(btn[4], buttons_frame),
             )
             if buttonrow:
                 buttons_frame.grid_columnconfigure(i * 2, weight=1)
@@ -63,9 +64,9 @@ class ConfigureDialog(Bindings):
                 buttons_frame.grid_rowconfigure(i * 2, weight=1)
                 button.grid_configure(row=i * 2 + 1, column=0)
         if buttonrow:
-            buttons_frame.grid_columnconfigure(len(b * 2), weight=1)
+            buttons_frame.grid_columnconfigure(len(btn * 2), weight=1)
         else:
-            buttons_frame.grid_rowconfigure(len(b * 2), weight=1)
+            buttons_frame.grid_rowconfigure(len(btn * 2), weight=1)
 
         self.configuration.pack(
             side=tkinter.TOP, fill=tkinter.BOTH, expand=tkinter.TRUE
@@ -82,6 +83,7 @@ class ConfigureDialog(Bindings):
 
     def on_cancel(self, event=None):
         """Show dialogue to confirm cancellation of edit."""
+        del event
         if tkinter.messagebox.askyesno(
             parent=self.dialog,
             message="Confirm cancellation of edit",
@@ -93,6 +95,7 @@ class ConfigureDialog(Bindings):
 
     def on_update(self, event=None):
         """Extract text from dialog and destroy dialog."""
+        del event
         if tkinter.messagebox.askyesno(
             parent=self.dialog,
             message="Confirm apply changes to configuration file.",
@@ -109,12 +112,10 @@ class ConfigureDialog(Bindings):
     def __del__(self):
         """Restore focus to widget with focus before modal interaction."""
         try:
-
             # restore focus on dismissing dialogue.
             self.restore_focus.focus_set()
 
         except tkinter._tkinter.TclError as error:
-
             # application destroyed while confirm dialogue exists.
             if str(error) != FOCUS_ERROR:
                 if not str(error).startswith(BAD_WINDOW):
@@ -130,7 +131,7 @@ class ConfigureDialog(Bindings):
         # However not attempting to bind self.restore_focus (in self.__init__)
         # does clear the problem.  But what about the other uses of
         # ConfigureDialog where the binding does not cause a problem?
-        except AttributeError as error:
+        except AttributeError:
             if hasattr(self, "restore_focus"):
                 raise
         super().__del__()

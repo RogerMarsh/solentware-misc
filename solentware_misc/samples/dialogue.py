@@ -955,7 +955,6 @@ class ModalEntryApplyGo(_OnEntryApply, _EntryApply, ModalDialogueGo):
 
 
 if __name__ == "__main__":
-
     # Extend Frame with get_widget() method because the dialogue classes
     # expect a widget wrapper defining this method as the parent argument.
     class F(tkinter.Frame):

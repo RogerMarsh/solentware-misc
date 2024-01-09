@@ -331,6 +331,7 @@ class Dialogue(Bindings):
         """
 
         def on_f(event=None):
+            del event
             self.action = action
             self.root.destroy()
 
@@ -436,6 +437,7 @@ class ModalDialogueGo(Dialogue):
         """Return default event handler for button name 'a'."""
 
         def on_f(event=None):
+            del event
             self.action = action
             if self.restore_focus is not None:
                 self.restore_focus.focus_set()
@@ -517,6 +519,7 @@ class Report(Dialogue):
 
     def __init__(self, interval=5000, buttons=None, **kargs):
         """Extend superclass to ignore redundant arguments."""
+        del interval, buttons
         super().__init__(buttons=self.buttons, **kargs)
 
     def append(self, text):
@@ -569,6 +572,7 @@ class Report(Dialogue):
         The report is saved in utf-8 encoding.
 
         """
+        del event
         dlg = tkinter.filedialog.asksaveasfilename(
             parent=self.root,
             title=self.action_title[self.on_save],
@@ -576,11 +580,8 @@ class Report(Dialogue):
         )
         if not dlg:
             return
-        outfile = open(dlg, mode="wb")
-        try:
+        with open(dlg, mode="wb") as outfile:
             outfile.write(self.body.get("1.0", tkinter.END).encode("utf8"))
-        finally:
-            outfile.close()
 
 
 def show_report(parent, title, **kargs):
@@ -607,6 +608,7 @@ class ModalConfirm(ModalDialogue):
 
     def __init__(self, buttons=None, **kargs):
         """Extend superclass to provide Ok and Cancel buttons."""
+        del buttons
         super().__init__(buttons=self.buttons, **kargs)
 
 
@@ -622,6 +624,7 @@ class ModalConfirmGo(ModalDialogueGo):
 
     def __init__(self, buttons=None, **kargs):
         """Extend superclass to provide Ok and Cancel buttons."""
+        del buttons
         super().__init__(buttons=self.buttons, **kargs)
 
 
@@ -651,6 +654,7 @@ class ModalInformation(ModalDialogue):
 
     def __init__(self, buttons=None, **kargs):
         """Extend superclass to provide Ok button."""
+        del buttons
         super().__init__(buttons=self.buttons, **kargs)
 
 
@@ -666,6 +670,7 @@ class ModalInformationGo(ModalDialogueGo):
 
     def __init__(self, buttons=None, **kargs):
         """Extend superclass to provide Ok button."""
+        del buttons
         super().__init__(buttons=self.buttons, **kargs)
 
 
@@ -716,6 +721,7 @@ class _Entry:
 
     def __init__(self, buttons=None, scroll=False, body=None, **kargs):
         """Extend to provide Ok and Cancel buttons and dialogue body."""
+        del buttons, scroll
         if body is None:
             body = (("", "", None, False),)
         if isinstance(body, (tuple, list)):
@@ -756,6 +762,7 @@ class _Entry:
 
         Child widgets are searched before siblings.
         """
+        del args, kargs
         widget = self._child_focus_set(self.body)
         if widget:
             widget.focus_set()
@@ -781,8 +788,9 @@ class _Entry:
     def body_factory(self, body_definition):
         """Return function which creates the dialogue body."""
 
-        def make_body(master=None, cnf=None, **k):
+        def make_body(master=None, cnf=None, **kwargs):
             # Create dialog body and return dictionary of Entry widgets.
+            del kwargs
             if cnf is None:
                 cnf = {}
             frame = tkinter.Frame(master)
@@ -833,6 +841,7 @@ class _OnEntry:
 
     def on_ok(self, event=None):
         """Handle Ok button event."""
+        del event
         if self.parent is not None:
             self.parent.get_widget().focus_set()
         self.action = self.action_title[self.on_ok]
@@ -841,6 +850,7 @@ class _OnEntry:
 
     def on_cancel(self, event=None):
         """Handle Cancel button event."""
+        del event
         if self.parent is not None:
             self.parent.get_widget().focus_set()
         self.action = self.action_title[self.on_cancel]
@@ -934,6 +944,7 @@ class _OnEntryApply:
         The _on_ok method is not used directly.  The name 'on_ok' is bound
         and used.
         """
+        del event
         if not self.validate():
             self.initial_focus.focus_set()
             return
@@ -950,6 +961,7 @@ class _OnEntryApply:
         The _on_cancel method is not used directly.  The name 'on_cancel'
         is bound and used.
         """
+        del event
         if self.parent is not None:
             self.parent.get_widget().focus_set()
         self.root.destroy()
@@ -997,7 +1009,6 @@ class ModalEntryApplyGo(_OnEntryApply, _EntryApply, ModalDialogueGo):
 
 
 if __name__ == "__main__":
-
     # Extend tkinter.Frame with get_widget() method.
     # This case is simple enough to get away with subclassing rather than
     # defining MainFrame as a container for a tkinter.Frame() instance.

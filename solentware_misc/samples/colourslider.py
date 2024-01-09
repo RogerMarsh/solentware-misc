@@ -6,7 +6,6 @@
 
 
 if __name__ == "__main__":
-
     import tkinter
 
     from solentware_misc.gui.colourslider import ColourSlider
