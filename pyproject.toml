@@ -10,7 +10,7 @@ line-length = 79
 
 [project]
 name = "solentware-misc"
-version = "1.6"
+version = "1.7.dev0"
 authors = [
   { name="Roger Marsh", email="roger.marsh@solentware.co.uk" },
 ]

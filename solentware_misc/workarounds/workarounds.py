@@ -11,6 +11,8 @@ It is assumed the genuine functions work at Python 2.5 with Tcl/Tk 8.4, if
 the feature is supported, and changes in Tcl/Tk 8.5 raise the problem.
 
 """
+import os
+import sys
 
 
 def grid_configure_query(widget, command, index, option=None):
@@ -121,3 +123,39 @@ def text_delete_ranges(widget, *ranges):
 
     """
     return widget.tk.call(widget._w, "delete", *ranges)
+
+
+def winfo_pathname(widget, error):
+    """Hack winfo_pathname to cope with exception on Microsoft Windows.
+
+    The problem is a '_tkinter.TclError: window id "<number>" doesn't exist
+    in this application' exception in w.winfo_pathname(w.winfo_id()) calls
+    on the amd64 architecture (64 bit Python in other words).
+
+    The problem does not occur for 32 bit Python running on the amd64
+    architecture and, if I remember correctly, on 32 bit Windows XP on
+    the 32 bit (x86) architecture.
+
+    From the description of winfo_id in "tcl.tk/man/tcl8.6/TkCrr" it is
+    assumed the problem may also affect macOS systems.
+
+    See winfo manual page in TkCmd documentation for details.
+
+    widget is a Tkinter widget.
+    error is the Exception raised in a tkinter.winfo_pathname() call.
+
+    """
+    if (
+        sys.platform == "win32"
+        and os.getenv("PROCESSOR_ARCHITECTURE") == "AMD64"
+    ) or sys.platform == "darwin":
+        name = widget.winfo_name()
+        if name == ".":
+            return name
+        parent = widget.winfo_parent()
+        if parent == ".":
+            return parent + name
+        return ".".join((parent, name))
+    raise RuntimeError(
+        " ".join((sys.platform, "winfo_pathname(id) call"))
+    ) from error
