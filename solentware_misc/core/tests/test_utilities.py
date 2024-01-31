@@ -259,7 +259,7 @@ class AppSysPersonName(unittest.TestCase):
             "".join(
                 (
                     r"__init__\(\) missing 1 required positional argument: ",
-                    "'name'",
+                    "'name'$",
                 )
             ),
             utilities.AppSysPersonName,
@@ -351,7 +351,7 @@ class AppSysPersonNameParts(unittest.TestCase):
             "".join(
                 (
                     r"__init__\(\) missing 1 required positional argument: ",
-                    "'name'",
+                    "'name'$",
                 )
             ),
             utilities.AppSysPersonNameParts,

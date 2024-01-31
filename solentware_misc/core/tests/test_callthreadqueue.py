@@ -22,7 +22,7 @@ class CallThreadQueue(unittest.TestCase):
             "".join(
                 (
                     r"__init__\(\) takes 1 positional argument ",
-                    "but 2 were given",
+                    "but 2 were given$",
                 )
             ),
             callthreadqueue.CallThreadQueue,
@@ -36,7 +36,7 @@ class CallThreadQueue(unittest.TestCase):
             "".join(
                 (
                     r"__call_method\(\) takes 1 positional argument ",
-                    "but 2 were given",
+                    "but 2 were given$",
                 )
             ),
             threadqueue.__call_method,
@@ -61,7 +61,7 @@ class CallThreadQueue(unittest.TestCase):
             "".join(
                 (
                     r"put_method\(\) missing 1 required positional argument: ",
-                    "'method'",
+                    "'method'$",
                 )
             ),
             threadqueue.put_method,
@@ -74,7 +74,7 @@ class CallThreadQueue(unittest.TestCase):
             "".join(
                 (
                     r"put_method\(\) got an unexpected keyword argument ",
-                    "'badkey'",
+                    "'badkey'$",
                 )
             ),
             threadqueue.put_method,

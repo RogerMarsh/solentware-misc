@@ -23,7 +23,7 @@ class Workarounds(unittest.TestCase):
             "".join(
                 (
                     r"grid_configure_query\(\) missing 3 required positional ",
-                    "arguments: 'widget', 'command', and 'index'",
+                    "arguments: 'widget', 'command', and 'index'$",
                 )
             ),
             workarounds.grid_configure_query,
@@ -35,7 +35,7 @@ class Workarounds(unittest.TestCase):
             "".join(
                 (
                     r"grid_configure_query\(\) got an unexpected keyword ",
-                    "argument 'badkey'",
+                    "argument 'badkey'$",
                 )
             ),
             workarounds.grid_configure_query,
@@ -107,7 +107,7 @@ class Workarounds(unittest.TestCase):
             "".join(
                 (
                     r"text_count\(\) missing 3 required positional ",
-                    "arguments: 'widget', 'index1', and 'index2'",
+                    "arguments: 'widget', 'index1', and 'index2'$",
                 )
             ),
             workarounds.text_count,
@@ -119,7 +119,7 @@ class Workarounds(unittest.TestCase):
             "".join(
                 (
                     r"text_count\(\) got an unexpected keyword ",
-                    "argument 'badkey'",
+                    "argument 'badkey'$",
                 )
             ),
             workarounds.text_count,

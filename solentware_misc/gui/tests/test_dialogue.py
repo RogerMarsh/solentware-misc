@@ -41,6 +41,15 @@ class _Dialogue(unittest.TestCase):
 
 
 class DialogueInit(_Dialogue):
+    # For solentware_bind.gui.bindings.Bindings.__del__ attributes referenced.
+    # Without this an 'Exception ignored in <function Bindings.__del__> is
+    # raised for attribute '_binding'.
+    class D(dialogue.Dialogue):
+        _frozen_binding = set()
+
+        def unbind_all_handlers(self, **kwargs):
+            del kwargs
+
     def test_001___init___001(self):
         if sys.version_info.major == 3 and sys.version_info.minor < 10:
             init = "__init__"
@@ -52,10 +61,10 @@ class DialogueInit(_Dialogue):
                 (
                     init,
                     r"\(\) takes from 1 to 11 positional ",
-                    "arguments but 12 were given",
+                    "arguments but 12 were given$",
                 )
             ),
-            dialogue.Dialogue,
+            self.D,
             *(
                 None,
                 None,
@@ -133,7 +142,7 @@ class Dialogue(_Dialogue):
             "".join(
                 (
                     r"append\(\) missing 1 required positional argument: ",
-                    "'text'",
+                    "'text'$",
                 )
             ),
             self.dialogue.append,
@@ -149,7 +158,7 @@ class Dialogue(_Dialogue):
                 (
                     r"_create_widget\(\) missing 10 required positional ",
                     "arguments: 'parent', 'title', 'text', 'action_titles', ",
-                    "'buttons', 'side', 'scroll', 'body', 'cnf', and 'kargs'",
+                    "'buttons', 'side', 'scroll', 'body', 'cnf', and 'kargs'$",
                 )
             ),
             self.dialogue._create_widget,
@@ -301,7 +310,7 @@ class Dialogue(_Dialogue):
             "".join(
                 (
                     r"button_on_attr\(\) missing 1 required positional ",
-                    "argument: 'action'",
+                    "argument: 'action'$",
                 )
             ),
             self.dialogue.button_on_attr,
@@ -318,7 +327,7 @@ class Dialogue(_Dialogue):
             "".join(
                 (
                     r"_set_geometry\(\) missing 1 required positional ",
-                    "argument: 'master'",
+                    "argument: 'master'$",
                 )
             ),
             self.dialogue._set_geometry,
@@ -330,7 +339,7 @@ class Dialogue(_Dialogue):
             "".join(
                 (
                     r"_set_geometry\(\) got an unexpected keyword ",
-                    "argument 'badkey'",
+                    "argument 'badkey'$",
                 )
             ),
             self.dialogue._set_geometry,
@@ -358,7 +367,7 @@ class Dialogue(_Dialogue):
             "".join(
                 (
                     r"wm_delete_window\(\) takes 1 positional argument ",
-                    "but 2 were given",
+                    "but 2 were given$",
                 )
             ),
             self.dialogue.wm_delete_window,
@@ -393,7 +402,7 @@ class ModalDialogueGo(_Dialogue):
             "".join(
                 (
                     r"go\(\) takes 1 positional argument ",
-                    "but 2 were given",
+                    "but 2 were given$",
                 )
             ),
             self.dialogue.go,
@@ -411,7 +420,7 @@ class ModalDialogueGo(_Dialogue):
             "".join(
                 (
                     r"button_on_attr\(\) missing 1 required positional ",
-                    "argument: 'action'",
+                    "argument: 'action'$",
                 )
             ),
             self.dialogue.button_on_attr,
@@ -426,7 +435,7 @@ class ModalDialogueGo(_Dialogue):
             "".join(
                 (
                     r"widget_transient\(\) missing 2 required positional ",
-                    "arguments: 'widget' and 'master'",
+                    "arguments: 'widget' and 'master'$",
                 )
             ),
             self.dialogue.widget_transient,
@@ -462,7 +471,7 @@ class ModalDialogue(_Dialogue):
             "".join(
                 (
                     r"widget_transient\(\) missing 2 required positional ",
-                    "arguments: 'widget' and 'master'",
+                    "arguments: 'widget' and 'master'$",
                 )
             ),
             self.dialogue.widget_transient,
@@ -471,7 +480,7 @@ class ModalDialogue(_Dialogue):
     def test_001_widget_transient_002(self):
         self.assertRaisesRegex(
             tkinter.TclError,
-            'bad window path name ".!toplevel"',
+            'bad window path name ".!toplevel"$',
             self.dialogue.widget_transient,
             *(self.dialogue.root, self.dialogue.parent.root),
         )
@@ -520,7 +529,7 @@ class ShowModalConfirm(_Dialogue):
             "".join(
                 (
                     r"show_modal_confirm\(\) missing 2 required positional ",
-                    "arguments: 'parent' and 'title'",
+                    "arguments: 'parent' and 'title'$",
                 )
             ),
             dialogue.show_modal_confirm,
@@ -586,7 +595,7 @@ class ShowModalInformation(_Dialogue):
             "".join(
                 (
                     r"show_modal_information\(\) missing 2 required ",
-                    "positional arguments: 'parent' and 'title'",
+                    "positional arguments: 'parent' and 'title'$",
                 )
             ),
             dialogue.show_modal_information,

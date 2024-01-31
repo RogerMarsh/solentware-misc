@@ -22,7 +22,7 @@ class Segment(unittest.TestCase):
             "".join(
                 (
                     r"__init__\(\) missing 1 required positional argument: ",
-                    "'segment'",
+                    "'segment'$",
                 )
             ),
             indexmap.Segment,
@@ -34,7 +34,7 @@ class Segment(unittest.TestCase):
             "".join(
                 (
                     r"__init__\(\) got an unexpected keyword argument ",
-                    "'badkey'",
+                    "'badkey'$",
                 )
             ),
             indexmap.Segment,

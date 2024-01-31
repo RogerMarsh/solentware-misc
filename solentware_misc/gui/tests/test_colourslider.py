@@ -12,6 +12,15 @@ from .. import colourslider
 
 
 class _Slider(unittest.TestCase):
+    # For solentware_bind.gui.bindings.Bindings.__del__ attributes referenced.
+    # Without this an 'Exception ignored in <function Bindings.__del__>
+    # is raised for attribute '_binding'.
+    class _S(colourslider._Slider):
+        _frozen_binding = set()
+
+        def unbind_all_handlers(self, **kwargs):
+            del kwargs
+
     def setUp(self):
         self.parent = tkinter.Tk()
         self.slider = colourslider._Slider(master=self.parent)
@@ -25,10 +34,10 @@ class _Slider(unittest.TestCase):
             "".join(
                 (
                     r"__init__\(\) takes from 1 to 5 positional arguments ",
-                    "but 6 were given",
+                    "but 6 were given$",
                 )
             ),
-            colourslider._Slider,
+            self._S,
             *(
                 None,
                 None,
@@ -41,8 +50,8 @@ class _Slider(unittest.TestCase):
     def test_001___init___002(self):
         self.assertRaisesRegex(
             TypeError,
-            r"__init__\(\) got an unexpected keyword argument 'badkey'",
-            colourslider._Slider,
+            r"__init__\(\) got an unexpected keyword argument 'badkey'$",
+            self._S,
             **dict(
                 master=None, column=None, row=None, resolution=2, badkey=None
             ),
@@ -51,7 +60,7 @@ class _Slider(unittest.TestCase):
     def test_002_on_enter_001(self):
         self.assertRaisesRegex(
             TypeError,
-            r"on_enter\(\) got an unexpected keyword argument 'badkey'",
+            r"on_enter\(\) got an unexpected keyword argument 'badkey'$",
             self.slider.on_enter,
             **dict(event=None, badkey=None),
         )
@@ -62,7 +71,7 @@ class _Slider(unittest.TestCase):
     def test_003_on_leave_001(self):
         self.assertRaisesRegex(
             TypeError,
-            r"on_leave\(\) got an unexpected keyword argument 'badkey'",
+            r"on_leave\(\) got an unexpected keyword argument 'badkey'$",
             self.slider.on_leave,
             **dict(event=None, badkey=None),
         )
@@ -76,7 +85,7 @@ class _Slider(unittest.TestCase):
             "".join(
                 (
                     r"move_slider\(\) missing 1 required positional ",
-                    "argument: 'colour'",
+                    "argument: 'colour'$",
                 )
             ),
             self.slider.move_slider,
@@ -92,7 +101,7 @@ class _Slider(unittest.TestCase):
                 (
                     r"fill_scale\(\) missing 4 required positional ",
                     "arguments: ",
-                    "'newcolour', 'redhex', 'greenhex', and 'bluehex'",
+                    "'newcolour', 'redhex', 'greenhex', and 'bluehex'$",
                 )
             ),
             self.slider.fill_scale,
@@ -136,6 +145,15 @@ class _Slider(unittest.TestCase):
 
 
 class RedSlider(unittest.TestCase):
+    # For solentware_bind.gui.bindings.Bindings.__del__ attributes referenced.
+    # Without this an 'Exception ignored in <function Bindings.__del__>
+    # is raised for attribute '_binding'.
+    class RS(colourslider.RedSlider):
+        _frozen_binding = set()
+
+        def unbind_all_handlers(self, **kwargs):
+            del kwargs
+
     def setUp(self):
         self.parent = tkinter.Tk()
 
@@ -148,10 +166,10 @@ class RedSlider(unittest.TestCase):
             "".join(
                 (
                     r"__init__\(\) takes from 1 to 2 positional ",
-                    "arguments but 3 were given",
+                    "arguments but 3 were given$",
                 )
             ),
-            colourslider.RedSlider,
+            self.RS,
             *(None, None),
         )
 
@@ -165,6 +183,15 @@ class RedSlider(unittest.TestCase):
 
 
 class GreenSlider(unittest.TestCase):
+    # For solentware_bind.gui.bindings.Bindings.__del__ attributes referenced.
+    # Without this an 'Exception ignored in <function Bindings.__del__>
+    # is raised for attribute '_binding'.
+    class GS(colourslider.GreenSlider):
+        _frozen_binding = set()
+
+        def unbind_all_handlers(self, **kwargs):
+            del kwargs
+
     def setUp(self):
         self.parent = tkinter.Tk()
 
@@ -177,10 +204,10 @@ class GreenSlider(unittest.TestCase):
             "".join(
                 (
                     r"__init__\(\) takes from 1 to 2 positional ",
-                    "arguments but 3 were given",
+                    "arguments but 3 were given$",
                 )
             ),
-            colourslider.GreenSlider,
+            self.GS,
             *(None, None),
         )
 
@@ -194,6 +221,15 @@ class GreenSlider(unittest.TestCase):
 
 
 class BlueSlider(unittest.TestCase):
+    # For solentware_bind.gui.bindings.Bindings.__del__ attributes referenced.
+    # Without this an 'Exception ignored in <function Bindings.__del__>
+    # is raised for attribute '_binding'.
+    class BS(colourslider.RedSlider):
+        _frozen_binding = set()
+
+        def unbind_all_handlers(self, **kwargs):
+            del kwargs
+
     def setUp(self):
         self.parent = tkinter.Tk()
 
@@ -206,10 +242,10 @@ class BlueSlider(unittest.TestCase):
             "".join(
                 (
                     r"__init__\(\) takes from 1 to 2 positional ",
-                    "arguments but 3 were given",
+                    "arguments but 3 were given$",
                 )
             ),
-            colourslider.BlueSlider,
+            self.BS,
             *(None, None),
         )
 
@@ -223,6 +259,15 @@ class BlueSlider(unittest.TestCase):
 
 
 class ColourSlider(unittest.TestCase):
+    # For solentware_bind.gui.bindings.Bindings.__del__ attributes referenced.
+    # Without this an 'Exception ignored in <function Bindings.__del__>
+    # is raised for attribute '_binding'.
+    class CS(colourslider.ColourSlider):
+        _frozen_binding = set()
+
+        def unbind_all_handlers(self, **kwargs):
+            del kwargs
+
     def setUp(self):
         class Event:
             x = 20
@@ -239,8 +284,8 @@ class ColourSlider(unittest.TestCase):
     def test_001___init___001(self):
         self.assertRaisesRegex(
             TypeError,
-            r"__init__\(\) got an unexpected keyword argument 'badkey'",
-            colourslider.ColourSlider,
+            r"__init__\(\) got an unexpected keyword argument 'badkey'$",
+            self.CS,
             **dict(
                 master=None,
                 row=None,
@@ -257,7 +302,7 @@ class ColourSlider(unittest.TestCase):
             "".join(
                 (
                     r"get_colour\(\) takes 1 positional argument ",
-                    "but 2 were given",
+                    "but 2 were given$",
                 )
             ),
             self.colourslider.get_colour,
@@ -273,7 +318,7 @@ class ColourSlider(unittest.TestCase):
             "".join(
                 (
                     r"convert_RGB_colour_to_hex\(\) missing 1 required ",
-                    "positional argument: 'colour'",
+                    "positional argument: 'colour'$",
                 )
             ),
             self.colourslider.convert_RGB_colour_to_hex,
@@ -290,7 +335,7 @@ class ColourSlider(unittest.TestCase):
             "".join(
                 (
                     r"delta_red_colour\(\) got an unexpected keyword ",
-                    "argument 'badkey'",
+                    "argument 'badkey'$",
                 )
             ),
             self.colourslider.delta_red_colour,
@@ -308,7 +353,7 @@ class ColourSlider(unittest.TestCase):
             "".join(
                 (
                     r"delta_green_colour\(\) got an unexpected ",
-                    "keyword argument 'badkey'",
+                    "keyword argument 'badkey'$",
                 )
             ),
             self.colourslider.delta_green_colour,
@@ -326,7 +371,7 @@ class ColourSlider(unittest.TestCase):
             "".join(
                 (
                     r"delta_blue_colour\(\) got an unexpected ",
-                    "keyword argument 'badkey'",
+                    "keyword argument 'badkey'$",
                 )
             ),
             self.colourslider.delta_blue_colour,
@@ -344,7 +389,7 @@ class ColourSlider(unittest.TestCase):
             "".join(
                 (
                     r"_encode\(\) missing 1 required ",
-                    "positional argument: 'colourcode'",
+                    "positional argument: 'colourcode'$",
                 )
             ),
             self.colourslider._encode,
@@ -359,7 +404,7 @@ class ColourSlider(unittest.TestCase):
             "".join(
                 (
                     r"_fill_scales\(\) takes 1 positional argument ",
-                    "but 2 were given",
+                    "but 2 were given$",
                 )
             ),
             self.colourslider._fill_scales,
@@ -375,7 +420,7 @@ class ColourSlider(unittest.TestCase):
             "".join(
                 (
                     r"_increment\(\) missing 2 required ",
-                    "positional arguments: 'event' and 'colour'",
+                    "positional arguments: 'event' and 'colour'$",
                 )
             ),
             self.colourslider._increment,
@@ -396,7 +441,7 @@ class ColourSlider(unittest.TestCase):
             "".join(
                 (
                     r"_set\(\) missing 1 required ",
-                    "positional argument: 'event'",
+                    "positional argument: 'event'$",
                 )
             ),
             self.colourslider._set,
