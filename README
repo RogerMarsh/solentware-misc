@@ -20,18 +20,21 @@ This package contains a number of modules which do not have an obvious home in a
    core subpackage.
 
       * callthreadqueue.py - run methods from a queue in a thread.
-      * modulequery.py - functions to pick an installed database interface.
+      * configuration.py - access and update configuration file items.
+      * getconfigurationitem.py - get item from configuration file.
       * null.py - Null object from Python Cookbook.
       * utilities.py - Some name and date methods.
 
    gui subpackage.
 
       * colourslider.py - widget for choosing colours.
+      * configuredialogue.py - widgets for editing configuration files.
       * dialogue.py - widgets for dialogues and reports.
       * fontchooser.py - widget for selecting fonts.
       * frame.py - customised Tkinter.Frame widget for notebook style GUI.
       * help.py - create widgets to display help files.
       * logpanel.py - widgets for displaying task logs.
+      * logtextbase.py - widgets for displaying background task logs.
       * panel.py - customised Tkinter.Frame widget for notebook style GUI.
       * reports.py - customised Tkinter.Toplevel for reports and dialogues.
       * startstop.py - functions for application start, stop, and exceptions.
