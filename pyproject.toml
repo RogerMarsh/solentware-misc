@@ -10,7 +10,7 @@ line-length = 79
 
 [project]
 name = "solentware-misc"
-version = "1.7.2"
+version = "1.7.3"
 authors = [
   { name="Roger Marsh", email="roger.marsh@solentware.co.uk" },
 ]
@@ -29,7 +29,7 @@ license = "BSD-3-Clause"
 license-files = ["LICENCE"]
 readme = "README"
 dependencies = [
-    "solentware-bind==1.0.3",
+    "solentware-bind==1.0.4",
 ]
 
 [project.urls]

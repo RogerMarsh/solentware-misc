@@ -4,7 +4,6 @@
 
 """Demonstrate base classes for application dialogues and reports."""
 
-
 if __name__ == "__main__":
     import tkinter
 

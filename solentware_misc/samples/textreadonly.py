@@ -4,7 +4,6 @@
 
 """Demonstrate subclass of Text widget with read only bindings."""
 
-
 if __name__ == "__main__":
     import tkinter
 

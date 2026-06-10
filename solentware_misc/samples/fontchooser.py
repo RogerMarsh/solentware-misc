@@ -4,7 +4,6 @@
 
 """Demonstrate font chooser dialogue."""
 
-
 if __name__ == "__main__":
     import tkinter
 

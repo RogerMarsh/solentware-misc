@@ -4,7 +4,6 @@
 
 """Demonstrate subclass of Text widget with Alt-Shift-Tab replacing Tab."""
 
-
 if __name__ == "__main__":
     import tkinter
 

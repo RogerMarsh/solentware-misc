@@ -4,7 +4,6 @@
 
 """Demonstrate scale-like widgets for displaying colour choices."""
 
-
 if __name__ == "__main__":
     import tkinter
 

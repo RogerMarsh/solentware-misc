@@ -8,6 +8,7 @@ Methods are read from a queue and requests to run methods while the thread
 is running a method are rejected.
 
 """
+
 import queue
 import threading
 

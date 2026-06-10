@@ -4,7 +4,6 @@
 
 """Demonstrate notebook style database User Interface class."""
 
-
 if __name__ == "__main__":
     import tkinter
 

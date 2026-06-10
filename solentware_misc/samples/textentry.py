@@ -4,7 +4,6 @@
 
 """Demonstrate text entry dialogue."""
 
-
 if __name__ == "__main__":
     import tkinter
 
